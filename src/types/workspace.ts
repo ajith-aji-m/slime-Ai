@@ -29,7 +29,6 @@ export interface Agent {
   role: string;
   description: string;
   icon: IconName;
-  modelId: string;
   tools: string[];
   status: "active" | "draft" | "paused";
   runs: number;

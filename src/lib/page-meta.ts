@@ -8,7 +8,6 @@ export function pageTitleFromPath(pathname: string): string {
     (n) => pathname === n.href || pathname.startsWith(`${n.href}/`),
   );
   if (match) return match.label;
-  if (pathname.startsWith("/models")) return "Model Selector";
   return `${site.shortName} Workstation`;
 }
 

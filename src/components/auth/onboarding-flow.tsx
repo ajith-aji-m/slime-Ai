@@ -1,33 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { GlassPanel, Button, Chip, Icon } from "@/components/ui";
+import { GlassPanel, Button, Icon } from "@/components/ui";
 import { cn } from "@/lib/utils/cn";
-import { useCatalogueStore } from "@/stores/catalogue-store";
 import { tools } from "@/config/tools";
-import { useModelStore } from "@/stores/model-store";
+import { useComposerStore } from "@/stores/composer-store";
 import { useSettingsStore } from "@/stores/settings-store";
 import type { ToolId } from "@/types/chat";
 
-const STEPS = ["You", "Model", "Tools"] as const;
+const STEPS = ["You", "Tools"] as const;
 
 export function OnboardingFlow() {
   const router = useRouter();
   const [step, setStep] = useState(0);
 
   const { displayName, setProfile } = useSettingsStore();
-  const {
-    defaultModelId,
-    setDefaultModel,
-    defaultTools,
-    toggleDefaultTool,
-  } = useModelStore();
-  const models = useCatalogueStore((s) => s.models);
-
-  useEffect(() => {
-    void useCatalogueStore.getState().refresh();
-  }, []);
+  const defaultTools = useComposerStore((s) => s.defaultTools);
+  const toggleDefaultTool = useComposerStore((s) => s.toggleDefaultTool);
 
   function next() {
     if (step < STEPS.length - 1) setStep(step + 1);
@@ -63,7 +53,7 @@ export function OnboardingFlow() {
         <div>
           <h1 className="text-xl font-semibold text-on-surface">Welcome.</h1>
           <p className="mt-1 text-sm text-on-surface-variant">
-            What should the assistant call you?
+            What should Slime AI call you?
           </p>
           <input
             autoFocus
@@ -77,65 +67,10 @@ export function OnboardingFlow() {
 
       {step === 1 ? (
         <div>
-          <h1 className="text-xl font-semibold text-on-surface">
-            Pick a default model
-          </h1>
+          <h1 className="text-xl font-semibold text-on-surface">Turn on tools</h1>
           <p className="mt-1 text-sm text-on-surface-variant">
-            You can change this any time from Model Selector.
-          </p>
-          <div
-            role="radiogroup"
-            aria-label="Default model"
-            className="mt-4 space-y-2"
-          >
-            {models
-              .filter((m) => m.available)
-              .map((model) => {
-                const selected = model.id === defaultModelId;
-                return (
-                  <button
-                    key={model.id}
-                    type="button"
-                    role="radio"
-                    aria-checked={selected}
-                    onClick={() => setDefaultModel(model.id)}
-                    className={cn(
-                      "w-full rounded-xl border border-outline-variant bg-surface-container-lowest p-3 text-left transition-colors hover:bg-surface-variant",
-                      selected && "border-primary ring-1 ring-primary",
-                    )}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-on-surface">
-                        {model.name}
-                      </span>
-                      {model.tier === "pro" ? (
-                        <Chip tone="primary">Pro</Chip>
-                      ) : null}
-                      {selected ? (
-                        <Icon
-                          name="check"
-                          size={16}
-                          className="ml-auto text-primary"
-                        />
-                      ) : null}
-                    </span>
-                    <span className="mt-0.5 block text-xs text-on-surface-variant">
-                      {model.description}
-                    </span>
-                  </button>
-                );
-              })}
-          </div>
-        </div>
-      ) : null}
-
-      {step === 2 ? (
-        <div>
-          <h1 className="text-xl font-semibold text-on-surface">
-            Turn on tools
-          </h1>
-          <p className="mt-1 text-sm text-on-surface-variant">
-            Enable the capabilities you want available by default.
+            Enable the capabilities you want available by default. Slime AI
+            handles everything else for you.
           </p>
           <div className="mt-4 space-y-2">
             {tools

@@ -10,16 +10,14 @@ import type {
   ToolId,
 } from "@/types/chat";
 import { conversationStore, runRetention } from "@/lib/storage";
-import { getProviderForModel } from "@/lib/ai";
+import { getChatProvider } from "@/lib/ai";
 import { mockTitleFromPrompt } from "@/lib/ai/mock-content";
-import { DEFAULT_MODEL_ID } from "@/config/providers";
 import { createId, nowIso } from "@/lib/utils/id";
 
 /** Abort controllers for in-flight streams — kept outside React state. */
 const streams = new Map<string, AbortController>();
 
 interface SendOptions {
-  modelId: string;
   tools: ToolId[];
   attachments?: Attachment[];
 }
@@ -29,6 +27,8 @@ interface ConversationState {
   summaries: ConversationSummary[];
   conversations: Record<string, Conversation>;
   streamingIds: Set<string>;
+  /** transient per-conversation router status, e.g. "Optimizing response…" */
+  streamStatus: Record<string, string | undefined>;
 
   hydrate: () => Promise<void>;
   loadConversation: (id: string) => Promise<void>;
@@ -41,7 +41,6 @@ interface ConversationState {
   clearMessages: (id: string) => void;
   deleteConversation: (id: string) => Promise<void>;
   clearAll: () => Promise<void>;
-  setModel: (id: string, modelId: string) => void;
   toggleTool: (id: string, tool: ToolId) => void;
 }
 
@@ -79,9 +78,12 @@ export const useConversationStore = create<ConversationState>((set, get) => {
 
     const controller = new AbortController();
     streams.set(id, controller);
-    set((s) => ({ streamingIds: new Set(s.streamingIds).add(id) }));
+    set((s) => ({
+      streamingIds: new Set(s.streamingIds).add(id),
+      streamStatus: { ...s.streamStatus, [id]: undefined },
+    }));
 
-    const provider = getProviderForModel(conversation.modelId);
+    const provider = getChatProvider();
     const upToUser = conversation.messages.slice(
       0,
       conversation.messages.findIndex((m) => m.id === sinceMessageId) + 1,
@@ -97,7 +99,6 @@ export const useConversationStore = create<ConversationState>((set, get) => {
           role: "assistant",
           parts: [],
           createdAt: nowIso(),
-          modelId: c.modelId,
           status: "streaming",
         },
       ],
@@ -106,11 +107,11 @@ export const useConversationStore = create<ConversationState>((set, get) => {
     const parts: MessagePart[] = [];
     let activeText: string | null = null;
     let usage: Message["usage"];
+    let generation: Message["generation"];
 
     try {
       for await (const chunk of provider.streamChat({
         messages: upToUser,
-        modelId: conversation.modelId,
         tools: conversation.tools,
         signal: controller.signal,
       })) {
@@ -130,6 +131,20 @@ export const useConversationStore = create<ConversationState>((set, get) => {
         } else if (chunk.type === "usage") {
           usage = chunk.usage;
           continue;
+        } else if (chunk.type === "status") {
+          set((s) => ({
+            streamStatus: { ...s.streamStatus, [id]: chunk.label },
+          }));
+          continue;
+        } else if (chunk.type === "done") {
+          if (chunk.meta) {
+            generation = {
+              role: chunk.meta.finalRole,
+              category: chunk.meta.category,
+              attempts: chunk.meta.attempts,
+            };
+          }
+          continue;
         } else if (chunk.type === "error") {
           update(id, (c) => ({
             ...c,
@@ -142,6 +157,7 @@ export const useConversationStore = create<ConversationState>((set, get) => {
                       ...parts,
                       { type: "text", text: `⚠ ${chunk.message}` },
                     ],
+                    generation,
                   }
                 : m,
             ),
@@ -165,6 +181,7 @@ export const useConversationStore = create<ConversationState>((set, get) => {
                 ...m,
                 status: controller.signal.aborted ? "stopped" : "complete",
                 usage,
+                generation,
               }
             : m,
         ),
@@ -174,7 +191,10 @@ export const useConversationStore = create<ConversationState>((set, get) => {
       set((s) => {
         const next = new Set(s.streamingIds);
         next.delete(id);
-        return { streamingIds: next };
+        return {
+          streamingIds: next,
+          streamStatus: { ...s.streamStatus, [id]: undefined },
+        };
       });
     }
   }
@@ -184,6 +204,7 @@ export const useConversationStore = create<ConversationState>((set, get) => {
     summaries: [],
     conversations: {},
     streamingIds: new Set(),
+    streamStatus: {},
 
     async hydrate() {
       if (get().hydrated) return;
@@ -209,7 +230,6 @@ export const useConversationStore = create<ConversationState>((set, get) => {
         title: "New conversation",
         createdAt: nowIso(),
         updatedAt: nowIso(),
-        modelId: DEFAULT_MODEL_ID,
         tools: [],
         messages: [],
         ...seed,
@@ -250,7 +270,6 @@ export const useConversationStore = create<ConversationState>((set, get) => {
       const isFirst = conversation.messages.length === 0;
       update(id, (c) => ({
         ...c,
-        modelId: options.modelId,
         tools: options.tools,
         title: isFirst ? mockTitleFromPrompt(trimmed) : c.title,
         messages: [...c.messages, userMessage],
@@ -327,10 +346,6 @@ export const useConversationStore = create<ConversationState>((set, get) => {
       streams.clear();
       await conversationStore.clear();
       set({ conversations: {}, summaries: [], streamingIds: new Set() });
-    },
-
-    setModel(id, modelId) {
-      update(id, (c) => ({ ...c, modelId }));
     },
 
     toggleTool(id, tool) {

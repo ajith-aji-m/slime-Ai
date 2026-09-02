@@ -1,22 +1,20 @@
 import type { ChatProvider } from "@/types/provider";
-import { catalogue } from "@/stores/catalogue-store";
+import { aiMode } from "@/stores/ai-status-store";
 import { mockChatProvider } from "./mock-provider";
 import { httpChatProvider } from "./http-provider";
 
 /**
- * Client-side provider resolution.
+ * Client-side provider resolution. No model id involved — the internal server
+ * router picks the model.
  *
- * - `slime` (built-in) → runs in the browser, offline, mock responses.
- * - anything else       → `httpChatProvider`, which forwards to `/api/chat`
- *                         where the real provider + credentials live.
+ * - `mock`   → runs in the browser, offline, canned responses.
+ * - `nvidia` → `httpChatProvider` → `POST /api/chat` → internal router.
  *
- * The `ChatProvider` interface is identical for both, so callers
- * (`conversation-store`) never branch on provider type.
+ * Both satisfy the same `ChatProvider` interface, so `conversation-store` never
+ * branches on provider type.
  */
-export function getProviderForModel(modelId: string): ChatProvider {
-  const providerId = catalogue.providerIdForModel(modelId);
-  if (!providerId || providerId === "slime") return mockChatProvider;
-  return httpChatProvider;
+export function getChatProvider(): ChatProvider {
+  return aiMode() === "nvidia" ? httpChatProvider : mockChatProvider;
 }
 
 export { mockChatProvider, httpChatProvider };

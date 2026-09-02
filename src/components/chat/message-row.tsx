@@ -35,10 +35,12 @@ export function MessageRow({
   item,
   onRegenerate,
   onEdit,
+  statusLabel,
 }: {
   item: ThreadItem;
   onRegenerate: () => void;
   onEdit: (messageId: string, text: string) => void;
+  statusLabel?: string;
 }) {
   if (item.kind === "separator") {
     return (
@@ -60,6 +62,7 @@ export function MessageRow({
           message={item.message}
           isLast={item.isLastAssistant}
           onRegenerate={onRegenerate}
+          statusLabel={item.isLastAssistant ? statusLabel : undefined}
         />
       )}
     </div>

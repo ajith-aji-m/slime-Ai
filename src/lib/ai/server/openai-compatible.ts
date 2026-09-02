@@ -61,7 +61,16 @@ export async function* streamOpenAICompatible(
     });
   } catch (error) {
     clearTimeout(timer);
-    if (isAbort(error)) return;
+    if (isAbort(error)) {
+      if (timedOut(timeout, config.signal)) {
+        yield {
+          type: "error",
+          message: "The provider timed out.",
+          code: "timeout",
+        };
+      }
+      return; // client cancelled — stop silently
+    }
     yield {
       type: "error",
       message: `Could not reach the provider: ${message(error)}`,
@@ -146,6 +155,13 @@ export async function* streamOpenAICompatible(
   } catch (error) {
     if (isAbort(error)) {
       if (textOpen) yield { type: "part-end" };
+      if (timedOut(timeout, config.signal)) {
+        yield {
+          type: "error",
+          message: "The provider timed out mid-response.",
+          code: "timeout",
+        };
+      }
       return;
     }
     yield {
@@ -161,6 +177,14 @@ export async function* streamOpenAICompatible(
 
 function isAbort(error: unknown): boolean {
   return error instanceof DOMException && error.name === "AbortError";
+}
+
+/** True when our own timeout fired rather than the caller cancelling. */
+function timedOut(
+  timeout: AbortController,
+  clientSignal?: AbortSignal,
+): boolean {
+  return timeout.signal.aborted && !clientSignal?.aborted;
 }
 
 function message(error: unknown): string {

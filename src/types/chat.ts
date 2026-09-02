@@ -53,13 +53,16 @@ export interface Message {
   parts: MessagePart[];
   /** ISO timestamp */
   createdAt: string;
-  /** model id that produced an assistant message */
-  modelId?: string;
   attachments?: Attachment[];
   /** streaming lifecycle for assistant messages */
   status?: "streaming" | "complete" | "error" | "stopped";
   /** token usage reported by the provider, when available */
   usage?: TokenUsage;
+  /**
+   * Internal, non-secret routing metadata for local debugging. Never rendered
+   * to users; `role` is an internal role id, not an upstream model id.
+   */
+  generation?: { role?: string; category?: string; attempts?: number };
   /** set when the user edited their own message */
   editedAt?: string;
 }
@@ -69,12 +72,13 @@ export interface Conversation {
   title: string;
   createdAt: string;
   updatedAt: string;
-  modelId: string;
   /** enabled tools for this conversation */
   tools: ToolId[];
   messages: Message[];
   projectId?: string;
   pinned?: boolean;
+  /** legacy field from the pre-router era; ignored */
+  modelId?: string;
 }
 
 /** Lightweight list projection — avoids loading every message for the sidebar. */

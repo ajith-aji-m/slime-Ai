@@ -6,18 +6,18 @@ import type {
 } from "@/types/provider";
 
 const info: ProviderInfo = {
-  id: "http",
-  name: "Server providers",
-  description: "Routes to a server-side provider via /api/chat.",
-  icon: "cloud",
+  id: "routed",
+  name: "Slime AI",
+  description: "Routes to the internal server-side model router via /api/chat.",
+  icon: "auto_awesome",
   kind: "Server",
   status: "connected",
 };
 
 /**
  * Client-side `ChatProvider` that delegates to the server. It never sees an API
- * key — it just POSTs the conversation to `/api/chat` and re-emits the NDJSON
- * `StreamChunk` stream. Used for every real provider (NVIDIA today).
+ * key or a model name — it POSTs the conversation to `/api/chat` and re-emits
+ * the NDJSON `StreamChunk` stream produced by the internal router.
  */
 export const httpChatProvider: ChatProvider = {
   info,
@@ -30,9 +30,9 @@ export const httpChatProvider: ChatProvider = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          modelId: request.modelId,
           messages: request.messages,
           tools: request.tools,
+          taskHint: request.taskHint,
         }),
         signal: request.signal,
       });
@@ -40,8 +40,9 @@ export const httpChatProvider: ChatProvider = {
       if (isAbort(error)) return;
       yield {
         type: "error",
-        message: "Could not reach the Slime server.",
+        message: "Could not reach Slime AI.",
         code: "network",
+        recoverable: true,
       };
       return;
     }
@@ -55,8 +56,9 @@ export const httpChatProvider: ChatProvider = {
       }
       yield {
         type: "error",
-        message: detail || `Server responded ${response.status}`,
+        message: detail || "Slime AI is unavailable right now.",
         code: `http_${response.status}`,
+        recoverable: response.status >= 500 || response.status === 429,
       };
       return;
     }
@@ -93,8 +95,9 @@ export const httpChatProvider: ChatProvider = {
       if (isAbort(error)) return;
       yield {
         type: "error",
-        message: "Connection to the Slime server was interrupted.",
+        message: "The connection to Slime AI was interrupted.",
         code: "stream",
+        recoverable: true,
       };
     } finally {
       reader.releaseLock();

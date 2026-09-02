@@ -1,88 +1,68 @@
 import "server-only";
-import type { ChatRequest, ModelInfo, StreamChunk } from "@/types/provider";
-import { models as staticModels } from "@/config/providers";
+import type { Message } from "@/types/chat";
+import type { StreamChunk } from "@/types/provider";
+import { DEFAULT_NVIDIA_MODELS, type RegistryModel } from "@/config/models";
+import type { TaskCategory } from "@/config/ai-router";
 import { readNvidiaEnv } from "./env";
 import { toOpenAIMessages } from "./messages";
 import { streamOpenAICompatible } from "./openai-compatible";
 
 const SYSTEM_PROMPT =
-  "You are Slime Core, the assistant inside the Slime AI workstation. Be precise and concise. Use Markdown, and fenced code blocks with a language tag for code.";
+  "You are Slime AI, a premium AI workstation assistant. Be precise and concise. Use Markdown, and fenced code blocks with a language tag for code. Never mention which underlying model or provider you are.";
 
 interface EnvModel {
   id: string;
   upstreamId: string;
-  name: string;
-  description?: string;
   contextWindow?: number;
-  tier?: "free" | "pro";
-  toolCalling?: boolean;
+  strengths?: TaskCategory[];
+  order?: number;
 }
 
-function envModels(): ModelInfo[] | null {
+function envRegistry(): RegistryModel[] | null {
   const env = readNvidiaEnv();
   if (!env?.modelsJson) return null;
   try {
     const parsed = JSON.parse(env.modelsJson) as EnvModel[];
-    if (!Array.isArray(parsed)) return null;
-    return parsed.map((m) => ({
-      id: m.id,
-      upstreamId: m.upstreamId,
-      providerId: "nvidia",
-      name: m.name,
-      description: m.description ?? "Configured via NVIDIA_MODELS.",
-      badges: [],
-      contextWindow: m.contextWindow ?? 128_000,
-      capabilities: ["code"],
-      streaming: true,
-      toolCalling: m.toolCalling ?? false,
-      available: true,
-      tier: m.tier ?? "free",
-    }));
+    if (!Array.isArray(parsed) || parsed.length === 0) return null;
+    return parsed
+      .filter((m) => m.id && m.upstreamId)
+      .map((m, i) => ({
+        id: m.id,
+        upstreamId: m.upstreamId,
+        contextWindow: m.contextWindow ?? 128_000,
+        streaming: true,
+        strengths: m.strengths ?? ["general"],
+        order: m.order ?? i + 1,
+      }));
   } catch {
     return null;
   }
 }
 
-/** Model Registry entries this provider can serve. Env list wins if present. */
-export function nvidiaModels(): ModelInfo[] {
-  return (
-    envModels() ??
-    staticModels
-      .filter((m) => m.providerId === "nvidia")
-      .map((m) => ({ ...m, available: true }))
-  );
+/** The internal NVIDIA model registry (env override wins). */
+export function nvidiaRegistry(): RegistryModel[] {
+  return envRegistry() ?? DEFAULT_NVIDIA_MODELS;
 }
 
 export function isNvidiaConfigured(): boolean {
   return readNvidiaEnv() !== null;
 }
 
-const nvidiaModelsById = () =>
-  Object.fromEntries(nvidiaModels().map((m) => [m.id, m]));
-
 /**
- * Server-side NVIDIA NIM provider. Implements the same `streamChat` contract as
- * the mock provider, but runs only on the server and never returns the API key.
+ * Low-level: stream ONE NVIDIA model. The internal router owns model choice and
+ * fallback — this just does the call and normalises to `StreamChunk`.
  */
-export async function* streamNvidiaChat(
-  request: ChatRequest,
-): AsyncGenerator<StreamChunk> {
+export async function* streamNvidiaModel(params: {
+  upstreamId: string;
+  messages: Message[];
+  signal?: AbortSignal;
+}): AsyncGenerator<StreamChunk> {
   const env = readNvidiaEnv();
   if (!env) {
     yield {
       type: "error",
-      message: "NVIDIA is not configured on the server (missing NVIDIA_API_KEY).",
+      message: "NVIDIA is not configured on the server.",
       code: "not_configured",
-    };
-    return;
-  }
-
-  const model = nvidiaModelsById()[request.modelId];
-  if (!model?.upstreamId) {
-    yield {
-      type: "error",
-      message: `Unknown NVIDIA model: ${request.modelId}`,
-      code: "unknown_model",
     };
     return;
   }
@@ -90,8 +70,8 @@ export async function* streamNvidiaChat(
   yield* streamOpenAICompatible({
     baseUrl: env.baseUrl,
     apiKey: env.apiKey,
-    model: model.upstreamId,
-    messages: toOpenAIMessages(request.messages, SYSTEM_PROMPT),
-    signal: request.signal,
+    model: params.upstreamId,
+    messages: toOpenAIMessages(params.messages, SYSTEM_PROMPT),
+    signal: params.signal,
   });
 }

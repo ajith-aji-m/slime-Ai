@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { WorkspacePage } from "@/components/layout/workspace-page";
 import { Avatar, Button, Card, Chip } from "@/components/ui";
-import { modelsById } from "@/config/providers";
 import { mockAgents } from "@/data/workspace";
 
 export const metadata: Metadata = { title: "Agents" };
@@ -11,7 +10,7 @@ export default function AgentsPage() {
   return (
     <WorkspacePage
       title="Agents"
-      description="Reusable assistants with a fixed model, tools and instructions."
+      description="Reusable assistants with their own tools and instructions."
       actions={
         <Button size="sm" iconLeft="add">
           New agent
@@ -36,8 +35,7 @@ export default function AgentsPage() {
                 {agent.description}
               </p>
               <p className="mt-4 text-xs text-on-surface-variant">
-                {modelsById[agent.modelId]?.name ?? agent.modelId} · {agent.runs}{" "}
-                runs
+                {agent.runs} runs
               </p>
             </Link>
           </Card>

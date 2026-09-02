@@ -1,28 +1,15 @@
 import type { Message, MessagePart, TokenUsage, ToolId } from "./chat";
+import type { TaskCategory } from "@/config/ai-router";
 
-/** A single model exposed by a provider (Model Registry entry). */
+/**
+ * Minimal provider self-description. Slime AI no longer exposes a model picker,
+ * so `models` is informational only (usually empty for real providers — the
+ * internal router owns model choice).
+ */
 export interface ModelInfo {
   id: string;
-  /** provider id that owns this model */
-  providerId: string;
   name: string;
-  description: string;
-  /** short badge, e.g. "Fast", "Reasoning", "Vision" */
-  badges: string[];
   contextWindow: number;
-  capabilities: ToolId[];
-  /** provider supports token streaming for this model */
-  streaming: boolean;
-  /** provider supports tool/function calling for this model */
-  toolCalling: boolean;
-  /**
-   * false until a real API key / integration is wired. This is the *static*
-   * default; the live value comes from `GET /api/models`.
-   */
-  available: boolean;
-  tier: "free" | "pro";
-  /** upstream model id sent to the provider API (server maps this) */
-  upstreamId?: string;
 }
 
 export interface ProviderInfo {
@@ -30,7 +17,6 @@ export interface ProviderInfo {
   name: string;
   description: string;
   icon: string;
-  /** e.g. "OpenAI-compatible", "NVIDIA NIM" */
   kind: string;
   status: "connected" | "available" | "coming-soon";
 }
@@ -41,19 +27,30 @@ export type StreamChunk =
   | { type: "text-delta"; text: string }
   | { type: "part-end" }
   | { type: "usage"; usage: TokenUsage }
-  | { type: "error"; message: string; code?: string }
-  | { type: "done" };
+  /** transient internal-router activity, shown as a subtle status line */
+  | { type: "status"; label: string }
+  | { type: "error"; message: string; code?: string; recoverable?: boolean }
+  | { type: "done"; meta?: GenerationMeta };
+
+/** Non-secret routing metadata kept for local debugging only. */
+export interface GenerationMeta {
+  /** internal role id, e.g. "slime-reasoning" — never an upstream id */
+  finalRole?: string;
+  category?: TaskCategory;
+  attempts?: number;
+}
 
 export interface ChatRequest {
   messages: Message[];
-  modelId: string;
   tools: ToolId[];
+  /** optional task hint; the router classifies the request if absent */
+  taskHint?: TaskCategory;
   signal?: AbortSignal;
 }
 
 /**
- * The one interface every backend implements. `MockChatProvider` fulfils it today;
- * an `NvidiaProvider`, `OpenAiCompatibleProvider`, etc. drop in later unchanged.
+ * The one interface every backend implements — mock and server-routed alike.
+ * Callers never branch on provider type.
  */
 export interface ChatProvider {
   readonly info: ProviderInfo;

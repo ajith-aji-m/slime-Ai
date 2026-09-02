@@ -4,14 +4,14 @@ import type {
   ProviderInfo,
   StreamChunk,
 } from "@/types/provider";
-import { models } from "@/config/providers";
 import { buildMockResponse } from "./mock-content";
 
 const info: ProviderInfo = {
-  id: "slime",
-  name: "Slime Core",
-  description: "Built-in mock provider. Streams canned multi-part responses.",
-  icon: "psychology",
+  id: "mock",
+  name: "Slime AI",
+  description:
+    "Built-in offline provider. Streams canned multi-part responses for development.",
+  icon: "auto_awesome",
   kind: "Built-in",
   status: "connected",
 };
@@ -36,7 +36,7 @@ const sleep = (ms: number, signal?: AbortSignal) =>
  */
 export const mockChatProvider: ChatProvider = {
   info,
-  models: models.filter((m) => m.providerId === "slime"),
+  models: [],
 
   async *streamChat({
     messages,

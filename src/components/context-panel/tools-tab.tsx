@@ -4,15 +4,15 @@ import { Icon } from "@/components/ui";
 import { cn } from "@/lib/utils/cn";
 import { tools } from "@/config/tools";
 import { useConversationStore } from "@/stores/conversation-store";
-import { useModelStore } from "@/stores/model-store";
+import { useComposerStore } from "@/stores/composer-store";
 
 export function ToolsTab({ conversationId }: { conversationId?: string }) {
   const conversation = useConversationStore((s) =>
     conversationId ? s.conversations[conversationId] : undefined,
   );
   const toggleConversationTool = useConversationStore((s) => s.toggleTool);
-  const defaultTools = useModelStore((s) => s.defaultTools);
-  const toggleDefaultTool = useModelStore((s) => s.toggleDefaultTool);
+  const defaultTools = useComposerStore((s) => s.defaultTools);
+  const toggleDefaultTool = useComposerStore((s) => s.toggleDefaultTool);
 
   const active = conversation?.tools ?? defaultTools;
 

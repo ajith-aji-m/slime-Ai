@@ -4,18 +4,17 @@ import { useRouter } from "next/navigation";
 import { GlassPanel, Icon } from "@/components/ui";
 import { suggestions } from "@/config/suggestions";
 import { useConversationStore } from "@/stores/conversation-store";
-import { useModelStore } from "@/stores/model-store";
+import type { ToolId } from "@/types/chat";
 
 export function SuggestionGrid() {
   const router = useRouter();
-  const defaultModelId = useModelStore((s) => s.defaultModelId);
 
-  async function start(prompt: string, tool?: string) {
+  async function start(prompt: string, tool?: ToolId) {
     const { createConversation, sendMessage } = useConversationStore.getState();
-    const tools = tool ? [tool as never] : [];
-    const id = createConversation({ modelId: defaultModelId, tools });
+    const tools: ToolId[] = tool ? [tool] : [];
+    const id = createConversation({ tools });
     router.push(`/chat/${id}`);
-    await sendMessage(id, prompt, { modelId: defaultModelId, tools });
+    await sendMessage(id, prompt, { tools });
   }
 
   return (

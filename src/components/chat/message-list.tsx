@@ -33,38 +33,33 @@ export function MessageList({
   const streaming = useConversationStore((s) =>
     s.streamingIds.has(conversation.id),
   );
+  const statusLabel = useConversationStore(
+    (s) => s.streamStatus[conversation.id],
+  );
   const lastPartsLength =
     conversation.messages[conversation.messages.length - 1]?.parts.length ?? 0;
 
-  if (items.length <= VIRTUALIZE_THRESHOLD) {
-    return (
-      <PlainThread
-        items={items}
-        scrollRef={scrollRef}
-        streaming={streaming}
-        signature={`${items.length}:${lastPartsLength}`}
-        onRegenerate={onRegenerate}
-        onEdit={onEdit}
-      />
-    );
-  }
+  const shared = {
+    items,
+    scrollRef,
+    streaming,
+    statusLabel,
+    signature: `${items.length}:${lastPartsLength}`,
+    onRegenerate,
+    onEdit,
+  };
 
-  return (
-    <VirtualThread
-      items={items}
-      scrollRef={scrollRef}
-      streaming={streaming}
-      signature={`${items.length}:${lastPartsLength}`}
-      onRegenerate={onRegenerate}
-      onEdit={onEdit}
-    />
-  );
+  if (items.length <= VIRTUALIZE_THRESHOLD) {
+    return <PlainThread {...shared} />;
+  }
+  return <VirtualThread {...shared} />;
 }
 
 interface ThreadProps {
   items: ReturnType<typeof buildThreadItems>;
   scrollRef: React.RefObject<HTMLDivElement | null>;
   streaming: boolean;
+  statusLabel?: string;
   signature: string;
   onRegenerate: () => void;
   onEdit: (messageId: string, text: string) => void;
@@ -101,6 +96,7 @@ function PlainThread({
   items,
   scrollRef,
   streaming,
+  statusLabel,
   signature,
   onRegenerate,
   onEdit,
@@ -124,6 +120,7 @@ function PlainThread({
           item={item}
           onRegenerate={onRegenerate}
           onEdit={onEdit}
+          statusLabel={statusLabel}
         />
       ))}
     </div>
@@ -134,6 +131,7 @@ function VirtualThread({
   items,
   scrollRef,
   streaming,
+  statusLabel,
   signature,
   onRegenerate,
   onEdit,
@@ -179,6 +177,7 @@ function VirtualThread({
             item={items[row.index]}
             onRegenerate={onRegenerate}
             onEdit={onEdit}
+            statusLabel={statusLabel}
           />
         </div>
       ))}

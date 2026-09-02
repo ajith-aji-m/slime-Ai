@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { WorkspacePage } from "@/components/layout/workspace-page";
 import { Avatar, Button, Card, Chip } from "@/components/ui";
-import { modelsById } from "@/config/providers";
 import { toolsById } from "@/config/tools";
 import { mockAgents } from "@/data/workspace";
 import type { ToolId } from "@/types/chat";
@@ -29,9 +28,7 @@ export default async function AgentDetailPage({
           <Avatar name={agent.name} icon={agent.icon} brand size={44} />
           <div>
             <p className="text-sm font-semibold text-on-surface">{agent.name}</p>
-            <p className="text-xs text-on-surface-variant">
-              {modelsById[agent.modelId]?.name ?? agent.modelId}
-            </p>
+            <p className="text-xs text-on-surface-variant">{agent.role}</p>
           </div>
           <Chip
             tone={agent.status === "active" ? "success" : "neutral"}

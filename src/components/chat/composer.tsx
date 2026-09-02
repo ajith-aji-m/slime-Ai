@@ -4,13 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
 import { Icon, IconButton } from "@/components/ui";
-import { ModelSelector } from "@/components/models/model-selector";
 import { ToolStrip } from "./tool-strip";
 import { useAutoResize } from "@/hooks/use-auto-resize";
 import { site } from "@/config/site";
 import type { ToolId } from "@/types/chat";
 import { useConversationStore } from "@/stores/conversation-store";
-import { useModelStore } from "@/stores/model-store";
+import { useComposerStore } from "@/stores/composer-store";
 
 export interface ComposerProps {
   conversationId?: string;
@@ -37,21 +36,16 @@ export function Composer({
   const streaming = useConversationStore((s) =>
     conversationId ? s.streamingIds.has(conversationId) : false,
   );
-  const { createConversation, sendMessage, stopStreaming, setModel, toggleTool } =
+  const routerStatus = useConversationStore((s) =>
+    conversationId ? s.streamStatus[conversationId] : undefined,
+  );
+  const { createConversation, sendMessage, stopStreaming, toggleTool } =
     useConversationStore.getState();
 
-  const defaultModelId = useModelStore((s) => s.defaultModelId);
-  const defaultTools = useModelStore((s) => s.defaultTools);
-  const setDefaultModel = useModelStore((s) => s.setDefaultModel);
-  const toggleDefaultTool = useModelStore((s) => s.toggleDefaultTool);
+  const defaultTools = useComposerStore((s) => s.defaultTools);
+  const toggleDefaultTool = useComposerStore((s) => s.toggleDefaultTool);
 
-  const modelId = conversation?.modelId ?? defaultModelId;
   const activeTools = conversation?.tools ?? defaultTools;
-
-  function handleModelChange(id: string) {
-    if (conversationId) setModel(conversationId, id);
-    else setDefaultModel(id);
-  }
 
   function handleToolToggle(id: ToolId) {
     if (conversationId) toggleTool(conversationId, id);
@@ -64,16 +58,13 @@ export function Composer({
     setValue("");
 
     if (conversationId) {
-      await sendMessage(conversationId, text, {
-        modelId,
-        tools: activeTools,
-      });
+      await sendMessage(conversationId, text, { tools: activeTools });
       return;
     }
 
-    const id = createConversation({ modelId, tools: defaultTools });
+    const id = createConversation({ tools: defaultTools });
     router.push(`/chat/${id}`);
-    await sendMessage(id, text, { modelId, tools: defaultTools });
+    await sendMessage(id, text, { tools: defaultTools });
   }
 
   function onKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -82,6 +73,8 @@ export function Composer({
       void submit();
     }
   }
+
+  const statusLabel = routerStatus ?? (streaming ? "Slime AI is working…" : "Slime AI");
 
   return (
     <div
@@ -143,7 +136,17 @@ export function Composer({
       </form>
 
       <div className="mt-2 flex flex-col gap-1 px-1 sm:flex-row sm:items-center sm:justify-between">
-        <ModelSelector value={modelId} onChange={handleModelChange} />
+        <span
+          className="inline-flex items-center gap-1.5 text-[11px] font-medium text-on-surface-variant"
+          aria-live="polite"
+        >
+          <Icon
+            name="auto_awesome"
+            size={13}
+            className={streaming ? "animate-pulse text-primary" : "text-primary"}
+          />
+          {statusLabel}
+        </span>
         <p className="text-[11px] text-on-surface-variant/70">{site.disclaimer}</p>
       </div>
     </div>

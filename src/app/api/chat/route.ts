@@ -1,20 +1,21 @@
-import type { ChatRequest, StreamChunk } from "@/types/provider";
+import type { StreamChunk } from "@/types/provider";
 import type { Message, ToolId } from "@/types/chat";
-import { getServerStreamFn } from "@/lib/ai/server/registry";
+import type { TaskCategory } from "@/config/ai-router";
+import { routeChat } from "@/lib/ai/server/registry";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 interface Body {
-  modelId?: string;
   messages?: Message[];
   tools?: ToolId[];
+  taskHint?: TaskCategory;
 }
 
 /**
- * Streaming chat endpoint. The browser posts the conversation + model id here;
- * this route resolves the server-side provider, injects the API key, and streams
- * `StreamChunk` objects back as NDJSON (one JSON object per line).
+ * Streaming chat endpoint. The browser posts the conversation here; the internal
+ * AI Router picks an NVIDIA model, injects the API key, streams, and falls back
+ * across models on recoverable errors. Responses are NDJSON `StreamChunk` lines.
  *
  * The mock provider does NOT use this route — it runs entirely in the browser.
  */
@@ -26,28 +27,10 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { modelId, messages, tools = [] } = body;
-  if (!modelId || !Array.isArray(messages)) {
-    return Response.json(
-      { error: "`modelId` and `messages` are required" },
-      { status: 400 },
-    );
+  const { messages, tools = [], taskHint } = body;
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return Response.json({ error: "`messages` is required" }, { status: 400 });
   }
-
-  const streamFn = getServerStreamFn(modelId);
-  if (!streamFn) {
-    return Response.json(
-      { error: `No server provider is registered for model "${modelId}"` },
-      { status: 404 },
-    );
-  }
-
-  const chatRequest: ChatRequest = {
-    modelId,
-    messages,
-    tools,
-    signal: request.signal,
-  };
 
   const encoder = new TextEncoder();
   const write = (chunk: StreamChunk) =>
@@ -56,7 +39,12 @@ export async function POST(request: Request): Promise<Response> {
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
-        for await (const chunk of streamFn(chatRequest)) {
+        for await (const chunk of routeChat({
+          messages,
+          tools,
+          taskHint,
+          signal: request.signal,
+        })) {
           controller.enqueue(write(chunk));
         }
       } catch (error) {
@@ -64,9 +52,9 @@ export async function POST(request: Request): Promise<Response> {
           controller.enqueue(
             write({
               type: "error",
-              message:
-                error instanceof Error ? error.message : "Unexpected server error",
+              message: "Slime AI hit an unexpected error.",
               code: "server",
+              recoverable: true,
             }),
           );
         }

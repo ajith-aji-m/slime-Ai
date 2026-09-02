@@ -1,8 +1,7 @@
 "use client";
 
-import { Avatar, Chip, GlassPanel, Icon } from "@/components/ui";
+import { Avatar, GlassPanel, Icon } from "@/components/ui";
 import { site } from "@/config/site";
-import { useCatalogueStore } from "@/stores/catalogue-store";
 import { formatClockTime } from "@/lib/utils/format";
 import { messageToPlainText } from "@/lib/utils/message-text";
 import type { Message } from "@/types/chat";
@@ -13,16 +12,16 @@ export function AssistantMessage({
   message,
   onRegenerate,
   isLast,
+  statusLabel,
 }: {
   message: Message;
   onRegenerate?: () => void;
   isLast: boolean;
+  /** transient internal-router status while this message streams */
+  statusLabel?: string;
 }) {
-  const model = useCatalogueStore((s) =>
-    message.modelId ? s.getModel(message.modelId) : undefined,
-  );
   const streaming = message.status === "streaming";
-  const totalTokens = message.usage?.totalTokens;
+  const errored = message.status === "error";
 
   return (
     <div className="group flex gap-4">
@@ -41,21 +40,13 @@ export function AssistantMessage({
           <span className="text-xs text-on-surface-variant">
             {formatClockTime(message.createdAt)}
           </span>
-          {model ? (
-            <Chip icon="auto_awesome">{model.name}</Chip>
-          ) : null}
-          {totalTokens ? (
-            <span className="text-xs text-on-surface-variant/70">
-              {totalTokens.toLocaleString()} tokens
-            </span>
-          ) : null}
         </div>
 
         <GlassPanel className="rounded-tl-sm px-5 py-4">
           {message.parts.length === 0 && streaming ? (
             <span className="flex items-center gap-1.5 text-sm text-on-surface-variant">
               <Icon name="graphic_eq" size={16} className="animate-pulse" />
-              Thinking…
+              {statusLabel ?? "Thinking…"}
             </span>
           ) : (
             <MessageParts parts={message.parts} />
@@ -70,7 +61,7 @@ export function AssistantMessage({
             onCopy={() =>
               navigator.clipboard?.writeText(messageToPlainText(message))
             }
-            onRegenerate={isLast ? onRegenerate : undefined}
+            onRegenerate={isLast || errored ? onRegenerate : undefined}
           />
         ) : null}
       </div>

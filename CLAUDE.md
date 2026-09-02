@@ -31,30 +31,43 @@ Preserve this visual language. Don't introduce a generic UI or a dark theme.
 | `src/data/` | Mock content — never import into `ui/` primitives |
 | `src/types/` | Domain types (chat, provider, workspace, storage) |
 
-## AI providers
+## AI providers + internal router
+
+Users never see or pick a model. The composer only ever says "Slime AI".
 
 ```
-Chat UI → conversation-store → getProviderForModel(modelId)
-  ├─ "slime"  → mockChatProvider   (browser, offline mock)
-  └─ else     → httpChatProvider   (browser) → POST /api/chat (server)
-                  → src/lib/ai/server/registry → NVIDIA (OpenAI-compatible)
+Chat UI → conversation-store → getChatProvider()        (no model id)
+  ├─ mode "mock"   → mockChatProvider   (browser, offline)
+  └─ mode "nvidia" → httpChatProvider   (browser) → POST /api/chat (server)
+                       → src/lib/ai/server/router.ts  (Internal AI Router)
+                          classify task → pick NVIDIA model → stream
+                          → recoverable failure? fall back to next model (cap 3)
+                          → NDJSON StreamChunk
 ```
 
-- Client never imports a provider SDK or an API key. Real calls go through
-  `POST /api/chat` (NDJSON stream of `StreamChunk`).
-- `GET /api/models` is the live Model Registry (static metadata + runtime
-  `available` + `NVIDIA_MODELS` env overrides); `catalogue-store` consumes it.
-- Server provider code lives in `src/lib/ai/server/*` and is `import "server-only"`.
+- Client never imports a provider SDK, an API key, or a model name.
+- `GET /api/ai/status` → `{ mode }` only. `ai-status-store` consumes it.
+- Model ids live ONLY in `src/config/models.ts` + the `NVIDIA_MODELS` env var.
+- Routing policy (category → ordered roles, attempt cap) is `src/config/ai-router.ts`.
+- Server code in `src/lib/ai/server/*` is `import "server-only"`.
+- Dev-only routing logs: `[ai-router] …` (role ids, categories, reasons, timings — never secrets). Silent in production.
 
 ### Add the next provider
 
-1. `src/lib/ai/server/<name>.ts` — a `streamChat(request): AsyncGenerator<StreamChunk>`
-   (reuse `streamOpenAICompatible` if the API is OpenAI-shaped).
-2. Register it in `src/lib/ai/server/registry.ts` (`serverProviders` + `serverModelIndex` + `providerConfigured`).
-3. Add its models to `src/config/providers.ts` with `upstreamId`.
+1. `src/lib/ai/server/<name>.ts` — `stream<Name>Model({ upstreamId, messages, signal })`
+   (reuse `streamOpenAICompatible` if OpenAI-shaped).
+2. Wire it into `src/lib/ai/server/router.ts` (or add a provider dimension there).
+3. Add its models to `src/config/models.ts`.
 4. Document env vars in `.env.example` + `src/lib/ai/server/env.ts`.
 
 Nothing in the UI changes.
+
+### Local dev tools
+
+- `node scripts/fake-nvidia.mjs` — a fake NVIDIA endpoint (`:9099`) that can
+  return every failure mode by `model` name.
+- `node scripts/test-router.mjs` — drives the router through all scenarios
+  (needs `next build` + the fake endpoint running).
 
 ## Environment
 

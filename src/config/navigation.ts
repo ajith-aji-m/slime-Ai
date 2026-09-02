@@ -26,7 +26,4 @@ export const navigation: NavItemConfig[] = [
 ];
 
 /** Links shown in the desktop top app bar. */
-export const topBarLinks = [
-  { label: "Model Selector", href: "/models" },
-  { label: "Capabilities", href: "/tools" },
-];
+export const topBarLinks = [{ label: "Capabilities", href: "/tools" }];
