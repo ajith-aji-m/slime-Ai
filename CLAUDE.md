@@ -31,11 +31,35 @@ Preserve this visual language. Don't introduce a generic UI or a dark theme.
 | `src/data/` | Mock content — never import into `ui/` primitives |
 | `src/types/` | Domain types (chat, provider, workspace, storage) |
 
-## Connecting a real provider later
+## AI providers
 
-Implement `ChatProvider` (`src/types/provider.ts`), register it in `src/lib/ai/index.ts`
-under its `providerId`, and flip `available: true` on its models in `src/config/providers.ts`.
+```
+Chat UI → conversation-store → getProviderForModel(modelId)
+  ├─ "slime"  → mockChatProvider   (browser, offline mock)
+  └─ else     → httpChatProvider   (browser) → POST /api/chat (server)
+                  → src/lib/ai/server/registry → NVIDIA (OpenAI-compatible)
+```
+
+- Client never imports a provider SDK or an API key. Real calls go through
+  `POST /api/chat` (NDJSON stream of `StreamChunk`).
+- `GET /api/models` is the live Model Registry (static metadata + runtime
+  `available` + `NVIDIA_MODELS` env overrides); `catalogue-store` consumes it.
+- Server provider code lives in `src/lib/ai/server/*` and is `import "server-only"`.
+
+### Add the next provider
+
+1. `src/lib/ai/server/<name>.ts` — a `streamChat(request): AsyncGenerator<StreamChunk>`
+   (reuse `streamOpenAICompatible` if the API is OpenAI-shaped).
+2. Register it in `src/lib/ai/server/registry.ts` (`serverProviders` + `serverModelIndex` + `providerConfigured`).
+3. Add its models to `src/config/providers.ts` with `upstreamId`.
+4. Document env vars in `.env.example` + `src/lib/ai/server/env.ts`.
+
 Nothing in the UI changes.
+
+## Environment
+
+Copy `.env.example` → `.env.local`. `NVIDIA_API_KEY` enables the NVIDIA models;
+without it the built-in mock provider is used.
 
 ## Commands
 
