@@ -32,8 +32,8 @@ export const TASK_CATEGORIES: TaskCategory[] = [
  */
 export const CATEGORY_ROUTING: Record<TaskCategory, string[]> = {
   general: ["slime-general", "slime-versatile", "slime-fast"],
-  coding: ["slime-general", "slime-versatile", "slime-reasoning"],
-  long_context: ["slime-versatile", "slime-reasoning", "slime-general"],
+  coding: ["slime-versatile", "slime-general", "slime-fast"],
+  long_context: ["slime-reasoning", "slime-general", "slime-versatile"],
   reasoning: ["slime-reasoning", "slime-versatile", "slime-general"],
   research: ["slime-reasoning", "slime-versatile", "slime-general"],
   structured: ["slime-general", "slime-versatile", "slime-fast"],
