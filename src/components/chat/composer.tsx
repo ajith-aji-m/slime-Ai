@@ -99,9 +99,15 @@ export function Composer({
           e.preventDefault();
           void submit();
         }}
-        className="glass-panel flex items-end gap-1 rounded-2xl bg-surface-container-lowest/90 p-2 shadow-ambient focus-within:border-primary"
+        className="glass-panel flex items-end gap-1 rounded-2xl bg-surface-container-lowest/90 p-2 shadow-ambient focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/25"
       >
         <IconButton icon="attach_file" label="Attach file" />
+        <IconButton
+          icon="mic"
+          label="Voice input — coming soon"
+          className="sm:hidden"
+          disabled
+        />
         <label htmlFor="composer-input" className="sr-only">
           Message {site.shortName}
         </label>
@@ -136,7 +142,7 @@ export function Composer({
         )}
       </form>
 
-      <div className="mt-2 flex items-center justify-between gap-3 px-1">
+      <div className="mt-2 flex flex-col gap-1 px-1 sm:flex-row sm:items-center sm:justify-between">
         <ModelSelector value={modelId} onChange={handleModelChange} />
         <p className="text-[11px] text-on-surface-variant/70">{site.disclaimer}</p>
       </div>

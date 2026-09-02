@@ -141,6 +141,15 @@
   --sl-neutral-status-container: #f1f5f9;
   --sl-on-neutral-status-container: #334155;
 
+  /* Code syntax tokens — mirrors the export's .keyword/.string/.function/.comment */
+  --sl-code-keyword: #7c3aed;
+  --sl-code-string: #059669;
+  --sl-code-function: #2563eb;
+  --sl-code-comment: #64748b;
+  --sl-code-number: #b45309;
+  --sl-code-property: #0369a1;
+  --sl-code-operator: #64748b;
+
   /* Elevation + glass (from DESIGN.md "Elevation & Depth") */
   --sl-glass-fill: rgba(255, 255, 255, 0.7);
   --sl-glass-border: rgba(15, 23, 42, 0.08);
@@ -204,6 +213,14 @@
   --sl-neutral-status: #94a3b8;
   --sl-neutral-status-container: #1e293b;
   --sl-on-neutral-status-container: #cbd5e1;
+
+  --sl-code-keyword: #d2bbff;
+  --sl-code-string: #7ee787;
+  --sl-code-function: #79c0ff;
+  --sl-code-comment: #8b949e;
+  --sl-code-number: #ffa657;
+  --sl-code-property: #7ee7f0;
+  --sl-code-operator: #8b949e;
 
   --sl-glass-fill: rgba(11, 19, 38, 0.6);
   --sl-glass-border: rgba(255, 255, 255, 0.08);
@@ -294,6 +311,50 @@
 
 @utility shadow-raised {
   box-shadow: var(--sl-shadow-raised);
+}
+
+/* Shared form field — single source for input/textarea styling + focus ring */
+@utility sl-field {
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-container-lowest);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-on-surface);
+}
+.sl-field::placeholder {
+  color: color-mix(in srgb, var(--color-on-surface-variant) 55%, transparent);
+}
+.sl-field:focus-visible {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 22%, transparent);
+}
+
+/* Code syntax highlight tokens */
+.hl-keyword {
+  color: var(--sl-code-keyword);
+  font-weight: 600;
+}
+.hl-string {
+  color: var(--sl-code-string);
+}
+.hl-comment {
+  color: var(--sl-code-comment);
+  font-style: italic;
+}
+.hl-number {
+  color: var(--sl-code-number);
+}
+.hl-function {
+  color: var(--sl-code-function);
+}
+.hl-property {
+  color: var(--sl-code-property);
+}
+.hl-operator {
+  color: var(--sl-code-operator);
 }
 
 /* Material Symbols icon font (self-hosted via next/font/local) */

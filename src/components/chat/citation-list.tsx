@@ -8,16 +8,31 @@ export function CitationList({ citations }: { citations: Citation[] }) {
       <span className="mr-1 text-xs font-semibold tracking-wide text-on-surface-variant">
         Citations
       </span>
-      {citations.map((c) => (
-        <a
-          key={c.id}
-          href={c.href ?? "#"}
-          className="inline-flex items-center gap-1 rounded-full border border-outline-variant bg-surface-container-high px-3 py-1 text-xs font-medium text-on-surface transition-colors hover:bg-surface-variant"
-        >
-          <Icon name={(c.icon as IconName) ?? "description"} size={14} />
-          [{c.id}] {c.label}
-        </a>
-      ))}
+      {citations.map((c) => {
+        const className =
+          "inline-flex items-center gap-1 rounded-full border border-outline-variant bg-surface-container-high px-3 py-1 text-xs font-medium text-on-surface transition-colors hover:bg-surface-variant";
+        const inner = (
+          <>
+            <Icon name={(c.icon as IconName) ?? "description"} size={14} />[{c.id}
+            ] {c.label}
+          </>
+        );
+        return c.href ? (
+          <a
+            key={c.id}
+            href={c.href}
+            target="_blank"
+            rel="noreferrer"
+            className={className}
+          >
+            {inner}
+          </a>
+        ) : (
+          <button key={c.id} type="button" className={className}>
+            {inner}
+          </button>
+        );
+      })}
     </div>
   );
 }

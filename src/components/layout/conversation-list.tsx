@@ -47,7 +47,7 @@ export function ConversationList({ onNavigate }: { onNavigate?: () => void }) {
                     if (e.key === "Enter") e.currentTarget.blur();
                     if (e.key === "Escape") setRenamingId(null);
                   }}
-                  className="w-full rounded-lg border border-primary bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:outline-none"
+                  className="sl-field border-primary"
                 />
               ) : (
                 <Link
@@ -76,6 +76,7 @@ export function ConversationList({ onNavigate }: { onNavigate?: () => void }) {
                       type="button"
                       onClick={toggle}
                       aria-label={`Options for ${summary.title}`}
+                      aria-haspopup="menu"
                       aria-expanded={open}
                       className="flex h-7 w-7 items-center justify-center rounded-md text-on-surface-variant hover:bg-surface-container-high"
                     >

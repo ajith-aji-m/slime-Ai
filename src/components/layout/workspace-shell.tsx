@@ -34,13 +34,21 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-full w-full overflow-hidden">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-[60] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-on-primary"
+      >
+        Skip to main content
+      </a>
       <aside className="hidden w-sidebar shrink-0 overflow-hidden border-r border-outline-variant bg-surface-container-low md:flex">
         <SidebarContent />
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col bg-surface-container-lowest">
         <TopAppBar />
-        <main className="min-h-0 flex-1">{children}</main>
+        <main id="main" className="min-h-0 flex-1">
+          {children}
+        </main>
       </div>
 
       {showContextPanel ? (

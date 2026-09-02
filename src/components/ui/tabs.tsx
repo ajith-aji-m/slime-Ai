@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { cn } from "@/lib/utils/cn";
 import { Icon, type IconName } from "./icon";
 
@@ -19,7 +20,7 @@ export interface TabsProps {
   "aria-label": string;
 }
 
-/** Underlined tab bar — DESIGN.md "border-b-2 border-primary" active treatment. */
+/** Underlined tab bar with roving focus + arrow-key navigation (WAI-ARIA). */
 export function Tabs({
   tabs,
   value,
@@ -28,22 +29,44 @@ export function Tabs({
   className,
   "aria-label": ariaLabel,
 }: TabsProps) {
+  const refs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  function onKeyDown(event: React.KeyboardEvent, index: number) {
+    const keys: Record<string, number> = {
+      ArrowLeft: index - 1,
+      ArrowRight: index + 1,
+      Home: 0,
+      End: tabs.length - 1,
+    };
+    if (!(event.key in keys)) return;
+    event.preventDefault();
+    const nextIndex = (keys[event.key] + tabs.length) % tabs.length;
+    onValueChange(tabs[nextIndex].id);
+    refs.current[nextIndex]?.focus();
+  }
+
   return (
     <div
       role="tablist"
       aria-label={ariaLabel}
+      aria-orientation="horizontal"
       className={cn("flex border-b border-outline-variant", className)}
     >
-      {tabs.map((tab) => {
+      {tabs.map((tab, index) => {
         const active = tab.id === value;
         return (
           <button
             key={tab.id}
+            ref={(el) => {
+              refs.current[index] = el;
+            }}
             role="tab"
             type="button"
+            id={`tab-${tab.id}`}
             aria-selected={active}
             tabIndex={active ? 0 : -1}
             onClick={() => onValueChange(tab.id)}
+            onKeyDown={(event) => onKeyDown(event, index)}
             className={cn(
               "flex-1 border-b-2 px-2 py-3.5 text-xs font-semibold tracking-wide transition-colors",
               layout === "stacked" &&

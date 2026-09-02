@@ -30,7 +30,7 @@ export function TopAppBar() {
         "border-b border-outline-variant bg-surface/70 px-4 shadow-sm backdrop-blur-xl md:px-10",
       )}
     >
-      <div className="flex min-w-0 items-center gap-3">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
         <IconButton
           icon="menu"
           label="Open menu"
@@ -42,7 +42,7 @@ export function TopAppBar() {
         </h1>
       </div>
 
-      <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
+      <nav className="hidden shrink-0 items-center gap-6 text-sm font-medium lg:flex">
         {topBarLinks.map((link) => {
           const active =
             pathname === link.href || pathname.startsWith(`${link.href}/`);
@@ -63,7 +63,7 @@ export function TopAppBar() {
         })}
       </nav>
 
-      <div className="flex items-center gap-1 md:gap-2">
+      <div className="flex shrink-0 items-center gap-1 md:gap-2">
         <IconButton icon="history" label="History" />
         <IconButton
           icon="notifications"

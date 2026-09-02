@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Icon } from "@/components/ui";
 import { cn } from "@/lib/utils/cn";
+import { highlight } from "@/lib/code/highlight";
 
 /**
  * Code block with a language header + copy button — matches the exported
@@ -19,6 +20,7 @@ export function CodeBlock({
   filename?: string;
 }) {
   const [copied, setCopied] = useState(false);
+  const tokens = useMemo(() => highlight(code, language), [code, language]);
 
   async function copy() {
     try {
@@ -49,7 +51,17 @@ export function CodeBlock({
         </button>
       </div>
       <pre className="overflow-x-auto bg-surface-container-low p-4 text-[13px] leading-relaxed">
-        <code className="font-mono text-on-surface">{code}</code>
+        <code className="font-mono text-on-surface">
+          {tokens.map((token, i) =>
+            token.type === "plain" ? (
+              token.text
+            ) : (
+              <span key={i} className={`hl-${token.type}`}>
+                {token.text}
+              </span>
+            ),
+          )}
+        </code>
       </pre>
     </div>
   );

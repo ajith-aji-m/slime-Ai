@@ -45,7 +45,11 @@ export function ContextPanel({
         layout={layout}
       />
 
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div
+        role="tabpanel"
+        aria-labelledby={`tab-${contextTab}`}
+        className="min-h-0 flex-1 overflow-y-auto"
+      >
         {contextTab === "files" ? <FilesTab empty={emptyContext} /> : null}
         {contextTab === "sources" ? <SourcesTab /> : null}
         {contextTab === "tools" ? (

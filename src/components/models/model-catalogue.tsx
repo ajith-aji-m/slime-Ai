@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils/cn";
 import { Card, Chip, Icon } from "@/components/ui";
+import type { IconName } from "@/components/ui/icon";
 import { models, providers } from "@/config/providers";
 import { useModelStore } from "@/stores/model-store";
 
@@ -17,7 +18,11 @@ export function ModelCatalogue() {
         return (
           <section key={provider.id}>
             <div className="mb-3 flex items-center gap-2">
-              <Icon name={provider.icon as never} size={18} className="text-primary" />
+              <Icon
+                name={provider.icon as IconName}
+                size={18}
+                className="text-primary"
+              />
               <h3 className="text-sm font-semibold text-on-surface">
                 {provider.name}
               </h3>
@@ -55,7 +60,9 @@ export function ModelCatalogue() {
                         {model.tier === "pro" ? (
                           <Chip tone="primary">Pro</Chip>
                         ) : null}
-                        {!model.available ? <Chip>Coming soon</Chip> : null}
+                        {!model.available && provider.status === "connected" ? (
+                          <Chip>Coming soon</Chip>
+                        ) : null}
                       </div>
                       <p className="mt-1 text-xs text-on-surface-variant">
                         {model.description}

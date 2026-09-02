@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { EmptyState } from "@/components/ui";
 import { useConversationStore } from "@/stores/conversation-store";
@@ -9,6 +9,7 @@ import { Composer } from "./composer";
 
 export function ConversationView({ conversationId }: { conversationId: string }) {
   const router = useRouter();
+  const scrollRef = useRef<HTMLDivElement>(null);
   const hydrated = useConversationStore((s) => s.hydrated);
   const conversation = useConversationStore(
     (s) => s.conversations[conversationId],
@@ -51,16 +52,13 @@ export function ConversationView({ conversationId }: { conversationId: string })
 
   return (
     <div className="flex h-full flex-col">
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
         {conversation.messages.length === 0 ? (
           <div className="flex h-full items-center justify-center">
-            <EmptyState
-              icon="smart_toy"
-              title="How can I assist you today?"
-            />
+            <EmptyState icon="smart_toy" title="How can I assist you today?" />
           </div>
         ) : (
-          <MessageList conversation={conversation} />
+          <MessageList conversation={conversation} scrollRef={scrollRef} />
         )}
       </div>
       <div className="shrink-0 border-t border-outline-variant bg-surface-container-lowest/80 pt-3 shadow-composer backdrop-blur-sm">

@@ -16,10 +16,9 @@ export const hankenGrotesk = Hanken_Grotesk({
  * Material Symbols Outlined — icon font, self-hosted (no CDN, no layout shift).
  * The export uses specific Material Symbols glyphs; we keep them 1:1.
  *
- * NOTE (perf backlog): this ships the full variable icon font (~3.9MB woff2).
- * It loads async with `display: swap` and is immutable-cached, so it never blocks
- * first paint. A later optimization can subset it to the glyph set in
- * `src/config/icons.ts` using `pyftsubset --unicodes=<codepoints> --layout-features=liga`.
+ * The woff2 is subsetted to exactly the glyphs in `ICON_NAMES`
+ * (`src/components/ui/icon.tsx`) — ~77 KB instead of the ~3.9 MB full font.
+ * Regenerate after adding an icon: `node scripts/refresh-icon-font.mjs`.
  */
 export const materialSymbols = localFont({
   src: "../assets/fonts/material-symbols-outlined.woff2",

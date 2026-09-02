@@ -26,7 +26,7 @@ export function UserMessage({
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             rows={3}
-            className="w-full resize-none rounded-lg bg-surface-container-lowest p-2 text-[15px] text-on-surface focus:outline-none"
+            className="sl-field resize-none text-[15px]"
           />
           <div className="mt-2 flex justify-end gap-2">
             <Button

@@ -62,7 +62,7 @@ export function SettingsView() {
             <input
               value={displayName}
               onChange={(e) => setProfile({ displayName: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
+              className="sl-field mt-1"
             />
           </label>
           <label className="block">
@@ -74,7 +74,7 @@ export function SettingsView() {
               value={email}
               placeholder="you@example.com"
               onChange={(e) => setProfile({ email: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
+              className="sl-field mt-1"
             />
           </label>
         </Card>

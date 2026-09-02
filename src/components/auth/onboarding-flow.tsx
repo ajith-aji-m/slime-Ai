@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { GlassPanel, Button, Card, Chip, Icon } from "@/components/ui";
+import { GlassPanel, Button, Chip, Icon } from "@/components/ui";
 import { cn } from "@/lib/utils/cn";
 import { models } from "@/config/providers";
 import { tools } from "@/config/tools";
@@ -65,7 +65,7 @@ export function OnboardingFlow() {
             value={displayName === "You" ? "" : displayName}
             placeholder="Your name"
             onChange={(e) => setProfile({ displayName: e.target.value || "You" })}
-            className="mt-4 h-11 w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 text-sm text-on-surface focus:border-primary focus:outline-none"
+            className="sl-field mt-4 h-11"
           />
         </div>
       ) : null}
@@ -78,32 +78,48 @@ export function OnboardingFlow() {
           <p className="mt-1 text-sm text-on-surface-variant">
             You can change this any time from Model Selector.
           </p>
-          <div className="mt-4 space-y-2">
+          <div
+            role="radiogroup"
+            aria-label="Default model"
+            className="mt-4 space-y-2"
+          >
             {models
               .filter((m) => m.available)
-              .map((model) => (
-                <Card
-                  key={model.id}
-                  className={cn(
-                    "cursor-pointer p-3 transition-colors",
-                    model.id === defaultModelId && "border-primary ring-1 ring-primary",
-                  )}
-                  onClick={() => setDefaultModel(model.id)}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-on-surface">
-                      {model.name}
+              .map((model) => {
+                const selected = model.id === defaultModelId;
+                return (
+                  <button
+                    key={model.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => setDefaultModel(model.id)}
+                    className={cn(
+                      "w-full rounded-xl border border-outline-variant bg-surface-container-lowest p-3 text-left transition-colors hover:bg-surface-variant",
+                      selected && "border-primary ring-1 ring-primary",
+                    )}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-on-surface">
+                        {model.name}
+                      </span>
+                      {model.tier === "pro" ? (
+                        <Chip tone="primary">Pro</Chip>
+                      ) : null}
+                      {selected ? (
+                        <Icon
+                          name="check"
+                          size={16}
+                          className="ml-auto text-primary"
+                        />
+                      ) : null}
                     </span>
-                    {model.tier === "pro" ? <Chip tone="primary">Pro</Chip> : null}
-                    {model.id === defaultModelId ? (
-                      <Icon name="check" size={16} className="ml-auto text-primary" />
-                    ) : null}
-                  </div>
-                  <p className="mt-0.5 text-xs text-on-surface-variant">
-                    {model.description}
-                  </p>
-                </Card>
-              ))}
+                    <span className="mt-0.5 block text-xs text-on-surface-variant">
+                      {model.description}
+                    </span>
+                  </button>
+                );
+              })}
           </div>
         </div>
       ) : null}
