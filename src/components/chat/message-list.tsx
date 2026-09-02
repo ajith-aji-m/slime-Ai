@@ -19,14 +19,15 @@ export function MessageList({ conversation }: { conversation: Conversation }) {
     endRef.current?.scrollIntoView({ block: "end" });
   }, [conversation.messages.length, lastPartsLength]);
 
-  let lastDay = "";
+  const dayLabels = conversation.messages.map((m) =>
+    formatDayLabel(m.createdAt),
+  );
 
   return (
     <div className="mx-auto w-full max-w-thread space-y-8 px-4 py-8 md:px-0">
       {conversation.messages.map((message, index) => {
-        const day = formatDayLabel(message.createdAt);
-        const showDay = day !== lastDay;
-        lastDay = day;
+        const day = dayLabels[index];
+        const showDay = index === 0 || dayLabels[index - 1] !== day;
         const isLastAssistant =
           message.role === "assistant" &&
           index === conversation.messages.length - 1;

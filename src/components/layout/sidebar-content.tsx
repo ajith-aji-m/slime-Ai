@@ -2,7 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { Brand } from "./brand";
-import { PrimaryNav } from "./primary-nav";
+import { PrimaryNavLinks, SecondaryNavLinks } from "./primary-nav";
+import { ConversationList } from "./conversation-list";
 import { Button, IconButton } from "@/components/ui";
 import { useConversationStore } from "@/stores/conversation-store";
 
@@ -18,10 +19,9 @@ export function SidebarContent({
   showClose?: boolean;
 }) {
   const router = useRouter();
-  const createConversation = useConversationStore((s) => s.createConversation);
 
   function handleNewChat() {
-    const id = createConversation();
+    const id = useConversationStore.getState().createConversation();
     onNavigate?.();
     router.push(`/chat/${id}`);
   }
@@ -35,13 +35,19 @@ export function SidebarContent({
         ) : null}
       </div>
 
-      <div className="mb-6 px-4">
+      <div className="mb-4 px-4">
         <Button fullWidth size="lg" iconLeft="add" onClick={handleNewChat}>
           New Chat
         </Button>
       </div>
 
-      <PrimaryNav onNavigate={onNavigate} />
+      <PrimaryNavLinks onNavigate={onNavigate} />
+
+      <div className="my-2 min-h-0 flex-1">
+        <ConversationList onNavigate={onNavigate} />
+      </div>
+
+      <SecondaryNavLinks onNavigate={onNavigate} />
     </div>
   );
 }

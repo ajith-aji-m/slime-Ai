@@ -71,6 +71,7 @@ export const ICON_NAMES = [
   "share",
   "smart_toy",
   "sort",
+  "star",
   "stop",
   "table_chart",
   "task_alt",
