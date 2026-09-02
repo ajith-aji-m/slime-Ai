@@ -55,7 +55,7 @@ export function ConversationList({ onNavigate }: { onNavigate?: () => void }) {
                   onClick={onNavigate}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors",
+                    "flex min-w-0 items-center gap-2 rounded-lg py-2 pl-3 pr-8 text-sm transition-colors",
                     active
                       ? "bg-surface-variant font-medium text-on-surface"
                       : "text-on-surface-variant hover:bg-surface-variant/60 hover:text-on-surface",

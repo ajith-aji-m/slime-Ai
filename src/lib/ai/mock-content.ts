@@ -144,6 +144,6 @@ export function buildMockResponse(prompt: string, tools: ToolId[]): MessagePart[
 
 export function mockTitleFromPrompt(prompt: string): string {
   const clean = prompt.trim().replace(/\s+/g, " ");
-  if (clean.length <= 48) return clean || "New conversation";
-  return `${clean.slice(0, 45)}…`;
+  if (clean.length <= 40) return clean || "New conversation";
+  return `${clean.slice(0, 38)}…`;
 }

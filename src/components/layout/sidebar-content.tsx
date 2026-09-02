@@ -27,7 +27,7 @@ export function SidebarContent({
   }
 
   return (
-    <div className="flex h-full flex-col py-6">
+    <div className="flex h-full w-full min-w-0 flex-col py-6">
       <div className="mb-6 flex items-center justify-between gap-2 px-6">
         <Brand />
         {showClose ? (
@@ -43,7 +43,7 @@ export function SidebarContent({
 
       <PrimaryNavLinks onNavigate={onNavigate} />
 
-      <div className="my-2 min-h-0 flex-1">
+      <div className="my-2 min-h-0 w-full min-w-0 flex-1">
         <ConversationList onNavigate={onNavigate} />
       </div>
 

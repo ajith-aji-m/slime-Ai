@@ -34,7 +34,7 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-full w-full overflow-hidden">
-      <aside className="hidden w-sidebar shrink-0 border-r border-outline-variant bg-surface-container-low md:flex">
+      <aside className="hidden w-sidebar shrink-0 overflow-hidden border-r border-outline-variant bg-surface-container-low md:flex">
         <SidebarContent />
       </aside>
 
