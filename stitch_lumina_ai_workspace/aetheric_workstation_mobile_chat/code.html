@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aether AI Workstation - Chat</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-high": "#e6e8ea",
+                      "on-surface": "#191c1e",
+                      "on-background": "#191c1e",
+                      "on-tertiary-container": "#d9e7ff",
+                      "inverse-on-surface": "#eff1f3",
+                      "surface-tint": "#732ee4",
+                      "surface-container-low": "#f2f4f6",
+                      "secondary-fixed": "#dae2fd",
+                      "on-primary-container": "#ede0ff",
+                      "outline-variant": "#ccc3d8",
+                      "tertiary-fixed-dim": "#b9c7df",
+                      "surface-container": "#eceef0",
+                      "on-tertiary-fixed-variant": "#3a485b",
+                      "inverse-surface": "#2d3133",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary-fixed-dim": "#bec6e0",
+                      "error-container": "#ffdad6",
+                      "on-primary-fixed-variant": "#5a00c6",
+                      "on-secondary-container": "#5c647a",
+                      "tertiary": "#425064",
+                      "on-primary-fixed": "#25005a",
+                      "on-surface-variant": "#4a4455",
+                      "surface-variant": "#e0e3e5",
+                      "on-secondary-fixed": "#131b2e",
+                      "secondary-container": "#dae2fd",
+                      "surface": "#f7f9fb",
+                      "background": "#f7f9fb",
+                      "on-error": "#ffffff",
+                      "surface-bright": "#f7f9fb",
+                      "on-secondary-fixed-variant": "#3f465c",
+                      "primary": "#630ed4",
+                      "outline": "#7b7487",
+                      "on-error-container": "#93000a",
+                      "surface-container-highest": "#e0e3e5",
+                      "primary-fixed": "#eaddff",
+                      "primary-container": "#7c3aed",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary": "#ffffff",
+                      "surface-dim": "#d8dadc",
+                      "primary-fixed-dim": "#d2bbff",
+                      "secondary": "#565e74",
+                      "error": "#ba1a1a",
+                      "tertiary-container": "#5a687c",
+                      "inverse-primary": "#d2bbff",
+                      "on-primary": "#ffffff",
+                      "on-tertiary-fixed": "#0d1c2e",
+                      "tertiary-fixed": "#d5e3fc"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "container-max": "1440px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "40px",
+                      "gutter": "24px",
+                      "unit": "8px"
+              },
+              "fontFamily": {
+                      "label-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-sm": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "display-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg-mobile": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-md": [
+                              "Hanken Grotesk"
+                      ]
+              },
+              "fontSize": {
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col relative overflow-hidden">
+<!-- Top Navigation (Mobile specific adjustment) -->
+<header class="bg-surface/70 dark:bg-background/70 backdrop-blur-xl border-b border-outline-variant shadow-sm flex justify-between items-center h-16 px-margin-mobile w-full sticky top-0 z-40">
+<div class="flex items-center gap-3">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-all rounded-full hover:bg-surface-variant" id="mainMenuBtn">
+<span class="material-symbols-outlined text-2xl">menu</span>
+</button>
+<span class="font-headline-md text-headline-md font-semibold text-on-surface">Aether Workstation</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-all rounded-full hover:bg-surface-variant">
+<span class="material-symbols-outlined text-xl">history</span>
+</button>
+<button class="p-2 text-primary hover:bg-surface-variant rounded-full transition-all" id="intelligenceBtn">
+<span class="material-symbols-outlined text-xl fill">analytics</span>
+</button>
+</div>
+</header>
+<!-- Main Chat Canvas -->
+<main class="flex-1 overflow-y-auto px-margin-mobile pb-32 pt-6 flex flex-col gap-8 w-full max-w-container-max mx-auto">
+<!-- Welcome / Placeholder -->
+<div class="flex flex-col items-center justify-center h-40 opacity-60 mt-10">
+<div class="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-3xl text-primary">smart_toy</span>
+</div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface text-center">How can I assist you today?</h2>
+</div>
+<!-- Sample User Message -->
+<div class="flex justify-end w-full">
+<div class="bg-surface-container-high text-on-surface px-5 py-4 rounded-2xl rounded-tr-sm max-w-[85%] shadow-[0_4px_30px_rgba(15,23,42,0.04)] border border-outline-variant/30">
+<p class="font-body-md text-body-md">Analyze the latest Q3 metrics and generate a brief summary highlighting key growth areas.</p>
+</div>
+</div>
+<!-- Sample AI Response -->
+<div class="flex justify-start w-full">
+<div class="flex gap-3 max-w-[95%]">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center flex-shrink-0 mt-1">
+<span class="material-symbols-outlined text-[16px] text-on-primary-container">smart_toy</span>
+</div>
+<div class="bg-surface-container-lowest text-on-surface px-5 py-4 rounded-2xl rounded-tl-sm shadow-[0_8px_40px_rgba(15,23,42,0.06)] border border-outline-variant">
+<p class="font-body-md text-body-md mb-4">Based on the Q3 metrics, here is a summary of the key growth areas:</p>
+<ul class="space-y-3 font-body-md text-body-md">
+<li class="flex gap-2 items-start">
+<span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span>
+<span><strong>Enterprise Adoption:</strong> Increased by 34% compared to Q2, driven largely by the new integration suite.</span>
+</li>
+<li class="flex gap-2 items-start">
+<span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span>
+<span><strong>User Retention:</strong> Reached an all-time high of 89% for users who completed onboarding.</span>
+</li>
+</ul>
+<div class="mt-4 flex gap-2">
+<button class="px-3 py-1.5 rounded-full border border-outline-variant text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-variant transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">content_copy</span> Copy
+                        </button>
+<button class="px-3 py-1.5 rounded-full border border-outline-variant text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-variant transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">thumb_up</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Floating Composer (Mobile) -->
+<div class="fixed bottom-0 left-0 right-0 p-margin-mobile glass-panel border-t border-outline-variant/50 pb-6">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-2xl shadow-[0_10px_40px_rgba(15,23,42,0.08)] flex flex-col overflow-hidden focus-within:border-primary transition-colors duration-300">
+<textarea class="w-full bg-transparent border-none focus:ring-0 resize-none px-4 py-4 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/50 max-h-32" placeholder="Message Aether..." rows="2"></textarea>
+<div class="flex justify-between items-center px-3 py-2 bg-surface-container-lowest border-t border-outline-variant/30">
+<div class="flex items-center gap-1">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-variant">
+<span class="material-symbols-outlined text-xl">add_circle</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-variant">
+<span class="material-symbols-outlined text-xl">mic</span>
+</button>
+</div>
+<button class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary hover:opacity-90 transition-opacity shadow-sm">
+<span class="material-symbols-outlined text-lg fill">send</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Slide-out Main Nav (Hidden by default on mobile) -->
+<div class="fixed inset-y-0 left-0 w-72 bg-surface-container-low border-r border-outline-variant transform -translate-x-full transition-transform duration-300 ease-in-out z-50 flex flex-col h-full shadow-[20px_0_40px_rgba(15,23,42,0.1)]" id="mainSidebar">
+<div class="p-6 border-b border-outline-variant flex justify-between items-center">
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Aether AI</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Premium Workstation</p>
+</div>
+<button class="p-2 rounded-full hover:bg-surface-variant text-on-surface-variant" id="closeMainBtn">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-4">
+<button class="w-full h-12 bg-primary text-on-primary rounded-xl font-label-md text-label-md font-semibold flex items-center justify-center gap-2 shadow-sm mb-6">
+<span class="material-symbols-outlined">add</span> New Chat
+            </button>
+</div>
+<nav class="flex-1 overflow-y-auto px-4 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 bg-primary-container text-on-primary-container rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">chat</span> Chats
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant rounded-lg transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">folder</span> Projects
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant rounded-lg transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">task_alt</span> Tasks
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant rounded-lg transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">smart_toy</span> Agents
+            </a>
+</nav>
+<div class="p-4 border-t border-outline-variant space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant rounded-lg transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant rounded-lg transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">help</span> Help
+            </a>
+</div>
+</div>
+<!-- Slide-out Intelligence Panel -->
+<div class="fixed inset-y-0 right-0 w-80 bg-surface-container-lowest border-l border-outline-variant transform translate-x-full transition-transform duration-300 ease-in-out z-50 flex flex-col h-full shadow-[-20px_0_40px_rgba(15,23,42,0.1)]" id="intelSidebar">
+<div class="p-6 border-b border-outline-variant flex justify-between items-center bg-surface/50">
+<button class="p-2 rounded-full hover:bg-surface-variant text-on-surface-variant" id="closeIntelBtn">
+<span class="material-symbols-outlined">close</span>
+</button>
+<div class="text-right">
+<h2 class="font-label-md text-label-md font-bold text-on-surface">Intelligence</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Context &amp; Tools</p>
+</div>
+</div>
+<div class="flex border-b border-outline-variant bg-surface-container-low">
+<button class="flex-1 py-4 flex flex-col items-center justify-center gap-1 border-b-2 border-primary text-primary font-bold transition-all">
+<span class="material-symbols-outlined text-lg">description</span>
+<span class="font-label-sm text-label-sm">Files</span>
+</button>
+<button class="flex-1 py-4 flex flex-col items-center justify-center gap-1 text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined text-lg">menu_book</span>
+<span class="font-label-sm text-label-sm">Sources</span>
+</button>
+<button class="flex-1 py-4 flex flex-col items-center justify-center gap-1 text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined text-lg">construction</span>
+<span class="font-label-sm text-label-sm">Tools</span>
+</button>
+<button class="flex-1 py-4 flex flex-col items-center justify-center gap-1 text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined text-lg">analytics</span>
+<span class="font-label-sm text-label-sm">Activity</span>
+</button>
+</div>
+<div class="flex-1 p-4 overflow-y-auto">
+<div class="space-y-4">
+<h3 class="font-label-md text-label-md font-semibold text-on-surface">Active Context</h3>
+<div class="p-3 rounded-xl border border-outline-variant bg-surface-container-lowest flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">description</span>
+</div>
+<div class="flex-1">
+<p class="font-label-md text-label-md text-on-surface truncate">Q3_Metrics_Final.pdf</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">2.4 MB</p>
+</div>
+<button class="text-on-surface-variant hover:text-error"><span class="material-symbols-outlined text-sm">close</span></button>
+</div>
+</div>
+</div>
+</div>
+<!-- Backdrop overlay -->
+<div class="fixed inset-0 bg-on-surface/20 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300" id="backdrop"></div>
+<script>
+        const mainMenuBtn = document.getElementById('mainMenuBtn');
+        const mainSidebar = document.getElementById('mainSidebar');
+        const closeMainBtn = document.getElementById('closeMainBtn');
+        
+        const intelligenceBtn = document.getElementById('intelligenceBtn');
+        const intelSidebar = document.getElementById('intelSidebar');
+        const closeIntelBtn = document.getElementById('closeIntelBtn');
+        
+        const backdrop = document.getElementById('backdrop');
+
+        function openSidebar(sidebar) {
+            backdrop.classList.remove('hidden');
+            // Small delay to allow display block to apply before animating opacity
+            setTimeout(() => {
+                backdrop.classList.remove('opacity-0');
+            }, 10);
+            
+            if(sidebar === 'main') {
+                mainSidebar.classList.remove('-translate-x-full');
+            } else {
+                intelSidebar.classList.remove('translate-x-full');
+            }
+        }
+
+        function closeAllSidebars() {
+            backdrop.classList.add('opacity-0');
+            mainSidebar.classList.add('-translate-x-full');
+            intelSidebar.classList.add('translate-x-full');
+            
+            setTimeout(() => {
+                backdrop.classList.add('hidden');
+            }, 300);
+        }
+
+        mainMenuBtn.addEventListener('click', () => openSidebar('main'));
+        closeMainBtn.addEventListener('click', closeAllSidebars);
+        
+        intelligenceBtn.addEventListener('click', () => openSidebar('intel'));
+        closeIntelBtn.addEventListener('click', closeAllSidebars);
+        
+        backdrop.addEventListener('click', closeAllSidebars);
+    </script>
+</body></html>

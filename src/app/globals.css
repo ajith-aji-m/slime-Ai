@@ -1,26 +1,341 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* =============================================================================
+   Slime AI — Design tokens
+   Source of truth: stitch_lumina_ai_workspace/aetheric_intelligence_light/DESIGN.md
+   Dark values (shipped, not yet exposed): aetheric_intelligence/DESIGN.md
+   ========================================================================== */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Fonts */
+  --font-sans: var(--font-hanken), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, "JetBrains Mono", SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Material-3 surface + color roles (resolved from CSS vars below) */
+  --color-surface: var(--sl-surface);
+  --color-surface-dim: var(--sl-surface-dim);
+  --color-surface-bright: var(--sl-surface-bright);
+  --color-surface-container-lowest: var(--sl-surface-container-lowest);
+  --color-surface-container-low: var(--sl-surface-container-low);
+  --color-surface-container: var(--sl-surface-container);
+  --color-surface-container-high: var(--sl-surface-container-high);
+  --color-surface-container-highest: var(--sl-surface-container-highest);
+  --color-surface-variant: var(--sl-surface-variant);
+
+  --color-on-surface: var(--sl-on-surface);
+  --color-on-surface-variant: var(--sl-on-surface-variant);
+  --color-inverse-surface: var(--sl-inverse-surface);
+  --color-inverse-on-surface: var(--sl-inverse-on-surface);
+
+  --color-background: var(--sl-background);
+  --color-on-background: var(--sl-on-background);
+
+  --color-outline: var(--sl-outline);
+  --color-outline-variant: var(--sl-outline-variant);
+
+  --color-primary: var(--sl-primary);
+  --color-on-primary: var(--sl-on-primary);
+  --color-primary-container: var(--sl-primary-container);
+  --color-on-primary-container: var(--sl-on-primary-container);
+  --color-inverse-primary: var(--sl-inverse-primary);
+
+  --color-secondary: var(--sl-secondary);
+  --color-on-secondary: var(--sl-on-secondary);
+  --color-secondary-container: var(--sl-secondary-container);
+  --color-on-secondary-container: var(--sl-on-secondary-container);
+
+  --color-tertiary: var(--sl-tertiary);
+  --color-on-tertiary: var(--sl-on-tertiary);
+  --color-tertiary-container: var(--sl-tertiary-container);
+  --color-on-tertiary-container: var(--sl-on-tertiary-container);
+
+  --color-error: var(--sl-error);
+  --color-on-error: var(--sl-on-error);
+  --color-error-container: var(--sl-error-container);
+  --color-on-error-container: var(--sl-on-error-container);
+
+  /* Semantic status palette (replaces hard-coded emerald/amber/rose/slate in the export) */
+  --color-success: var(--sl-success);
+  --color-success-container: var(--sl-success-container);
+  --color-on-success-container: var(--sl-on-success-container);
+  --color-warning: var(--sl-warning);
+  --color-warning-container: var(--sl-warning-container);
+  --color-on-warning-container: var(--sl-on-warning-container);
+  --color-neutral-status: var(--sl-neutral-status);
+  --color-neutral-status-container: var(--sl-neutral-status-container);
+  --color-on-neutral-status-container: var(--sl-on-neutral-status-container);
+
+  /* Radius scale — reconciled from DESIGN.md + screenshots (cards 12px, panels 24px) */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 1.75rem;
+
+  /* Layout rhythm (base-8) */
+  --spacing-gutter: 1.5rem;
+  --spacing-page-x-mobile: 1rem;
+  --spacing-page-x-desktop: 2.5rem;
+
+  /* Named layout sizes */
+  --spacing-sidebar: 16rem;
+  --spacing-context-panel: 20rem;
+  --spacing-thread: 48rem;
+  --spacing-container-max: 90rem;
+
+  /* Motion */
+  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ---- Light theme (default / source of truth) ---------------------------- */
+:root {
+  --sl-surface: #f7f9fb;
+  --sl-surface-dim: #d8dadc;
+  --sl-surface-bright: #ffffff;
+  --sl-surface-container-lowest: #ffffff;
+  --sl-surface-container-low: #f2f4f6;
+  --sl-surface-container: #eceef0;
+  --sl-surface-container-high: #e6e8ea;
+  --sl-surface-container-highest: #e0e3e5;
+  --sl-surface-variant: #e0e3e5;
+
+  --sl-on-surface: #191c1e;
+  --sl-on-surface-variant: #4a4455;
+  --sl-inverse-surface: #2d3133;
+  --sl-inverse-on-surface: #eff1f3;
+
+  --sl-background: #f7f9fb;
+  --sl-on-background: #191c1e;
+
+  --sl-outline: #7b7487;
+  --sl-outline-variant: #ccc3d8;
+
+  --sl-primary: #630ed4;
+  --sl-on-primary: #ffffff;
+  --sl-primary-container: #7c3aed;
+  --sl-on-primary-container: #ede0ff;
+  --sl-inverse-primary: #d2bbff;
+
+  --sl-secondary: #565e74;
+  --sl-on-secondary: #ffffff;
+  --sl-secondary-container: #dae2fd;
+  --sl-on-secondary-container: #5c647a;
+
+  --sl-tertiary: #425064;
+  --sl-on-tertiary: #ffffff;
+  --sl-tertiary-container: #5a687c;
+  --sl-on-tertiary-container: #d9e7ff;
+
+  --sl-error: #ba1a1a;
+  --sl-on-error: #ffffff;
+  --sl-error-container: #ffdad6;
+  --sl-on-error-container: #93000a;
+
+  --sl-success: #059669;
+  --sl-success-container: #d1fae5;
+  --sl-on-success-container: #065f46;
+  --sl-warning: #b45309;
+  --sl-warning-container: #fef3c7;
+  --sl-on-warning-container: #92400e;
+  --sl-neutral-status: #64748b;
+  --sl-neutral-status-container: #f1f5f9;
+  --sl-on-neutral-status-container: #334155;
+
+  /* Elevation + glass (from DESIGN.md "Elevation & Depth") */
+  --sl-glass-fill: rgba(255, 255, 255, 0.7);
+  --sl-glass-border: rgba(15, 23, 42, 0.08);
+  --sl-shadow-ambient: 0 10px 40px -10px rgba(15, 23, 42, 0.08);
+  --sl-shadow-composer: 0 -10px 40px -10px rgba(15, 23, 42, 0.08);
+  --sl-shadow-raised: 0 8px 40px rgba(15, 23, 42, 0.06);
+
+  color-scheme: light;
+}
+
+/* ---- Dark theme (wired, not exposed — enable via [data-theme="dark"]) --- */
+[data-theme="dark"] {
+  --sl-surface: #0b1326;
+  --sl-surface-dim: #0b1326;
+  --sl-surface-bright: #31394d;
+  --sl-surface-container-lowest: #060e20;
+  --sl-surface-container-low: #131b2e;
+  --sl-surface-container: #171f33;
+  --sl-surface-container-high: #222a3d;
+  --sl-surface-container-highest: #2d3449;
+  --sl-surface-variant: #2d3449;
+
+  --sl-on-surface: #dae2fd;
+  --sl-on-surface-variant: #ccc3d8;
+  --sl-inverse-surface: #dae2fd;
+  --sl-inverse-on-surface: #283044;
+
+  --sl-background: #0b1326;
+  --sl-on-background: #dae2fd;
+
+  --sl-outline: #958da1;
+  --sl-outline-variant: #4a4455;
+
+  --sl-primary: #d2bbff;
+  --sl-on-primary: #3f008e;
+  --sl-primary-container: #7c3aed;
+  --sl-on-primary-container: #ede0ff;
+  --sl-inverse-primary: #732ee4;
+
+  --sl-secondary: #4cd7f6;
+  --sl-on-secondary: #003640;
+  --sl-secondary-container: #03b5d3;
+  --sl-on-secondary-container: #00424e;
+
+  --sl-tertiary: #ffafd3;
+  --sl-on-tertiary: #620040;
+  --sl-tertiary-container: #ae397b;
+  --sl-on-tertiary-container: #ffdce9;
+
+  --sl-error: #ffb4ab;
+  --sl-on-error: #690005;
+  --sl-error-container: #93000a;
+  --sl-on-error-container: #ffdad6;
+
+  --sl-success: #4ade80;
+  --sl-success-container: #052e16;
+  --sl-on-success-container: #bbf7d0;
+  --sl-warning: #fbbf24;
+  --sl-warning-container: #422006;
+  --sl-on-warning-container: #fde68a;
+  --sl-neutral-status: #94a3b8;
+  --sl-neutral-status-container: #1e293b;
+  --sl-on-neutral-status-container: #cbd5e1;
+
+  --sl-glass-fill: rgba(11, 19, 38, 0.6);
+  --sl-glass-border: rgba(255, 255, 255, 0.08);
+  --sl-shadow-ambient: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+  --sl-shadow-composer: 0 -10px 40px -10px rgba(0, 0, 0, 0.5);
+  --sl-shadow-raised: 0 8px 40px rgba(0, 0, 0, 0.45);
+
+  color-scheme: dark;
+}
+
+/* =============================================================================
+   Base layer
+   ========================================================================== */
+@layer base {
+  html {
+    height: 100%;
+  }
+
+  body {
+    height: 100%;
+    background-color: var(--color-background);
+    color: var(--color-on-background);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* DESIGN.md: body uses generous line-height + slight positive tracking */
+  :where(p, li) {
+    line-height: 1.6;
+  }
+
+  ::selection {
+    background-color: var(--color-primary-container);
+    color: var(--color-on-primary-container);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Slim scrollbars — DESIGN.md "custom slim-line scrollbars" */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-outline-variant) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: var(--color-outline-variant);
+    border-radius: var(--radius-sm);
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* =============================================================================
+   Reusable surface primitives (single source — replaces per-file .glass-panel)
+   ========================================================================== */
+@utility glass-panel {
+  background: var(--sl-glass-fill);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--color-outline-variant);
+}
+
+@utility shadow-ambient {
+  box-shadow: var(--sl-shadow-ambient);
+}
+
+@utility shadow-composer {
+  box-shadow: var(--sl-shadow-composer);
+}
+
+@utility shadow-raised {
+  box-shadow: var(--sl-shadow-raised);
+}
+
+/* Material Symbols icon font (self-hosted via next/font/local) */
+.material-symbol {
+  font-family: var(--font-material-symbols), "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  font-size: inherit;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+  user-select: none;
+}
+.material-symbol[data-fill="true"] {
+  font-variation-settings:
+    "FILL" 1,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+}
+
+@keyframes sl-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@utility animate-fade-in-up {
+  animation: sl-fade-in-up 0.4s var(--ease-emphasized) both;
 }
