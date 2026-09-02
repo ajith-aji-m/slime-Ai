@@ -1,8 +1,11 @@
 import type { ModelInfo, ProviderInfo } from "@/types/provider";
 
 /**
- * Provider + model catalogue. All models are `available: false` until a real
- * integration is wired — the UI reads this list, the mock engine answers for now.
+ * Static provider + model catalogue (Provider Registry + Model Registry).
+ *
+ * This is safe to import on the client — it contains no secrets. Whether a
+ * provider is actually usable (API key present) is resolved at runtime by
+ * `GET /api/models`; see `src/stores/catalogue-store.ts`.
  */
 export const providers: ProviderInfo[] = [
   {
@@ -19,7 +22,7 @@ export const providers: ProviderInfo[] = [
     description: "Open models hosted on NVIDIA inference microservices.",
     icon: "memory",
     kind: "OpenAI-compatible",
-    status: "coming-soon",
+    status: "available",
   },
   {
     id: "openai",
@@ -35,14 +38,22 @@ export const providers: ProviderInfo[] = [
     description: "Any OpenAI-compatible base URL (Groq, Together, local, …).",
     icon: "api",
     kind: "OpenAI-compatible",
-    status: "available",
+    status: "coming-soon",
   },
 ];
 
+const slimeModel = (
+  partial: Omit<ModelInfo, "providerId" | "streaming" | "toolCalling">,
+): ModelInfo => ({
+  providerId: "slime",
+  streaming: true,
+  toolCalling: false,
+  ...partial,
+});
+
 export const models: ModelInfo[] = [
-  {
+  slimeModel({
     id: "slime-core",
-    providerId: "slime",
     name: "Slime Core",
     description: "Balanced default for everyday work across the workstation.",
     badges: ["Balanced", "Vision"],
@@ -50,10 +61,9 @@ export const models: ModelInfo[] = [
     capabilities: ["web_search", "code", "image_gen", "research", "file_analysis"],
     available: true,
     tier: "free",
-  },
-  {
+  }),
+  slimeModel({
     id: "slime-core-lite",
-    providerId: "slime",
     name: "Slime Core Lite",
     description: "Fastest responses for short tasks and quick iteration.",
     badges: ["Fast"],
@@ -61,10 +71,9 @@ export const models: ModelInfo[] = [
     capabilities: ["web_search", "code"],
     available: true,
     tier: "free",
-  },
-  {
+  }),
+  slimeModel({
     id: "slime-core-max",
-    providerId: "slime",
     name: "Slime Core Max",
     description: "Deep reasoning for research, analysis and long context.",
     badges: ["Reasoning", "Long context"],
@@ -72,33 +81,73 @@ export const models: ModelInfo[] = [
     capabilities: ["web_search", "code", "research", "file_analysis"],
     available: true,
     tier: "pro",
-  },
+  }),
+
+  // --- NVIDIA NIM (OpenAI-compatible). `available` is confirmed at runtime. ---
   {
-    id: "nvidia/llama-3.3-70b",
+    id: "nvidia/nvidia/llama-3.1-nemotron-70b-instruct",
+    upstreamId: "nvidia/llama-3.1-nemotron-70b-instruct",
     providerId: "nvidia",
-    name: "Llama 3.3 70B",
-    description: "Open-weight general model hosted on NVIDIA NIM.",
-    badges: ["Open weights"],
+    name: "Nemotron 70B",
+    description: "NVIDIA's RLHF-tuned Llama 3.1 for helpful, aligned responses.",
+    badges: ["Aligned", "128K"],
     contextWindow: 128_000,
-    capabilities: ["web_search", "code"],
+    capabilities: ["code"],
+    streaming: true,
+    toolCalling: true,
     available: false,
     tier: "free",
   },
   {
-    id: "openai/gpt-4o",
-    providerId: "openai",
-    name: "GPT-4o",
-    description: "OpenAI multimodal model.",
-    badges: ["Vision", "Fast"],
+    id: "nvidia/nvidia/nemotron-3.5-lightning-30b-a3b",
+    upstreamId: "nvidia/nemotron-3.5-lightning-30b-a3b",
+    providerId: "nvidia",
+    name: "Nemotron 3.5 Lightning",
+    description: "Fast mixture-of-experts model for quick iteration.",
+    badges: ["Fast", "MoE"],
     contextWindow: 128_000,
-    capabilities: ["web_search", "code", "image_gen"],
+    capabilities: ["code"],
+    streaming: true,
+    toolCalling: false,
+    available: false,
+    tier: "free",
+  },
+  {
+    id: "nvidia/deepseek-ai/deepseek-v4-pro-0813",
+    upstreamId: "deepseek-ai/deepseek-v4-pro-0813",
+    providerId: "nvidia",
+    name: "DeepSeek V4 Pro",
+    description: "Strong reasoning model for research and analysis.",
+    badges: ["Reasoning"],
+    contextWindow: 128_000,
+    capabilities: ["code", "research"],
+    streaming: true,
+    toolCalling: false,
     available: false,
     tier: "pro",
+  },
+  {
+    id: "nvidia/mistralai/mistral-large-2-instruct",
+    upstreamId: "mistralai/mistral-large-2-instruct",
+    providerId: "nvidia",
+    name: "Mistral Large 2",
+    description: "General-purpose model with strong multilingual support.",
+    badges: ["Multilingual", "128K"],
+    contextWindow: 128_000,
+    capabilities: ["code"],
+    streaming: true,
+    toolCalling: true,
+    available: false,
+    tier: "free",
   },
 ];
 
 export const modelsById = Object.fromEntries(
   models.map((m) => [m.id, m]),
 ) as Record<string, ModelInfo>;
+
+export const providersById = Object.fromEntries(
+  providers.map((p) => [p.id, p]),
+) as Record<string, ProviderInfo>;
 
 export const DEFAULT_MODEL_ID = "slime-core";

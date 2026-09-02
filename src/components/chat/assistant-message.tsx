@@ -2,7 +2,7 @@
 
 import { Avatar, Chip, GlassPanel, Icon } from "@/components/ui";
 import { site } from "@/config/site";
-import { modelsById } from "@/config/providers";
+import { useCatalogueStore } from "@/stores/catalogue-store";
 import { formatClockTime } from "@/lib/utils/format";
 import { messageToPlainText } from "@/lib/utils/message-text";
 import type { Message } from "@/types/chat";
@@ -18,8 +18,11 @@ export function AssistantMessage({
   onRegenerate?: () => void;
   isLast: boolean;
 }) {
-  const model = message.modelId ? modelsById[message.modelId] : undefined;
+  const model = useCatalogueStore((s) =>
+    message.modelId ? s.getModel(message.modelId) : undefined,
+  );
   const streaming = message.status === "streaming";
+  const totalTokens = message.usage?.totalTokens;
 
   return (
     <div className="group flex gap-4">
@@ -40,6 +43,11 @@ export function AssistantMessage({
           </span>
           {model ? (
             <Chip icon="auto_awesome">{model.name}</Chip>
+          ) : null}
+          {totalTokens ? (
+            <span className="text-xs text-on-surface-variant/70">
+              {totalTokens.toLocaleString()} tokens
+            </span>
           ) : null}
         </div>
 

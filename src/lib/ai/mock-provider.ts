@@ -74,6 +74,21 @@ export const mockChatProvider: ChatProvider = {
         }
       }
 
+      const words = parts.reduce(
+        (n, p) => n + (p.type === "text" ? p.text.split(/\s+/).length : 0),
+        0,
+      );
+      const completionTokens = Math.round(words * 1.3);
+      const promptTokens = Math.round((prompt ?? "").split(/\s+/).length * 1.3);
+      yield {
+        type: "usage",
+        usage: {
+          promptTokens,
+          completionTokens,
+          totalTokens: promptTokens + completionTokens,
+        },
+      };
+
       yield { type: "done" };
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;

@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { GlassPanel, Button, Chip, Icon } from "@/components/ui";
 import { cn } from "@/lib/utils/cn";
-import { models } from "@/config/providers";
+import { useCatalogueStore } from "@/stores/catalogue-store";
 import { tools } from "@/config/tools";
 import { useModelStore } from "@/stores/model-store";
 import { useSettingsStore } from "@/stores/settings-store";
@@ -23,6 +23,11 @@ export function OnboardingFlow() {
     defaultTools,
     toggleDefaultTool,
   } = useModelStore();
+  const models = useCatalogueStore((s) => s.models);
+
+  useEffect(() => {
+    void useCatalogueStore.getState().refresh();
+  }, []);
 
   function next() {
     if (step < STEPS.length - 1) setStep(step + 1);

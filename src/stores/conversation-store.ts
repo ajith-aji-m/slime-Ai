@@ -105,6 +105,7 @@ export const useConversationStore = create<ConversationState>((set, get) => {
 
     const parts: MessagePart[] = [];
     let activeText: string | null = null;
+    let usage: Message["usage"];
 
     try {
       for await (const chunk of provider.streamChat({
@@ -126,6 +127,9 @@ export const useConversationStore = create<ConversationState>((set, get) => {
           parts[parts.length - 1] = { type: "text", text: activeText };
         } else if (chunk.type === "part-end") {
           activeText = null;
+        } else if (chunk.type === "usage") {
+          usage = chunk.usage;
+          continue;
         } else if (chunk.type === "error") {
           update(id, (c) => ({
             ...c,
@@ -135,6 +139,7 @@ export const useConversationStore = create<ConversationState>((set, get) => {
                     ...m,
                     status: "error",
                     parts: [
+                      ...parts,
                       { type: "text", text: `⚠ ${chunk.message}` },
                     ],
                   }
@@ -156,7 +161,11 @@ export const useConversationStore = create<ConversationState>((set, get) => {
         ...c,
         messages: c.messages.map((m) =>
           m.id === assistantId
-            ? { ...m, status: controller.signal.aborted ? "stopped" : "complete" }
+            ? {
+                ...m,
+                status: controller.signal.aborted ? "stopped" : "complete",
+                usage,
+              }
             : m,
         ),
       }));

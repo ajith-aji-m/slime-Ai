@@ -9,6 +9,7 @@ import { ContextPanel } from "@/components/context-panel/context-panel";
 import { isChatRoute } from "@/lib/page-meta";
 import { useUiStore } from "@/stores/ui-store";
 import { useConversationStore } from "@/stores/conversation-store";
+import { useCatalogueStore } from "@/stores/catalogue-store";
 
 /**
  * The persistent workspace frame: left rail + main column + optional Intelligence
@@ -26,6 +27,7 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     void useConversationStore.getState().hydrate();
+    void useCatalogueStore.getState().refresh();
   }, []);
 
   useEffect(() => {

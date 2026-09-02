@@ -3,10 +3,12 @@
 import { cn } from "@/lib/utils/cn";
 import { Card, Chip, Icon } from "@/components/ui";
 import type { IconName } from "@/components/ui/icon";
-import { models, providers } from "@/config/providers";
+import { useCatalogueStore } from "@/stores/catalogue-store";
 import { useModelStore } from "@/stores/model-store";
 
 export function ModelCatalogue() {
+  const models = useCatalogueStore((s) => s.models);
+  const providers = useCatalogueStore((s) => s.providers);
   const defaultModelId = useModelStore((s) => s.defaultModelId);
   const setDefaultModel = useModelStore((s) => s.setDefaultModel);
 

@@ -1,6 +1,6 @@
-import type { Message, MessagePart, ToolId } from "./chat";
+import type { Message, MessagePart, TokenUsage, ToolId } from "./chat";
 
-/** A single model exposed by a provider. */
+/** A single model exposed by a provider (Model Registry entry). */
 export interface ModelInfo {
   id: string;
   /** provider id that owns this model */
@@ -11,9 +11,18 @@ export interface ModelInfo {
   badges: string[];
   contextWindow: number;
   capabilities: ToolId[];
-  /** false until a real API key / integration is wired */
+  /** provider supports token streaming for this model */
+  streaming: boolean;
+  /** provider supports tool/function calling for this model */
+  toolCalling: boolean;
+  /**
+   * false until a real API key / integration is wired. This is the *static*
+   * default; the live value comes from `GET /api/models`.
+   */
   available: boolean;
   tier: "free" | "pro";
+  /** upstream model id sent to the provider API (server maps this) */
+  upstreamId?: string;
 }
 
 export interface ProviderInfo {
@@ -31,7 +40,8 @@ export type StreamChunk =
   | { type: "part-start"; part: MessagePart }
   | { type: "text-delta"; text: string }
   | { type: "part-end" }
-  | { type: "error"; message: string }
+  | { type: "usage"; usage: TokenUsage }
+  | { type: "error"; message: string; code?: string }
   | { type: "done" };
 
 export interface ChatRequest {

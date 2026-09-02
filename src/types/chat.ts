@@ -31,6 +31,12 @@ export interface Citation {
   href?: string;
 }
 
+export interface TokenUsage {
+  promptTokens?: number;
+  completionTokens?: number;
+  totalTokens?: number;
+}
+
 export interface Attachment {
   id: string;
   name: string;
@@ -52,6 +58,8 @@ export interface Message {
   attachments?: Attachment[];
   /** streaming lifecycle for assistant messages */
   status?: "streaming" | "complete" | "error" | "stopped";
+  /** token usage reported by the provider, when available */
+  usage?: TokenUsage;
   /** set when the user edited their own message */
   editedAt?: string;
 }

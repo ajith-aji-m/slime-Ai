@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils/cn";
 import { Chip, Icon } from "@/components/ui";
 import { Popover } from "@/components/ui/popover";
-import { models, modelsById } from "@/config/providers";
+import { useCatalogueStore } from "@/stores/catalogue-store";
 
 export interface ModelSelectorProps {
   value: string;
@@ -17,7 +17,8 @@ export function ModelSelector({
   onChange,
   variant = "chip",
 }: ModelSelectorProps) {
-  const active = modelsById[value] ?? models[0];
+  const models = useCatalogueStore((s) => s.models);
+  const active = models.find((m) => m.id === value) ?? models[0];
 
   return (
     <Popover
