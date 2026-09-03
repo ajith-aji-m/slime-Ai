@@ -77,13 +77,16 @@ export function Composer({
     }
   }
 
-  const statusLabel = routerStatus ?? (streaming ? "Slime AI is working…" : null);
+  // Only the internal router's transient status ("Optimizing response…") gets a
+  // line here; ordinary streaming is already signalled by the Stop button and
+  // the in-thread indicator, so the composer stays quiet.
+  const statusLabel = routerStatus ?? null;
 
   return (
     <div
       className={cn(
         "mx-auto w-full",
-        variant === "docked" ? "max-w-thread px-4 pb-4 md:px-0" : "max-w-4xl",
+        variant === "docked" ? "max-w-thread px-4 pb-4 md:px-0" : "max-w-3xl",
       )}
     >
       <form
@@ -91,10 +94,10 @@ export function Composer({
           e.preventDefault();
           void submit();
         }}
-        className="rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-sm transition-shadow focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20"
+        className="rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-sm transition-[border-color,box-shadow] duration-150 focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/10"
       >
         <div className="flex items-end gap-1 p-2">
-          <IconButton icon="attach_file" label="Attach file" />
+          <IconButton icon="attach_file" label="Attach file" className="shrink-0" />
           <label htmlFor="composer-input" className="sr-only">
             Message {site.shortName}
           </label>
@@ -123,7 +126,7 @@ export function Composer({
               type="submit"
               disabled={!value.trim()}
               aria-label="Send message"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-40"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary transition-colors hover:bg-primary/90 disabled:bg-surface-container-high disabled:text-on-surface-variant/60"
             >
               <Icon name="arrow_upward" size={18} />
             </button>

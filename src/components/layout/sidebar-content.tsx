@@ -29,20 +29,20 @@ export function SidebarContent({
 
   return (
     <div className="flex h-full w-full min-w-0 flex-col py-4">
-      <div className="mb-4 flex items-center gap-2 px-4">
+      <div className="mb-4 flex items-center gap-1 px-3">
         <Brand showChevron={!showClose} />
         {showClose ? (
           <IconButton icon="close" label="Close menu" onClick={onNavigate} />
         ) : null}
       </div>
 
-      <div className="mb-3 px-4">
+      <div className="mb-2 px-3">
         <Button
           fullWidth
           size="md"
           iconLeft="add"
           onClick={handleNewChat}
-          className="rounded-lg shadow-sm"
+          className="h-10 gap-1.5 rounded-lg text-[13px] font-semibold shadow-none active:bg-primary/90"
         >
           New Chat
         </Button>

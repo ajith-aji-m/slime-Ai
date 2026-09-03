@@ -1,6 +1,5 @@
 "use client";
 
-import { Icon } from "@/components/ui";
 import { ToolStrip } from "./tool-strip";
 import { useComposerStore } from "@/stores/composer-store";
 
@@ -14,9 +13,8 @@ export function QuickActions() {
   const toggleDefaultTool = useComposerStore((s) => s.toggleDefaultTool);
 
   return (
-    <div className="flex flex-col items-center gap-2.5">
-      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-on-surface-variant">
-        <Icon name="bolt" size={14} className="text-primary" />
+    <div className="flex flex-col items-center gap-3">
+      <span className="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant/70">
         Quick actions
       </span>
       <ToolStrip

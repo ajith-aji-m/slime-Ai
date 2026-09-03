@@ -30,7 +30,7 @@ export function TopAppBar() {
         "border-b border-outline-variant bg-surface-container-lowest px-4 md:px-8",
       )}
     >
-      <div className="flex min-w-0 flex-1 items-center gap-3">
+      <div className="flex min-w-0 flex-1 items-center gap-3 pr-2">
         <IconButton
           icon="menu"
           label="Open menu"
@@ -42,7 +42,7 @@ export function TopAppBar() {
         </h1>
       </div>
 
-      <nav className="hidden shrink-0 items-center gap-6 text-sm font-medium lg:flex">
+      <nav className="hidden shrink-0 items-center gap-6 text-sm font-medium xl:flex">
         {topBarLinks.map((link) => {
           const active =
             pathname === link.href || pathname.startsWith(`${link.href}/`);

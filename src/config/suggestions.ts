@@ -17,7 +17,7 @@ export interface Suggestion {
 export const suggestions: Suggestion[] = [
   {
     title: "Deep Research",
-    description: "Synthesize academic papers and market reports on AI.",
+    description: "Synthesize papers, reports and web sources.",
     icon: "science",
     accent: "purple",
     prompt:
@@ -26,7 +26,7 @@ export const suggestions: Suggestion[] = [
   },
   {
     title: "Code Generation",
-    description: "Build & debug code for web, mobile, and more.",
+    description: "Build & debug code across the stack.",
     icon: "code_blocks",
     accent: "green",
     prompt:
@@ -43,7 +43,7 @@ export const suggestions: Suggestion[] = [
   },
   {
     title: "Data Analysis",
-    description: "Analyze data and uncover insights with visualizations.",
+    description: "Surface trends and insights from your data.",
     icon: "insights",
     accent: "amber",
     prompt:

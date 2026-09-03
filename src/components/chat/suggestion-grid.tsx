@@ -25,24 +25,26 @@ export function SuggestionGrid() {
   }
 
   return (
-    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
       {suggestions.map((s) => (
         <Card key={s.title} interactive className="p-0">
           <button
             type="button"
             onClick={() => start(s.prompt, s.tool)}
-            className="flex h-full w-full flex-col gap-3 rounded-[inherit] p-5 text-left"
+            className="flex h-full w-full items-start gap-3.5 rounded-[inherit] p-4 text-left"
           >
             <span
-              className={`inline-flex h-11 w-11 items-center justify-center rounded-xl ${ACCENT[s.accent]}`}
+              className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${ACCENT[s.accent]}`}
             >
-              <Icon name={s.icon} size={22} />
+              <Icon name={s.icon} size={19} />
             </span>
-            <span className="text-[15px] font-semibold text-on-surface">
-              {s.title}
-            </span>
-            <span className="line-clamp-2 text-[13px] leading-relaxed text-on-surface-variant">
-              {s.description}
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold text-on-surface">
+                {s.title}
+              </span>
+              <span className="mt-0.5 block text-[13px] leading-snug text-on-surface-variant">
+                {s.description}
+              </span>
             </span>
           </button>
         </Card>
