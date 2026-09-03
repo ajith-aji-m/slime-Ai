@@ -1,6 +1,6 @@
 "use client";
 
-import { Tabs, type TabItem } from "@/components/ui";
+import { Icon, Tabs, type TabItem } from "@/components/ui";
 import { useUiStore, type ContextTab } from "@/stores/ui-store";
 import { FilesTab } from "./files-tab";
 import { SourcesTab } from "./sources-tab";
@@ -57,6 +57,21 @@ export function ContextPanel({
         ) : null}
         {contextTab === "activity" ? <ActivityTab /> : null}
       </div>
+
+      {emptyContext ? (
+        <div className="border-t border-outline-variant p-4">
+          <div className="rounded-lg border border-outline-variant bg-surface-container-low p-3">
+            <p className="flex items-center gap-1.5 text-xs font-semibold text-on-surface">
+              <Icon name="bolt" size={14} className="text-primary" />
+              Tip
+            </p>
+            <p className="mt-1 text-xs leading-relaxed text-on-surface-variant">
+              Add files, links, or tools to give Slime AI more context and better
+              results.
+            </p>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

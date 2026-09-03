@@ -9,11 +9,16 @@ export function FilesTab({ empty = false }: { empty?: boolean }) {
     return (
       <EmptyState
         className="h-full"
-        icon="description"
+        icon="folder_open"
         title="No active context"
         description="Upload files or connect data sources to provide deeper context for Slime."
         action={
-          <Button variant="outline" size="sm" iconLeft="hub">
+          <Button
+            variant="outline"
+            size="sm"
+            iconLeft="hub"
+            className="rounded-full text-primary"
+          >
             Connect Data
           </Button>
         }

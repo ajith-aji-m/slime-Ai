@@ -8,6 +8,8 @@ import { Icon } from "@/components/ui";
 import { Popover } from "@/components/ui/popover";
 import { useConversationStore } from "@/stores/conversation-store";
 
+const COLLAPSED_COUNT = 8;
+
 export function ConversationList({ onNavigate }: { onNavigate?: () => void }) {
   const params = useParams<{ conversationId?: string }>();
   const router = useRouter();
@@ -16,6 +18,7 @@ export function ConversationList({ onNavigate }: { onNavigate?: () => void }) {
   const { renameConversation, deleteConversation } =
     useConversationStore.getState();
   const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   if (hydrated && summaries.length === 0) {
     return (
@@ -25,13 +28,19 @@ export function ConversationList({ onNavigate }: { onNavigate?: () => void }) {
     );
   }
 
+  const visible =
+    expanded || summaries.length <= COLLAPSED_COUNT
+      ? summaries
+      : summaries.slice(0, COLLAPSED_COUNT);
+  const hasMore = summaries.length > COLLAPSED_COUNT;
+
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto px-2 py-1">
+    <div className="min-h-0 flex-1 overflow-y-auto px-3 py-1">
       <p className="px-2 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant/70">
         Recents
       </p>
       <ul className="space-y-0.5">
-        {summaries.map((summary) => {
+        {visible.map((summary) => {
           const active = summary.id === params.conversationId;
           return (
             <li key={summary.id} className="group/item relative">
@@ -55,9 +64,9 @@ export function ConversationList({ onNavigate }: { onNavigate?: () => void }) {
                   onClick={onNavigate}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "flex min-w-0 items-center gap-2 rounded-lg py-2 pl-3 pr-8 text-sm transition-colors",
+                    "flex min-w-0 items-center gap-2 rounded-lg py-1.5 pl-3 pr-8 text-sm transition-colors",
                     active
-                      ? "bg-surface-variant font-medium text-on-surface"
+                      ? "bg-primary/10 font-semibold text-primary"
                       : "text-on-surface-variant hover:bg-surface-variant/60 hover:text-on-surface",
                   )}
                 >
@@ -112,6 +121,21 @@ export function ConversationList({ onNavigate }: { onNavigate?: () => void }) {
           );
         })}
       </ul>
+
+      {hasMore ? (
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          className="mt-1 flex w-full items-center gap-1 rounded-lg px-3 py-1.5 text-[13px] font-medium text-on-surface-variant transition-colors hover:bg-surface-variant/60 hover:text-on-surface"
+        >
+          {expanded ? "Show less" : "View all conversations"}
+          <Icon
+            name={expanded ? "expand_more" : "chevron_right"}
+            size={16}
+            className={cn(expanded && "rotate-180")}
+          />
+        </button>
+      ) : null}
     </div>
   );
 }

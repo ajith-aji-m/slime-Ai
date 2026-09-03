@@ -27,7 +27,7 @@ export function TopAppBar() {
     <header
       className={cn(
         "sticky top-0 z-30 flex h-16 w-full items-center justify-between gap-4",
-        "border-b border-outline-variant bg-surface/70 px-4 shadow-sm backdrop-blur-xl md:px-10",
+        "border-b border-outline-variant bg-surface-container-lowest px-4 md:px-8",
       )}
     >
       <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -37,7 +37,7 @@ export function TopAppBar() {
           className="md:hidden"
           onClick={openNavDrawer}
         />
-        <h1 className="truncate text-lg font-semibold text-on-surface md:text-xl">
+        <h1 className="truncate text-base font-semibold text-on-surface md:text-lg">
           {title}
         </h1>
       </div>
