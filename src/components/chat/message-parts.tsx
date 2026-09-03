@@ -1,18 +1,21 @@
 import { Icon } from "@/components/ui";
-import type { MessagePart } from "@/types/chat";
+import type { DisplayPart } from "@/lib/canvas/detect";
+import { CanvasReference } from "@/components/canvas/canvas-reference";
 import { Markdown } from "./markdown";
 import { CodeBlock } from "./code-block";
 import { MarkdownTable } from "./markdown-table";
 import { CitationList } from "./citation-list";
 import { ToolCallChip } from "./tool-call-chip";
 
-export function MessageParts({ parts }: { parts: MessagePart[] }) {
+export function MessageParts({ parts }: { parts: DisplayPart[] }) {
   return (
     <div className="text-[15px] leading-relaxed text-on-surface">
       {parts.map((part, i) => {
         switch (part.type) {
           case "text":
             return part.text ? <Markdown key={i} text={part.text} /> : null;
+          case "canvas_ref":
+            return <CanvasReference key={i} artifact={part.artifact} />;
           case "code":
             return (
               <CodeBlock
@@ -44,7 +47,7 @@ export function MessageParts({ parts }: { parts: MessagePart[] }) {
               >
                 <span className="flex items-center gap-2 text-sm">
                   <Icon name="image" size={18} />
-                  Image generation is mocked in this build
+                  Preparing image…
                 </span>
               </div>
             );

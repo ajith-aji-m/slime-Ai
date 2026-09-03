@@ -6,10 +6,12 @@ import { Drawer } from "@/components/ui";
 import { SidebarContent } from "./sidebar-content";
 import { TopAppBar } from "./top-app-bar";
 import { ContextPanel } from "@/components/context-panel/context-panel";
+import { CanvasShell } from "@/components/canvas/canvas-shell";
 import { isChatRoute } from "@/lib/page-meta";
 import { useUiStore } from "@/stores/ui-store";
 import { useConversationStore } from "@/stores/conversation-store";
 import { useAiStatusStore } from "@/stores/ai-status-store";
+import { useCanvasStore } from "@/stores/canvas-store";
 
 /**
  * The persistent workspace frame: left rail + main column + optional Intelligence
@@ -18,12 +20,17 @@ import { useAiStatusStore } from "@/stores/ai-status-store";
  */
 export function WorkspaceShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const showContextPanel = isChatRoute(pathname);
+  const onChat = isChatRoute(pathname);
   const emptyContext = pathname === "/chat";
 
   const navDrawerOpen = useUiStore((s) => s.navDrawerOpen);
   const contextDrawerOpen = useUiStore((s) => s.contextDrawerOpen);
   const closeDrawers = useUiStore((s) => s.closeDrawers);
+  const canvasOpen = useCanvasStore((s) => s.open);
+
+  // Canvas takes the right side of the workspace; the Intelligence panel yields
+  // to it while it's open.
+  const showContextPanel = onChat && !canvasOpen;
 
   useEffect(() => {
     void useConversationStore.getState().hydrate();
@@ -32,6 +39,7 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     closeDrawers();
+    useCanvasStore.getState().collapseForRoute();
   }, [pathname, closeDrawers]);
 
   return (
@@ -58,6 +66,8 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
           <ContextPanel emptyContext={emptyContext} />
         </aside>
       ) : null}
+
+      {onChat ? <CanvasShell /> : null}
 
       <Drawer
         open={navDrawerOpen}

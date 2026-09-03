@@ -24,9 +24,11 @@ Preserve this visual language. Don't introduce a generic UI or a dark theme.
 | `src/components/layout/` | Shell: sidebar, top bar, drawers, page wrappers |
 | `src/components/chat/` | Composer, message list, message parts, markdown/code/table |
 | `src/components/context-panel/` | Files / Sources / Tools / Activity tabs |
+| `src/components/canvas/` | Canvas workspace: shell/header/content + per-type views (code/html/table/report/image) + in-chat `CanvasReference` |
+| `src/lib/canvas/` | Artifact detection from assistant messages (`detect.ts`), table parsing, export helpers |
 | `src/lib/ai/` | `ChatProvider` interface + `mockChatProvider` (registry keyed by providerId) |
 | `src/lib/storage/` | `ConversationStore` interface + IndexedDB adapter + retention job |
-| `src/stores/` | Zustand: conversations, ui, model, settings |
+| `src/stores/` | Zustand: conversations, ui, model, settings, canvas, ai-status |
 | `src/config/` | Static config (nav, providers/models, tools, suggestions, retention) |
 | `src/data/` | Mock content — never import into `ui/` primitives |
 | `src/types/` | Domain types (chat, provider, workspace, storage) |
@@ -46,7 +48,8 @@ Chat UI → conversation-store → getChatProvider()        (no model id)
 ```
 
 - Client never imports a provider SDK, an API key, or a model name.
-- `GET /api/ai/status` → `{ mode }` only. `ai-status-store` consumes it.
+- `GET /api/ai/status` → `{ mode, imageGeneration }` (non-secret capability flags
+  only — never model or provider names). `ai-status-store` consumes it.
 - Model ids live ONLY in `src/config/models.ts` + the `NVIDIA_MODELS` env var.
 - Routing policy (category → ordered roles, attempt cap) is `src/config/ai-router.ts`.
 - Server code in `src/lib/ai/server/*` is `import "server-only"`.
@@ -61,6 +64,28 @@ Chat UI → conversation-store → getChatProvider()        (no model id)
 4. Document env vars in `.env.example` + `src/lib/ai/server/env.ts`.
 
 Nothing in the UI changes.
+
+## Canvas
+
+Substantial structured output opens in the **Canvas** workspace (right side on
+desktop — the chat resizes, no overlay; full-screen slide-up on mobile) instead
+of being dumped into the thread.
+
+- `src/lib/canvas/detect.ts` `planMessageDisplay(message)` runs on **completed**
+  assistant messages: it returns the derived `CanvasArtifact[]` plus the parts
+  the thread should render, with big artifacts collapsed to a `canvas_ref` card.
+  Artifact ids are deterministic (`${messageId}:${partIndex}`) so re-derivation
+  is idempotent. Nothing is written back to stored messages.
+- `useAssistantArtifacts` (in `src/components/canvas/`) registers artifacts in
+  `canvas-store` and auto-opens Canvas **once**, only on a live streaming→complete
+  transition — never when reopening an old conversation. Manual open is the
+  `CanvasReference` card or the top-bar toggle.
+- Artifact types: `code` · `html` (sandboxed `<iframe sandbox>`, no scripts) ·
+  `table` (filter + CSV export) · `report` (Markdown document) · `image`.
+  Add a type: extend `CanvasArtifactType`, add a `*-canvas.tsx` view, wire it in
+  `canvas-content.tsx` + the detector.
+- Image generation is capability-gated (`/api/ai/status` `imageGeneration`,
+  driven by `image: true` on a model in `NVIDIA_MODELS`) — never faked.
 
 ### Local dev tools
 

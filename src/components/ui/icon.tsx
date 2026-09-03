@@ -9,6 +9,7 @@ export const ICON_NAMES = [
   "add_circle",
   "analytics",
   "api",
+  "article",
   "arrow_back",
   "arrow_upward",
   "attach_file",
@@ -32,6 +33,7 @@ export const ICON_NAMES = [
   "delete_sweep",
   "description",
   "done",
+  "download",
   "draw",
   "edit",
   "expand_more",
@@ -71,6 +73,7 @@ export const ICON_NAMES = [
   "share",
   "smart_toy",
   "sort",
+  "space_dashboard",
   "star",
   "stop",
   "table_chart",
@@ -82,6 +85,7 @@ export const ICON_NAMES = [
   "upload",
   "view_list",
   "visibility",
+  "web",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];
