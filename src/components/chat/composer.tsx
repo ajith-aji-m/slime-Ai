@@ -18,6 +18,8 @@ export interface ComposerProps {
   autoFocus?: boolean;
   /** prefill (e.g. from a suggestion card) */
   initialValue?: string;
+  /** hide the in-composer tool row (welcome screen shows Quick actions instead) */
+  showToolStrip?: boolean;
 }
 
 export function Composer({
@@ -25,6 +27,7 @@ export function Composer({
   variant = "docked",
   autoFocus = false,
   initialValue = "",
+  showToolStrip = true,
 }: ComposerProps) {
   const router = useRouter();
   const [value, setValue] = useState(initialValue);
@@ -74,81 +77,90 @@ export function Composer({
     }
   }
 
-  const statusLabel = routerStatus ?? (streaming ? "Slime AI is working…" : "Slime AI");
+  const statusLabel = routerStatus ?? (streaming ? "Slime AI is working…" : null);
 
   return (
     <div
       className={cn(
-        "mx-auto w-full max-w-thread",
-        variant === "docked" && "px-4 pb-4 md:px-0",
+        "mx-auto w-full",
+        variant === "docked" ? "max-w-thread px-4 pb-4 md:px-0" : "max-w-4xl",
       )}
     >
-      <div className="mb-3">
-        <ToolStrip active={activeTools} onToggle={handleToolToggle} />
-      </div>
-
       <form
         onSubmit={(e) => {
           e.preventDefault();
           void submit();
         }}
-        className="glass-panel flex items-end gap-1 rounded-2xl bg-surface-container-lowest/90 p-2 shadow-ambient focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/25"
+        className="rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-sm transition-shadow focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20"
       >
-        <IconButton icon="attach_file" label="Attach file" />
-        <IconButton
-          icon="mic"
-          label="Voice input — coming soon"
-          className="sm:hidden"
-          disabled
-        />
-        <label htmlFor="composer-input" className="sr-only">
-          Message {site.shortName}
-        </label>
-        <textarea
-          id="composer-input"
-          ref={textareaRef}
-          rows={1}
-          autoFocus={autoFocus}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          onKeyDown={onKeyDown}
-          placeholder={`Message ${site.shortName}…`}
-          className="min-h-[44px] flex-1 resize-none bg-transparent px-2 py-2.5 text-base text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none"
-        />
-        {streaming ? (
-          <IconButton
-            icon="stop"
-            label="Stop generating"
-            filled
-            className="bg-primary text-on-primary hover:bg-primary/90 hover:text-on-primary"
-            onClick={() => conversationId && stopStreaming(conversationId)}
+        <div className="flex items-end gap-1 p-2">
+          <IconButton icon="attach_file" label="Attach file" />
+          <label htmlFor="composer-input" className="sr-only">
+            Message {site.shortName}
+          </label>
+          <textarea
+            id="composer-input"
+            ref={textareaRef}
+            rows={1}
+            autoFocus={autoFocus}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={onKeyDown}
+            placeholder={`Message ${site.shortName}…`}
+            className="max-h-52 min-h-[40px] flex-1 resize-none bg-transparent px-2 py-2 text-[15px] text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none"
           />
-        ) : (
-          <button
-            type="submit"
-            disabled={!value.trim()}
-            aria-label="Send message"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-on-primary shadow-sm transition-colors hover:bg-primary/90 disabled:opacity-40"
-          >
-            <Icon name="arrow_upward" size={20} />
-          </button>
-        )}
+          {streaming ? (
+            <button
+              type="button"
+              aria-label="Stop generating"
+              onClick={() => conversationId && stopStreaming(conversationId)}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary transition-colors hover:bg-primary/90"
+            >
+              <Icon name="stop" size={18} filled />
+            </button>
+          ) : (
+            <button
+              type="submit"
+              disabled={!value.trim()}
+              aria-label="Send message"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-40"
+            >
+              <Icon name="arrow_upward" size={18} />
+            </button>
+          )}
+        </div>
+
+        {showToolStrip ? (
+          <div className="flex items-center justify-between gap-3 border-t border-outline-variant px-3 py-2">
+            <ToolStrip
+              active={activeTools}
+              onToggle={handleToolToggle}
+              align="start"
+            />
+            <p className="hidden shrink-0 text-[11px] text-on-surface-variant/70 sm:block">
+              {site.disclaimer}
+            </p>
+          </div>
+        ) : null}
       </form>
 
-      <div className="mt-2 flex flex-col gap-1 px-1 sm:flex-row sm:items-center sm:justify-between">
-        <span
-          className="inline-flex items-center gap-1.5 text-[11px] font-medium text-on-surface-variant"
+      {statusLabel ? (
+        <p
+          className="mt-2 flex items-center justify-center gap-1.5 text-[11px] font-medium text-on-surface-variant"
           aria-live="polite"
         >
           <Icon
             name="auto_awesome"
             size={13}
-            className={streaming ? "animate-pulse text-primary" : "text-primary"}
+            className="animate-pulse text-primary"
           />
           {statusLabel}
-        </span>
-        <p className="text-[11px] text-on-surface-variant/70">{site.disclaimer}</p>
-      </div>
+        </p>
+      ) : !showToolStrip ? (
+        <p className="mt-2 text-center text-[11px] text-on-surface-variant/70">
+          {site.disclaimer}
+        </p>
+      ) : null}
     </div>
   );
 }

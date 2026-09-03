@@ -8,12 +8,22 @@ import type { ToolId } from "@/types/chat";
 export function ToolStrip({
   active,
   onToggle,
+  variant = "chip",
+  align = "center",
 }: {
   active: ToolId[];
   onToggle: (id: ToolId) => void;
+  /** chip = borderless inline (composer), pill = bordered (welcome quick actions) */
+  variant?: "chip" | "pill";
+  align?: "start" | "center";
 }) {
   return (
-    <div className="flex flex-wrap items-center justify-center gap-1">
+    <div
+      className={cn(
+        "flex flex-wrap items-center gap-1.5",
+        align === "center" ? "justify-center" : "justify-start",
+      )}
+    >
       {tools
         .filter((t) => t.inComposer)
         .map((tool) => {
@@ -26,14 +36,23 @@ export function ToolStrip({
               aria-checked={on}
               onClick={() => onToggle(tool.id)}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition-colors",
+                "inline-flex items-center gap-1.5 rounded-full text-xs font-semibold transition-colors",
+                variant === "pill"
+                  ? "border px-3.5 py-2"
+                  : "px-2.5 py-1.5",
                 on
-                  ? "bg-primary-container text-on-primary-container"
-                  : "text-on-surface-variant hover:bg-surface-variant hover:text-primary",
+                  ? variant === "pill"
+                    ? "border-primary/30 bg-primary/10 text-primary"
+                    : "bg-primary/10 text-primary"
+                  : variant === "pill"
+                    ? "border-outline-variant text-on-surface-variant hover:border-outline hover:text-on-surface"
+                    : "text-on-surface-variant hover:bg-surface-variant hover:text-on-surface",
               )}
             >
-              <Icon name={tool.icon} size={18} />
-              <span className="hidden sm:inline">{tool.label}</span>
+              <Icon name={tool.icon} size={16} />
+              <span className={variant === "pill" ? undefined : "hidden sm:inline"}>
+                {tool.label}
+              </span>
             </button>
           );
         })}

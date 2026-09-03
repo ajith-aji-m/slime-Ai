@@ -56,6 +56,10 @@ export interface Message {
   attachments?: Attachment[];
   /** streaming lifecycle for assistant messages */
   status?: "streaming" | "complete" | "error" | "stopped";
+  /** user-facing failure text, set when `status === "error"` (never technical) */
+  error?: string;
+  /** whether retrying the failed response is worthwhile */
+  recoverable?: boolean;
   /** token usage reported by the provider, when available */
   usage?: TokenUsage;
   /**

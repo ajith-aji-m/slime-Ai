@@ -1,10 +1,17 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { GlassPanel, Icon } from "@/components/ui";
-import { suggestions } from "@/config/suggestions";
+import { Card, Icon } from "@/components/ui";
+import { suggestions, type SuggestionAccent } from "@/config/suggestions";
 import { useConversationStore } from "@/stores/conversation-store";
 import type { ToolId } from "@/types/chat";
+
+const ACCENT: Record<SuggestionAccent, string> = {
+  purple: "bg-primary/10 text-primary",
+  green: "bg-success/10 text-success",
+  blue: "bg-[#2563eb]/10 text-[#2563eb]",
+  amber: "bg-warning/10 text-warning",
+};
 
 export function SuggestionGrid() {
   const router = useRouter();
@@ -18,28 +25,27 @@ export function SuggestionGrid() {
   }
 
   return (
-    <div className="grid w-full max-w-4xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {suggestions.map((s) => (
-        <GlassPanel
-          key={s.title}
-          as="div"
-          className="group relative overflow-hidden"
-        >
+        <Card key={s.title} interactive className="p-0">
           <button
             type="button"
             onClick={() => start(s.prompt, s.tool)}
-            className="flex h-full w-full flex-col p-5 text-left transition-transform duration-300 hover:-translate-y-1"
+            className="flex h-full w-full flex-col gap-3 rounded-[inherit] p-5 text-left"
           >
-            <span className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-            <Icon name={s.icon} size={22} className="mb-3 text-primary" />
-            <span className="mb-1 text-sm font-medium text-on-surface">
+            <span
+              className={`inline-flex h-11 w-11 items-center justify-center rounded-xl ${ACCENT[s.accent]}`}
+            >
+              <Icon name={s.icon} size={22} />
+            </span>
+            <span className="text-[15px] font-semibold text-on-surface">
               {s.title}
             </span>
-            <span className="line-clamp-2 text-xs text-on-surface-variant">
+            <span className="line-clamp-2 text-[13px] leading-relaxed text-on-surface-variant">
               {s.description}
             </span>
           </button>
-        </GlassPanel>
+        </Card>
       ))}
     </div>
   );

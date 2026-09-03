@@ -153,10 +153,11 @@ export const useConversationStore = create<ConversationState>((set, get) => {
                 ? {
                     ...m,
                     status: "error",
-                    parts: [
-                      ...parts,
-                      { type: "text", text: `⚠ ${chunk.message}` },
-                    ],
+                    // keep any partial output; the failure is surfaced as a
+                    // contextual inline state, not an injected message part.
+                    parts: [...parts],
+                    error: chunk.message,
+                    recoverable: chunk.recoverable ?? true,
                     generation,
                   }
                 : m,

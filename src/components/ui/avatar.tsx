@@ -31,7 +31,7 @@ export function Avatar({
       className={cn(
         "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full border",
         brand
-          ? "border-white/60 bg-gradient-to-tr from-primary to-primary-container text-on-primary"
+          ? "border-transparent bg-primary text-on-primary"
           : "border-outline-variant bg-surface-container-high text-on-surface-variant",
         className,
       )}

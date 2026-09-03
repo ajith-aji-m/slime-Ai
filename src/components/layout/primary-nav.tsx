@@ -29,10 +29,10 @@ function NavLink({
       onClick={onNavigate}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
+        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
         active
-          ? "bg-primary-container text-on-primary-container"
-          : "text-on-surface-variant hover:bg-surface-variant hover:text-on-surface",
+          ? "bg-primary/10 font-semibold text-primary"
+          : "font-medium text-on-surface-variant hover:bg-surface-variant hover:text-on-surface",
       )}
     >
       <Icon name={icon} filled={active} size={20} />
@@ -44,7 +44,7 @@ function NavLink({
 export function PrimaryNavLinks({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
-    <nav className="space-y-0.5 px-2" aria-label="Primary">
+    <nav className="space-y-0.5 px-3" aria-label="Primary">
       {navigation
         .filter((n) => n.section === "primary")
         .map((item) => (
@@ -63,7 +63,7 @@ export function SecondaryNavLinks({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
     <nav
-      className="space-y-0.5 border-t border-outline-variant px-2 pt-3"
+      className="space-y-0.5 border-t border-outline-variant px-3 pt-3"
       aria-label="Secondary"
     >
       {navigation

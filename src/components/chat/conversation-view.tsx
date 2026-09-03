@@ -61,7 +61,7 @@ export function ConversationView({ conversationId }: { conversationId: string })
           <MessageList conversation={conversation} scrollRef={scrollRef} />
         )}
       </div>
-      <div className="shrink-0 border-t border-outline-variant bg-surface-container-lowest/80 pt-3 shadow-composer backdrop-blur-sm">
+      <div className="shrink-0 border-t border-outline-variant bg-surface-container-lowest pt-3">
         <Composer conversationId={conversationId} autoFocus />
       </div>
     </div>
