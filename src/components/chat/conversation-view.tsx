@@ -61,7 +61,7 @@ export function ConversationView({ conversationId }: { conversationId: string })
           <MessageList conversation={conversation} scrollRef={scrollRef} />
         )}
       </div>
-      <div className="shrink-0 bg-gradient-to-t from-[#06182e]/70 to-transparent px-2 pb-3 pt-4">
+      <div className="shrink-0 bg-gradient-to-t from-surface-container-low/85 to-transparent px-2 pb-3 pt-4">
         <Composer conversationId={conversationId} autoFocus />
       </div>
     </div>

@@ -68,7 +68,7 @@ export function Drawer({
       <div
         onClick={onClose}
         className={cn(
-          "fixed inset-0 z-40 bg-[#03101f]/60 backdrop-blur-sm transition-opacity duration-300",
+          "fixed inset-0 z-40 bg-[color-mix(in_srgb,var(--sl-on-surface)_32%,transparent)] backdrop-blur-sm transition-opacity duration-300",
           open ? "opacity-100" : "opacity-0",
         )}
       />

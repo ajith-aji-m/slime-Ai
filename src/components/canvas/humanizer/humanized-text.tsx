@@ -54,7 +54,7 @@ export function HumanizedText({
         })}
       </p>
 
-      <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-white/10 pt-4 text-[11px] text-on-surface-variant">
+      <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-glass-line pt-4 text-[11px] text-on-surface-variant">
         <span className="inline-flex items-center gap-1.5">
           <span
             className={cn(

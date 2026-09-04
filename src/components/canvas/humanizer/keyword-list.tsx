@@ -54,7 +54,7 @@ export function KeywordList({ keywords }: { keywords: HumanizerKeyword[] }) {
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium",
                     kw.preserved
-                      ? "border-white/15 bg-white/5 text-on-surface"
+                      ? "border-glass-line bg-glass-fill text-on-surface"
                       : "border-error/40 bg-error/5 text-on-surface line-through decoration-error/60",
                   )}
                 >

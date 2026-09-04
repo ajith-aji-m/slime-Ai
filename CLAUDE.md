@@ -14,12 +14,18 @@ glassmorphism** design (do not delete):
   scale. Ported into tokens in `src/app/globals.css`.
 - `template/screen.png` — the reference screen (welcome / new conversation, Search mode).
 
-The theme is a single deep-ocean blue "liquid glass" surface (near-white text,
-cyan/sky accents, three glass panels floating over an ambient gradient with a
-`p-3.5`/`gap-3.5` gutter). It lives in `:root` — there is no separate light
-theme any more. Per-mode accent shifts (Search cyan · Code teal · Research amber
-· Image Gen magenta) are `[data-mode]` blocks that move only the accent family,
-the `--sl-slime-*` mascot gradient and the ambient glow, and interpolate via
+The theme is a single **light "Arctic" aqua** "liquid glass" surface (deep-navy
+text on a pale sky wash, sky/indigo accents, three frosted-white glass panels
+floating over an animated ambient backdrop with a `p-3.5`/`gap-3.5` gutter). It
+lives in `:root` — there is no separate dark theme any more (the `template/`
+export is the older dark ocean look; the palette has since been flipped to
+light — keep the glass *structure*, not the dark values). Ambient life is
+`body` + `body::before` (drifting blobs). Component overlays use the
+`--sl-tint-line` / `--sl-tint-hover` / `--sl-tint-fill` tokens (Tailwind
+`*-glass-line` / `*-glass-hover` / `*-glass-fill`), never raw `white/N`. Per-mode
+accent shifts (Search sky · Code teal · Research amber · Image Gen magenta ·
+Humanizer indigo) are `[data-mode]` blocks that move only the accent family, the
+`--sl-slime-*` mascot gradient and the ambient glow, and interpolate via
 `@property`. Font is Inter. Preserve this visual language.
 
 `stitch_lumina_ai_workspace/` (the earlier violet light design) is gone; ignore

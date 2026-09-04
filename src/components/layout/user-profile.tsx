@@ -41,7 +41,7 @@ export function UserProfile({ onNavigate }: { onNavigate?: () => void }) {
             aria-label="Account menu"
             aria-haspopup="menu"
             aria-expanded={open}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-on-surface-variant transition-colors hover:bg-white/10 hover:text-on-surface"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-on-surface-variant transition-colors hover:bg-glass-hover hover:text-on-surface"
           >
             <Icon name="more_horiz" size={18} />
           </button>

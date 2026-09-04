@@ -67,7 +67,7 @@ export function ConversationList({ onNavigate }: { onNavigate?: () => void }) {
                     "flex min-w-0 items-center gap-2 rounded-2xl py-2 pl-3.5 pr-8 text-[13px] font-medium transition-all",
                     active
                       ? "liquid-pill-active text-white"
-                      : "border border-white/10 bg-white/5 text-on-surface-variant hover:bg-white/15 hover:text-on-surface",
+                      : "border border-glass-line bg-glass-fill text-on-surface-variant hover:bg-glass-hover hover:text-on-surface",
                   )}
                 >
                   {summary.pinned ? (

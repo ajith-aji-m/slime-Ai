@@ -86,8 +86,8 @@ export function SlimeMark({
             r="70"
             gradientUnits="userSpaceOnUse"
           >
-            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.95" />
-            <stop offset="45%" stopColor="#ffffff" stopOpacity="0.3" />
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.7" />
+            <stop offset="45%" stopColor="#ffffff" stopOpacity="0.2" />
             <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
           </radialGradient>
         </defs>

@@ -92,6 +92,11 @@
   --color-outline: var(--sl-outline);
   --color-outline-variant: var(--sl-outline-variant);
 
+  /* Glass tint overlays — hairlines, hover washes and faint fills on glass. */
+  --color-glass-line: var(--sl-tint-line);
+  --color-glass-hover: var(--sl-tint-hover);
+  --color-glass-fill: var(--sl-tint-fill);
+
   --color-primary: var(--sl-primary);
   --color-on-primary: var(--sl-on-primary);
   --color-primary-container: var(--sl-primary-container);
@@ -146,200 +151,204 @@
   --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
 }
 
-/* ---- Ocean "Liquid Glass" theme (default) -------------------------------
-   Deep-water blue workstation from the Stitch export (template/code.html):
-   translucent glass panels floating over an ambient ocean gradient, near-white
-   text, cyan / sky accents. Per-mode accent shifts live in the [data-mode]
-   blocks below — surfaces and typography stay put, only the accent family,
-   mascot gradient and ambient glow move. */
+/* ---- Arctic "Liquid Glass" theme (default) -----------------------------
+   Light, airy aqua workstation: frosted white glass panels floating over a
+   soft sky-blue ambient wash, deep-navy text, sky / indigo accents. Per-mode
+   accent shifts live in the [data-mode] blocks below — surfaces and typography
+   stay put, only the accent family, mascot gradient and ambient glow move. */
 :root {
-  --sl-surface: #0b2039;
-  --sl-surface-dim: #071527;
-  --sl-surface-bright: #16395c;
-  --sl-surface-container-lowest: #081b31;
-  --sl-surface-container-low: #0d243f;
-  --sl-surface-container: #122b49;
-  --sl-surface-container-high: #1a3a5c;
-  --sl-surface-container-highest: #22496e;
-  --sl-surface-variant: #1c3f63;
+  --sl-surface: #f4faff;
+  --sl-surface-dim: #cfe1f0;
+  --sl-surface-bright: #fbfdff;
+  --sl-surface-container-lowest: #f7fbff;
+  --sl-surface-container-low: #ecf4fc;
+  --sl-surface-container: #e2eef9;
+  --sl-surface-container-high: #d6e6f5;
+  --sl-surface-container-highest: #c8dcf0;
+  --sl-surface-variant: #cfe0f0;
 
-  --sl-on-surface: #ebf6ff;
-  --sl-on-surface-variant: #a9cee7;
-  --sl-inverse-surface: #ebf6ff;
-  --sl-inverse-on-surface: #0b2039;
+  --sl-on-surface: #0b2338;
+  --sl-on-surface-variant: #3f5b73;
+  --sl-inverse-surface: #0b2338;
+  --sl-inverse-on-surface: #eef6ff;
 
-  --sl-background: #041024;
-  --sl-on-background: #ebf6ff;
+  --sl-background: #8ec4e8;
+  --sl-on-background: #0b2338;
 
-  --sl-outline: rgba(255, 255, 255, 0.3);
-  --sl-outline-variant: rgba(255, 255, 255, 0.16);
+  --sl-outline: rgba(13, 36, 57, 0.28);
+  --sl-outline-variant: rgba(13, 36, 57, 0.12);
 
-  --sl-primary: #38bdf8;
-  --sl-on-primary: #042638;
-  --sl-primary-container: #0ea5e9;
-  --sl-on-primary-container: #e0f2fe;
+  --sl-primary: #0284c7;
+  --sl-on-primary: #ffffff;
+  --sl-primary-container: #bae6fd;
+  --sl-on-primary-container: #053149;
   --sl-inverse-primary: #7dd3fc;
 
-  --sl-secondary: #60a5fa;
-  --sl-on-secondary: #04283f;
-  --sl-secondary-container: #1e3a8a;
-  --sl-on-secondary-container: #dbeafe;
+  --sl-secondary: #2563eb;
+  --sl-on-secondary: #ffffff;
+  --sl-secondary-container: #dbeafe;
+  --sl-on-secondary-container: #1e3a8a;
 
-  --sl-tertiary: #a5b4fc;
-  --sl-on-tertiary: #1e1b4b;
-  --sl-tertiary-container: #3730a3;
-  --sl-on-tertiary-container: #e0e7ff;
+  --sl-tertiary: #6366f1;
+  --sl-on-tertiary: #ffffff;
+  --sl-tertiary-container: #e0e7ff;
+  --sl-on-tertiary-container: #312e81;
 
-  --sl-error: #ffb4ab;
-  --sl-on-error: #690005;
-  --sl-error-container: #7a1710;
-  --sl-on-error-container: #ffdad6;
+  --sl-error: #dc2626;
+  --sl-on-error: #ffffff;
+  --sl-error-container: #fee2e2;
+  --sl-on-error-container: #7f1d1d;
 
-  --sl-success: #4ade80;
-  --sl-success-container: #0c3320;
-  --sl-on-success-container: #bbf7d0;
-  --sl-warning: #fbbf24;
-  --sl-warning-container: #3f2d06;
-  --sl-on-warning-container: #fde68a;
-  --sl-neutral-status: #94a3b8;
-  --sl-neutral-status-container: #17293f;
-  --sl-on-neutral-status-container: #cbd5e1;
+  --sl-success: #16a34a;
+  --sl-success-container: #dcfce7;
+  --sl-on-success-container: #14532d;
+  --sl-warning: #d97706;
+  --sl-warning-container: #fef3c7;
+  --sl-on-warning-container: #78350f;
+  --sl-neutral-status: #64748b;
+  --sl-neutral-status-container: #e2e8f0;
+  --sl-on-neutral-status-container: #334155;
 
-  /* Code syntax tokens — tuned for the dark ocean surface */
-  --sl-code-keyword: #7dd3fc;
-  --sl-code-string: #6ee7b7;
-  --sl-code-function: #93c5fd;
-  --sl-code-comment: #7089a5;
-  --sl-code-number: #fbbf24;
-  --sl-code-property: #67e8f9;
-  --sl-code-operator: #9fb4cc;
+  /* Code syntax tokens — tuned for a light surface */
+  --sl-code-keyword: #0369a1;
+  --sl-code-string: #047857;
+  --sl-code-function: #2563eb;
+  --sl-code-comment: #64748b;
+  --sl-code-number: #b45309;
+  --sl-code-property: #0e7490;
+  --sl-code-operator: #475569;
 
-  /* Liquid glass — layered fills (a corner specular highlight over a faintly
-     tinted body), crisp rims and depth shadows. Based on the export's
-     .liquid-glass rules, pushed toward a brighter, more optical "Liquid Glass"
-     material. */
+  /* Liquid glass — light: translucent white panels with a corner specular
+     highlight, a bright frosted rim and a soft sky-blue drop shadow for float.
+     `--sl-tint-*` replace raw white/black alpha overlays in components. */
   --sl-glass-fill:
     radial-gradient(
-      90% 70% at 6% 2%,
-      rgba(255, 255, 255, 0.24) 0%,
+      92% 72% at 6% 2%,
+      rgba(255, 255, 255, 0.82) 0%,
       rgba(255, 255, 255, 0) 55%
     ),
     linear-gradient(
       142deg,
-      rgba(255, 255, 255, 0.14) 0%,
-      rgba(255, 255, 255, 0.05) 46%,
-      rgba(120, 200, 255, 0.08) 100%
+      rgba(240, 249, 255, 0.66) 0%,
+      rgba(224, 242, 254, 0.5) 46%,
+      rgba(147, 206, 240, 0.44) 100%
     );
   --sl-glass-inner:
     radial-gradient(
       100% 80% at 0% 0%,
-      rgba(255, 255, 255, 0.3) 0%,
+      rgba(255, 255, 255, 0.88) 0%,
       rgba(255, 255, 255, 0) 60%
     ),
     linear-gradient(
       150deg,
-      rgba(255, 255, 255, 0.16) 0%,
-      rgba(56, 189, 248, 0.1) 100%
+      rgba(240, 249, 255, 0.62) 0%,
+      rgba(147, 206, 240, 0.4) 100%
     );
-  --sl-glass-border: rgba(255, 255, 255, 0.22);
-  --sl-glass-border-inner: rgba(255, 255, 255, 0.28);
+  --sl-glass-border: rgba(13, 36, 57, 0.1);
+  --sl-glass-border-inner: rgba(13, 36, 57, 0.09);
   --sl-shadow-ambient:
-    0 24px 60px -18px rgba(2, 16, 38, 0.66),
-    0 8px 24px -12px rgba(2, 16, 38, 0.5);
-  --sl-shadow-composer: 0 -12px 44px -6px rgba(2, 16, 36, 0.6);
-  --sl-shadow-raised: 0 18px 44px -12px rgba(2, 16, 36, 0.58);
-  /* Reusable glass rim: crisp outer hairline, lit top edge, soft top glow,
-     dark bottom seat — reads as a bevelled sheet of glass against the busy
-     ambient backdrop. */
+    0 28px 64px -20px rgba(3, 74, 122, 0.4),
+    0 10px 26px -10px rgba(9, 40, 70, 0.22);
+  --sl-shadow-composer: 0 -14px 44px -10px rgba(3, 74, 122, 0.28);
+  --sl-shadow-raised: 0 20px 46px -14px rgba(3, 74, 122, 0.32);
+  /* Reusable glass rim: faint dark outer hairline, bright lit top edge, gentle
+     blue bottom seat — a frosted sheet floating on the light wash. */
   --sl-glass-rim:
-    0 0 0 1px rgba(255, 255, 255, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.55),
-    inset 0 3px 8px -3px rgba(255, 255, 255, 0.3),
-    inset 0 -26px 44px -30px rgba(3, 12, 28, 0.6);
+    0 0 0 1px rgba(13, 36, 57, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 3px 8px -4px rgba(255, 255, 255, 0.7),
+    inset 0 -24px 40px -32px rgba(2, 110, 170, 0.16);
   --sl-glass-rim-inner:
-    0 0 0 1px rgba(255, 255, 255, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5),
-    inset 0 -14px 26px -18px rgba(3, 12, 28, 0.55);
+    0 0 0 1px rgba(13, 36, 57, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -14px 24px -18px rgba(2, 110, 170, 0.14);
 
-  /* Mascot gradient + per-mode ambient glow (defaults = cyan / Search). */
-  --sl-slime-1: #bff3f7;
+  /* Semantic tint overlays — replace raw white/N in components so a theme
+     swap is a one-file change. */
+  --sl-tint-line: rgba(13, 36, 57, 0.1);
+  --sl-tint-hover: rgba(13, 36, 57, 0.05);
+  --sl-tint-fill: rgba(13, 36, 57, 0.04);
+
+  /* Mascot gradient + per-mode ambient glow (defaults = sky / Search). */
+  --sl-slime-1: #a5e4fb;
   --sl-slime-mid: #38bdf8;
   --sl-slime-2: #0369a1;
-  --sl-mode-glow: rgba(56, 189, 248, 0.3);
-  --sl-mode-glow-2: rgba(99, 102, 241, 0.22);
-  --sl-mode-ring: rgba(94, 214, 250, 0.65);
+  --sl-mode-glow: rgba(56, 189, 248, 0.28);
+  --sl-mode-glow-2: rgba(99, 102, 241, 0.18);
+  --sl-mode-ring: rgba(2, 132, 199, 0.45);
 
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 /* ---- Per-mode accents ---------------------------------------------------
    [data-mode] is set on the workspace shell by useActiveToolMode. web_search
-   is the resting cyan identity; the others shift the accent + glow + mascot. */
+   is the resting sky identity; the others shift the accent + glow + mascot.
+   Accents are deepened for the light theme so text / icons keep contrast. */
 [data-mode="web_search"] {
-  --sl-primary: #38bdf8;
-  --sl-primary-container: #0ea5e9;
-  --sl-on-primary-container: #e0f2fe;
+  --sl-primary: #0284c7;
+  --sl-primary-container: #bae6fd;
+  --sl-on-primary-container: #053149;
   --sl-inverse-primary: #7dd3fc;
-  --sl-slime-1: #bff3f7;
+  --sl-slime-1: #a5e4fb;
   --sl-slime-mid: #38bdf8;
   --sl-slime-2: #0369a1;
-  --sl-mode-glow: rgba(56, 189, 248, 0.32);
-  --sl-mode-glow-2: rgba(99, 102, 241, 0.22);
-  --sl-mode-ring: rgba(94, 214, 250, 0.7);
+  --sl-mode-glow: rgba(56, 189, 248, 0.3);
+  --sl-mode-glow-2: rgba(99, 102, 241, 0.18);
+  --sl-mode-ring: rgba(2, 132, 199, 0.5);
 }
 
 [data-mode="code"] {
-  --sl-primary: #2dd4bf;
-  --sl-primary-container: #14b8a6;
-  --sl-on-primary-container: #ccfbf1;
+  --sl-primary: #0d9488;
+  --sl-primary-container: #99f6e4;
+  --sl-on-primary-container: #032f2b;
   --sl-inverse-primary: #5eead4;
-  --sl-slime-1: #c7fff0;
+  --sl-slime-1: #9af0e0;
   --sl-slime-mid: #2dd4bf;
   --sl-slime-2: #0f766e;
-  --sl-mode-glow: rgba(45, 212, 191, 0.3);
-  --sl-mode-glow-2: rgba(16, 185, 129, 0.22);
-  --sl-mode-ring: rgba(94, 234, 212, 0.7);
+  --sl-mode-glow: rgba(45, 212, 191, 0.28);
+  --sl-mode-glow-2: rgba(16, 185, 129, 0.18);
+  --sl-mode-ring: rgba(13, 148, 136, 0.5);
 }
 
 [data-mode="research"] {
-  --sl-primary: #fbbf24;
-  --sl-primary-container: #f59e0b;
-  --sl-on-primary-container: #fef3c7;
+  --sl-primary: #d97706;
+  --sl-primary-container: #fde68a;
+  --sl-on-primary-container: #713f12;
   --sl-inverse-primary: #fcd34d;
-  --sl-slime-1: #fff0c9;
+  --sl-slime-1: #ffe6b0;
   --sl-slime-mid: #fbbf24;
   --sl-slime-2: #b45309;
   --sl-mode-glow: rgba(251, 191, 36, 0.28);
-  --sl-mode-glow-2: rgba(249, 115, 22, 0.2);
-  --sl-mode-ring: rgba(253, 211, 77, 0.7);
+  --sl-mode-glow-2: rgba(249, 115, 22, 0.18);
+  --sl-mode-ring: rgba(217, 119, 6, 0.5);
 }
 
 [data-mode="image_gen"] {
-  --sl-primary: #f472b6;
-  --sl-primary-container: #ec4899;
-  --sl-on-primary-container: #fce7f3;
+  --sl-primary: #db2777;
+  --sl-primary-container: #fbcfe8;
+  --sl-on-primary-container: #6d1338;
   --sl-inverse-primary: #f9a8d4;
-  --sl-slime-1: #ffd8ef;
+  --sl-slime-1: #ffcbe6;
   --sl-slime-mid: #f472b6;
   --sl-slime-2: #be185d;
-  --sl-mode-glow: rgba(244, 114, 182, 0.28);
-  --sl-mode-glow-2: rgba(168, 85, 247, 0.22);
-  --sl-mode-ring: rgba(249, 168, 212, 0.7);
+  --sl-mode-glow: rgba(244, 114, 182, 0.26);
+  --sl-mode-glow-2: rgba(168, 85, 247, 0.18);
+  --sl-mode-ring: rgba(219, 39, 119, 0.5);
 }
 
 /* Humanizer — a calm indigo "writing desk" accent, distinct from the other
    modes. */
 [data-mode="humanizer"] {
-  --sl-primary: #a5b4fc;
-  --sl-primary-container: #818cf8;
-  --sl-on-primary-container: #e0e7ff;
-  --sl-inverse-primary: #c7d2fe;
-  --sl-slime-1: #dbe4ff;
-  --sl-slime-mid: #a5b4fc;
+  --sl-primary: #4f46e5;
+  --sl-primary-container: #c7d2fe;
+  --sl-on-primary-container: #2b2470;
+  --sl-inverse-primary: #a5b4fc;
+  --sl-slime-1: #cdd2ff;
+  --sl-slime-mid: #818cf8;
   --sl-slime-2: #4338ca;
-  --sl-mode-glow: rgba(129, 140, 248, 0.28);
-  --sl-mode-glow-2: rgba(99, 102, 241, 0.22);
-  --sl-mode-ring: rgba(165, 180, 252, 0.7);
+  --sl-mode-glow: rgba(129, 140, 248, 0.26);
+  --sl-mode-glow-2: rgba(99, 102, 241, 0.18);
+  --sl-mode-ring: rgba(79, 70, 229, 0.5);
 }
 
 /* =============================================================================
@@ -354,42 +363,38 @@
     position: relative;
     height: 100%;
     background-color: var(--color-background);
-    /* Ambient deep-ocean gel. A dark, high-contrast base with vivid cyan / blue
-       light pooling at opposite corners, a bottom vignette for depth and a
-       whisper-faint grid the glass panels refract. Fixed so it stays calm while
-       content scrolls; the animated blob layer lives on `body::before`. */
+    /* Ambient aqua wash — matched to the liquid-glass reference: a bright
+       diagonal light band top-left falling to a deep azure bottom-right, with
+       soft cyan pooling and a whisper-faint grid the glass panels refract.
+       Fixed so it stays calm while content scrolls; the drifting blob layer is
+       on `body::before` and the rising bubbles are `<AmbientBackdrop>`. */
     background-image:
       repeating-linear-gradient(
         0deg,
-        rgba(255, 255, 255, 0.028) 0 1px,
-        transparent 1px 92px
+        rgba(9, 40, 70, 0.03) 0 1px,
+        transparent 1px 94px
       ),
       repeating-linear-gradient(
         90deg,
-        rgba(255, 255, 255, 0.028) 0 1px,
-        transparent 1px 92px
+        rgba(9, 40, 70, 0.03) 0 1px,
+        transparent 1px 94px
       ),
       radial-gradient(
-        130% 100% at 50% 118%,
-        rgba(2, 8, 20, 0.82),
+        140% 120% at 92% 108%,
+        rgba(2, 92, 150, 0.55),
+        transparent 55%
+      ),
+      radial-gradient(
+        120% 120% at 6% -12%,
+        rgba(233, 246, 255, 0.85),
+        transparent 46%
+      ),
+      radial-gradient(
+        1100px 780px at 20% 8%,
+        rgba(125, 211, 252, 0.35),
         transparent 58%
       ),
-      radial-gradient(
-        1200px 820px at 2% -12%,
-        rgba(56, 189, 248, 0.34),
-        transparent 55%
-      ),
-      radial-gradient(
-        1160px 940px at 106% 112%,
-        rgba(37, 99, 235, 0.38),
-        transparent 55%
-      ),
-      radial-gradient(
-        900px 720px at 58% 40%,
-        rgba(125, 211, 252, 0.1),
-        transparent 60%
-      ),
-      linear-gradient(160deg, #0a3358 0%, #0c4068 44%, #061d38 100%);
+      linear-gradient(158deg, #bfe1f5 0%, #7ec0e6 44%, #3f92c9 100%);
     background-attachment: fixed;
     background-repeat: no-repeat;
     color: var(--color-on-background);
@@ -409,21 +414,21 @@
     pointer-events: none;
     background:
       radial-gradient(
-        34rem 34rem at 14% 12%,
-        rgba(56, 189, 248, 0.32),
+        36rem 36rem at 12% 14%,
+        rgba(186, 232, 255, 0.5),
         transparent 62%
       ),
       radial-gradient(
-        40rem 40rem at 88% 90%,
-        rgba(59, 130, 246, 0.3),
+        44rem 44rem at 90% 92%,
+        rgba(2, 92, 150, 0.42),
         transparent 62%
       ),
       radial-gradient(
-        26rem 26rem at 72% 26%,
-        rgba(165, 180, 252, 0.16),
+        28rem 28rem at 70% 24%,
+        rgba(56, 189, 248, 0.28),
         transparent 66%
       );
-    filter: blur(34px);
+    filter: blur(40px);
     animation: sl-ambient-drift 32s ease-in-out infinite alternate;
   }
 
@@ -436,6 +441,87 @@
     }
     100% {
       transform: translate3d(4%, -1%, 0) scale(1.03);
+    }
+  }
+
+  /* ---- Water bubbles (<AmbientBackdrop>) --------------------------------- */
+  .sl-bubble {
+    position: absolute;
+    bottom: -14vh;
+    display: block;
+    will-change: transform, opacity;
+    animation-name: sl-bubble-rise;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+  .sl-bubble__orb {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 9999px;
+    background:
+      radial-gradient(
+        circle at 30% 26%,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(255, 255, 255, 0.12) 34%,
+        rgba(255, 255, 255, 0) 52%
+      ),
+      radial-gradient(
+        circle at 72% 80%,
+        rgba(120, 192, 230, 0.55) 0%,
+        rgba(120, 192, 230, 0) 60%
+      ),
+      radial-gradient(
+        circle at 50% 50%,
+        rgba(255, 255, 255, 0.08) 0%,
+        rgba(255, 255, 255, 0.02) 100%
+      );
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow:
+      inset 0 0 12px rgba(255, 255, 255, 0.55),
+      inset -5px -7px 16px rgba(70, 140, 195, 0.35),
+      0 0 22px rgba(150, 210, 245, 0.4);
+    backdrop-filter: blur(1px);
+    -webkit-backdrop-filter: blur(1px);
+    will-change: transform;
+    animation-name: sl-bubble-sway;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+  }
+
+  @keyframes sl-bubble-rise {
+    0% {
+      transform: translate3d(0, 0, 0) scale(0.92);
+      opacity: 0;
+    }
+    12% {
+      opacity: 1;
+    }
+    85% {
+      opacity: 1;
+    }
+    100% {
+      transform: translate3d(0, -132vh, 0) scale(1);
+      opacity: 0;
+    }
+  }
+  @keyframes sl-bubble-sway {
+    0% {
+      transform: translateX(calc(var(--sl-bubble-sway, 6px) * -1));
+    }
+    100% {
+      transform: translateX(var(--sl-bubble-sway, 6px));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sl-bubble,
+    .sl-bubble__orb {
+      animation: none;
+    }
+    .sl-bubble {
+      display: none;
     }
   }
 
@@ -512,19 +598,19 @@
   background:
     radial-gradient(
       120% 100% at 0% 0%,
-      rgba(255, 255, 255, 0.28) 0%,
+      rgba(255, 255, 255, 0.35) 0%,
       rgba(255, 255, 255, 0) 55%
     ),
     linear-gradient(
       92deg,
-      color-mix(in srgb, var(--sl-primary) 52%, transparent) 0%,
-      color-mix(in srgb, var(--sl-tertiary) 46%, transparent) 100%
+      color-mix(in srgb, var(--sl-primary) 94%, transparent) 0%,
+      color-mix(in srgb, var(--sl-tertiary) 88%, transparent) 100%
     );
-  border: 1px solid var(--sl-mode-ring);
+  border: 1px solid color-mix(in srgb, var(--sl-primary) 60%, white);
   box-shadow:
-    0 0 22px var(--sl-mode-glow),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5),
-    inset 0 -10px 20px -12px rgba(3, 12, 28, 0.45);
+    0 8px 20px -6px var(--sl-mode-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -10px 20px -12px rgba(2, 40, 70, 0.35);
 }
 
 /* Back-compat aliases (existing markup) — all resolve to a floating panel. */
@@ -623,8 +709,8 @@
 @utility sl-field {
   width: 100%;
   border-radius: var(--radius-md);
-  border: 1px solid var(--sl-glass-border-inner);
-  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--sl-tint-line);
+  background: rgba(255, 255, 255, 0.6);
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
   color: var(--color-on-surface);

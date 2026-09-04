@@ -37,7 +37,7 @@ function NavLink({
           trailing && "pr-11",
           active
             ? "liquid-pill-active font-medium text-white"
-            : "font-medium text-on-surface-variant hover:bg-white/10 hover:text-on-surface",
+            : "font-medium text-on-surface-variant hover:bg-glass-hover hover:text-on-surface",
         )}
       >
         <Icon

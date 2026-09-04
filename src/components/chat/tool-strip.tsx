@@ -43,10 +43,10 @@ export function ToolStrip({
                 on
                   ? variant === "pill"
                     ? "liquid-pill-active text-white"
-                    : "border-[var(--sl-mode-ring)] bg-[color-mix(in_srgb,var(--sl-primary)_22%,transparent)] text-primary"
+                    : "border-[var(--sl-mode-ring)] bg-[color-mix(in_srgb,var(--sl-primary)_16%,transparent)] text-primary"
                   : variant === "pill"
-                    ? "liquid-inner border-white/20 text-on-surface-variant hover:brightness-125"
-                    : "border-transparent text-on-surface-variant hover:bg-white/10 hover:text-on-surface",
+                    ? "liquid-inner border-glass-line text-on-surface-variant hover:bg-glass-hover"
+                    : "border-transparent text-on-surface-variant hover:bg-glass-hover hover:text-on-surface",
               )}
             >
               <Icon name={tool.icon} size={16} />
