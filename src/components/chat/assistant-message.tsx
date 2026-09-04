@@ -69,6 +69,8 @@ export function AssistantMessage({
 
         {!streaming && !errored ? (
           <MessageActions
+            messageId={message.id}
+            speechText={hasContent ? messageToPlainText(message) : undefined}
             onCopy={() =>
               navigator.clipboard?.writeText(messageToPlainText(message))
             }

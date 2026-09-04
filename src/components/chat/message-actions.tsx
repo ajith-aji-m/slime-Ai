@@ -1,16 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IconButton } from "@/components/ui";
+import { useSpeechStore } from "@/stores/speech-store";
 
 export function MessageActions({
+  messageId,
+  speechText,
   onCopy,
   onRegenerate,
 }: {
+  /** required to drive the read-aloud toggle */
+  messageId: string;
+  /** plain text to read aloud; omit to hide the play button */
+  speechText?: string;
   onCopy: () => void;
   onRegenerate?: () => void;
 }) {
   const [copied, setCopied] = useState(false);
+
+  const supported = useSpeechStore((s) => s.supported);
+  const detectSupport = useSpeechStore((s) => s.detectSupport);
+  const speakingId = useSpeechStore((s) => s.speakingId);
+  const speak = useSpeechStore((s) => s.speak);
+  const speaking = speakingId === messageId;
+
+  useEffect(() => {
+    detectSupport();
+  }, [detectSupport]);
 
   return (
     <div className="mt-2 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
@@ -24,6 +41,16 @@ export function MessageActions({
           setTimeout(() => setCopied(false), 1600);
         }}
       />
+      {supported && speechText ? (
+        <IconButton
+          icon={speaking ? "volume_up" : "play_arrow"}
+          label={speaking ? "Stop reading aloud" : "Read aloud"}
+          active={speaking}
+          size="sm"
+          className={speaking ? "animate-pulse" : undefined}
+          onClick={() => speak(messageId, speechText)}
+        />
+      ) : null}
       {onRegenerate ? (
         <IconButton
           icon="refresh"
