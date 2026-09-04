@@ -21,6 +21,21 @@ export const MAX_ATTACHMENT_BYTES = 8 * 1024 * 1024; // 8 MB
  */
 export const MAX_VISION_IMAGE_BYTES = 3 * 1024 * 1024; // 3 MB
 
+/**
+ * Cap on text-like attachments actually sent for analysis (see
+ * `stripAttachmentData`) — their raw content is inlined as a fenced block in
+ * the prompt, so this bounds token usage per turn, not just body size.
+ */
+export const MAX_TEXT_ATTACHMENT_BYTES = 300 * 1024; // 300 KB
+
+const TEXT_MIME_TYPES = new Set([
+  "application/json",
+  "application/csv",
+  "application/xml",
+  "application/x-yaml",
+  "application/yaml",
+]);
+
 export class AttachmentTooLargeError extends Error {
   constructor(public fileName: string) {
     super(`"${fileName}" is larger than 8 MB`);
@@ -54,4 +69,12 @@ export async function fileToAttachment(file: File): Promise<Attachment> {
 
 export function isImageAttachment(attachment: Attachment): boolean {
   return attachment.mimeType.startsWith("image/");
+}
+
+/** Plain text, CSV, JSON, XML, YAML, Markdown — anything worth inlining as-is for a model to read. */
+export function isTextAttachment(attachment: Attachment): boolean {
+  return (
+    attachment.mimeType.startsWith("text/") ||
+    TEXT_MIME_TYPES.has(attachment.mimeType)
+  );
 }

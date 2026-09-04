@@ -22,6 +22,8 @@ import {
   streamNvidiaModel,
   streamNvidiaVision,
 } from "./nvidia";
+import { isSearchConfigured, searchWeb, type SearchResult } from "./search";
+import type { Citation, Message } from "@/types/chat";
 
 /**
  * Build the ordered list of models to try for a task, given the input size.
@@ -68,6 +70,56 @@ function hasImageAttachment(messages: ChatRequest["messages"]): boolean {
   return (lastUser?.attachments ?? []).some(
     (a) => !!a.url && a.mimeType.startsWith("image/"),
   );
+}
+
+/**
+ * Grounds Search mode in real results instead of the model's own (possibly
+ * stale or fabricated) knowledge. Unlike vision/image-gen this augments
+ * ordinary text routing rather than forking away from it — the same
+ * category/model selection still applies, only a system message with real
+ * results (or an honest "search isn't available" note) is prepended, and
+ * successful results become a `citation_group` part the client renders
+ * verbatim (real URLs, not model-invented ones).
+ */
+async function buildSearchGrounding(
+  request: ChatRequest,
+): Promise<{ messages: Message[]; citations: Citation[] }> {
+  if (!request.tools.includes("web_search")) {
+    return { messages: request.messages, citations: [] };
+  }
+
+  const query = lastUserText(request.messages);
+  let results: SearchResult[] = [];
+  if (isSearchConfigured() && query) {
+    results = await searchWeb(query, 5, request.signal);
+  }
+
+  const note: Message = {
+    id: `search-context-${Date.now()}`,
+    role: "system",
+    createdAt: new Date().toISOString(),
+    parts: [
+      {
+        type: "text",
+        text: results.length
+          ? `Live web search results for "${query}" — use them to ground your answer and prefer them over your own knowledge where they conflict:\n\n${results
+              .map((r, i) => `[${i + 1}] ${r.title}\n${r.url}\n${r.snippet}`)
+              .join("\n\n")}`
+          : isSearchConfigured()
+            ? "Web search ran but returned no results. Say so if the user needs current information, rather than answering as if you searched."
+            : "Web search is not configured on this server right now. Answer from your own knowledge and say plainly that you could not search the live web.",
+      },
+    ],
+  };
+
+  return {
+    messages: [note, ...request.messages],
+    citations: results.map((r, i) => ({
+      id: String(i + 1),
+      label: r.title,
+      href: r.url,
+    })),
+  };
 }
 
 /**
@@ -280,7 +332,17 @@ export async function* routeChat(
   }
 
   const category = request.taskHint ?? classifyTask(request.messages, request.tools);
-  const inputChars = estimateInputChars(request.messages);
+
+  let groundedMessages = request.messages;
+  let citations: Citation[] = [];
+  if (request.tools.includes("web_search")) {
+    yield { type: "status", label: "Searching the web…" };
+    const grounding = await buildSearchGrounding(request);
+    groundedMessages = grounding.messages;
+    citations = grounding.citations;
+  }
+
+  const inputChars = estimateInputChars(groundedMessages);
   const plan = planModels(category, inputChars);
 
   if (plan.length === 0) {
@@ -331,7 +393,7 @@ export async function* routeChat(
     try {
       for await (const chunk of streamNvidiaModel({
         upstreamId: model.upstreamId,
-        messages: request.messages,
+        messages: groundedMessages,
         signal: request.signal,
       })) {
         if (chunk.type === "text-delta") {
@@ -364,6 +426,13 @@ export async function* routeChat(
 
     if (!modelError) {
       if (textOpen) yield { type: "part-end" };
+      if (citations.length) {
+        yield {
+          type: "part-start",
+          part: { type: "citation_group", citations },
+        };
+        yield { type: "part-end" };
+      }
       if (pendingUsage) yield { type: "usage", usage: pendingUsage };
       routerLog({
         event: "success",

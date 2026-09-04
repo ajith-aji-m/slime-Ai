@@ -9,6 +9,8 @@ interface AiStatusState {
   mode: AiMode;
   /** whether the backend can actually generate images (never faked) */
   imageGeneration: boolean;
+  /** whether Search mode can ground answers in real web results (never faked) */
+  webSearch: boolean;
   ready: boolean;
   refresh: () => Promise<void>;
 }
@@ -20,6 +22,7 @@ interface AiStatusState {
 export const useAiStatusStore = create<AiStatusState>((set) => ({
   mode: "mock",
   imageGeneration: false,
+  webSearch: false,
   ready: false,
 
   async refresh() {
@@ -29,14 +32,16 @@ export const useAiStatusStore = create<AiStatusState>((set) => ({
       const data = (await res.json()) as {
         mode: AiMode;
         imageGeneration?: boolean;
+        webSearch?: boolean;
       };
       set({
         mode: data.mode === "nvidia" ? "nvidia" : "mock",
         imageGeneration: data.imageGeneration === true,
+        webSearch: data.webSearch === true,
         ready: true,
       });
     } catch {
-      set({ mode: "mock", imageGeneration: false, ready: true });
+      set({ mode: "mock", imageGeneration: false, webSearch: false, ready: true });
     }
   },
 }));

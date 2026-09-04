@@ -16,7 +16,12 @@ import { createId, nowIso } from "@/lib/utils/id";
 import { toggleToolInList } from "@/lib/tool-mode";
 import { activeModeTool } from "@/config/tools";
 import { buildHumanizerMessages } from "@/lib/humanizer";
-import { MAX_VISION_IMAGE_BYTES, isImageAttachment } from "@/lib/utils/file";
+import {
+  MAX_TEXT_ATTACHMENT_BYTES,
+  MAX_VISION_IMAGE_BYTES,
+  isImageAttachment,
+  isTextAttachment,
+} from "@/lib/utils/file";
 
 /** Abort controllers for in-flight streams — kept outside React state. */
 const streams = new Map<string, AbortController>();
@@ -58,11 +63,14 @@ function persist(conversation: Conversation) {
  * IndexedDB, but sent as JSON to `/api/chat` on every turn (the whole
  * history rides along each time) it can blow past the platform's request
  * body limit and fail the turn. So: strip every attachment's `url` before
- * the request leaves the browser, *except* an image on the newest message
- * (the one this turn is about) under `MAX_VISION_IMAGE_BYTES` — the server's
- * vision fork (`routeVision` in `src/lib/ai/server/router.ts`) is the only
- * thing that gets to see it. Everything else keeps only id/name/size/
- * mimeType, which is enough for the model to know a file was attached.
+ * the request leaves the browser, *except* on the newest message (the one
+ * this turn is about) — an image under `MAX_VISION_IMAGE_BYTES` (the
+ * server's vision fork, `routeVision` in `src/lib/ai/server/router.ts`, is
+ * the only thing that gets to see it) or a text-like file under
+ * `MAX_TEXT_ATTACHMENT_BYTES` (inlined as a fenced block — see
+ * `attachmentsContent` in `src/lib/ai/server/messages.ts`). Everything else
+ * keeps only id/name/size/mimeType, enough for the model to know a file was
+ * attached without seeing its contents.
  */
 function stripAttachmentData(messages: Message[]): Message[] {
   const lastIndex = messages.length - 1;
@@ -72,11 +80,11 @@ function stripAttachmentData(messages: Message[]): Message[] {
     return {
       ...m,
       attachments: m.attachments.map((a) => {
-        const keepForVision =
+        const keep =
           isNewestMessage &&
-          isImageAttachment(a) &&
-          a.size <= MAX_VISION_IMAGE_BYTES;
-        if (keepForVision) return a;
+          ((isImageAttachment(a) && a.size <= MAX_VISION_IMAGE_BYTES) ||
+            (isTextAttachment(a) && a.size <= MAX_TEXT_ATTACHMENT_BYTES));
+        if (keep) return a;
         const { id, name, size, mimeType } = a;
         return { id, name, size, mimeType };
       }),

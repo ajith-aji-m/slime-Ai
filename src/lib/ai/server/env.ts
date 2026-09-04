@@ -28,3 +28,19 @@ export function readNvidiaEnv(): NvidiaEnv | null {
 export const REQUEST_TIMEOUT_MS = Number(
   process.env.AI_REQUEST_TIMEOUT_MS ?? 60_000,
 );
+
+export interface SearchEnv {
+  apiKey: string;
+}
+
+/**
+ * Optional real web search backend (Brave Search API — generous free tier,
+ * simple REST GET). Absent by default: Search mode still works as a
+ * routing hint without it, it just can't ground answers in live results —
+ * see `isSearchConfigured`/`searchWeb` in `./search.ts`.
+ */
+export function readSearchEnv(): SearchEnv | null {
+  const apiKey = process.env.BRAVE_SEARCH_API_KEY?.trim();
+  if (!apiKey) return null;
+  return { apiKey };
+}
