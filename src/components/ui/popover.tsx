@@ -59,7 +59,7 @@ export function Popover({
           role="dialog"
           aria-labelledby={triggerId}
           className={cn(
-            "absolute z-50 min-w-[240px] rounded-xl border border-outline-variant bg-surface-container-lowest p-1.5 shadow-ambient",
+            "glass-panel absolute z-50 min-w-[240px] rounded-xl p-1.5 shadow-ambient",
             side === "bottom" ? "top-[calc(100%+8px)]" : "bottom-[calc(100%+8px)]",
             align === "start" ? "left-0" : "right-0",
             className,

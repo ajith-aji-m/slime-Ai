@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Avatar, Icon } from "@/components/ui";
+import { Icon, SlimeMark } from "@/components/ui";
 import { site } from "@/config/site";
 
 export function Brand({
@@ -13,11 +13,13 @@ export function Brand({
   return (
     <Link
       href={href}
-      className="flex min-w-0 flex-1 items-center gap-2.5 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      className="group flex min-w-0 flex-1 items-center gap-3 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-primary"
     >
-      <Avatar name={site.name} icon="cloud" brand size={36} />
+      <span className="liquid-inner flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl">
+        <SlimeMark size={30} />
+      </span>
       <span className="min-w-0 flex-1 leading-tight">
-        <span className="block truncate text-[15px] font-bold text-on-surface">
+        <span className="block truncate text-[15px] font-bold tracking-tight text-on-surface">
           {site.name}
         </span>
         <span className="block truncate text-[11px] font-medium text-on-surface-variant">

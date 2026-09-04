@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { hankenGrotesk, materialSymbols } from "@/lib/fonts";
+import { appFont, materialSymbols } from "@/lib/fonts";
 import { site } from "@/config/site";
 import { ThemeScript } from "@/components/providers/theme-script";
 import "./globals.css";
@@ -14,8 +14,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f7f9fb",
-  colorScheme: "light",
+  themeColor: "#061c30",
+  colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
 };
@@ -25,7 +25,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`${hankenGrotesk.variable} ${materialSymbols.variable} h-full`}
+      className={`${appFont.variable} ${materialSymbols.variable} h-full`}
       suppressHydrationWarning
     >
       <body className="h-full bg-background text-on-background antialiased">

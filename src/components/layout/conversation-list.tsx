@@ -64,10 +64,10 @@ export function ConversationList({ onNavigate }: { onNavigate?: () => void }) {
                   onClick={onNavigate}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "flex min-w-0 items-center gap-2 rounded-lg py-1.5 pl-3 pr-8 text-sm transition-colors",
+                    "flex min-w-0 items-center gap-2 rounded-2xl py-2 pl-3.5 pr-8 text-[13px] font-medium transition-all",
                     active
-                      ? "bg-primary/10 font-semibold text-primary"
-                      : "text-on-surface-variant hover:bg-surface-variant/60 hover:text-on-surface",
+                      ? "liquid-pill-active text-white"
+                      : "border border-white/10 bg-white/5 text-on-surface-variant hover:bg-white/15 hover:text-on-surface",
                   )}
                 >
                   {summary.pinned ? (

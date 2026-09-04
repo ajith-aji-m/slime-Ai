@@ -40,9 +40,10 @@ export function SidebarContent({
         <Button
           fullWidth
           size="md"
+          variant="glass"
           iconLeft="add"
           onClick={handleNewChat}
-          className="h-10 gap-1.5 rounded-lg text-[13px] font-semibold shadow-none active:bg-primary/90"
+          className="h-11 gap-2 rounded-2xl text-[13px] font-semibold tracking-wide"
         >
           New Chat
         </Button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, Icon } from "@/components/ui";
+import { Icon, SlimeMark } from "@/components/ui";
 import { site } from "@/config/site";
 import { formatClockTime } from "@/lib/utils/format";
 import { messageToPlainText } from "@/lib/utils/message-text";
@@ -31,13 +31,9 @@ export function AssistantMessage({
 
   return (
     <div className="group flex gap-4">
-      <Avatar
-        name={site.assistantName}
-        icon="psychology"
-        brand
-        size={36}
-        className="mt-1"
-      />
+      <span className="liquid-inner mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl">
+        <SlimeMark size={26} />
+      </span>
       <div className="min-w-0 flex-1">
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <span className="text-sm font-semibold text-on-surface">
@@ -49,7 +45,7 @@ export function AssistantMessage({
         </div>
 
         {(hasContent || streaming) && !(errored && !hasContent) ? (
-          <div className="rounded-2xl rounded-tl-sm border border-outline-variant bg-surface-container-lowest px-5 py-4">
+          <div className="liquid-inner rounded-2xl rounded-tl-sm px-5 py-4">
             {!hasContent && streaming ? (
               <span className="flex items-center gap-1.5 text-sm text-on-surface-variant">
                 <Icon name="graphic_eq" size={16} className="animate-pulse" />

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Avatar, Icon } from "@/components/ui";
+import { Icon } from "@/components/ui";
 import { Popover } from "@/components/ui/popover";
 import { useSettingsStore } from "@/stores/settings-store";
 
@@ -19,10 +19,12 @@ export function UserProfile({ onNavigate }: { onNavigate?: () => void }) {
   const name = displayName === "You" ? "Your account" : displayName;
 
   return (
-    <div className="mt-2 flex items-center gap-2.5 border-t border-outline-variant px-4 pt-3">
-      <Avatar name={name} size={32} />
+    <div className="liquid-inner mx-2 mt-2 flex items-center gap-2.5 rounded-2xl px-3 py-2">
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-fuchsia-500 to-indigo-400 text-[11px] font-bold text-white shadow-md">
+        {name.slice(0, 1).toUpperCase()}
+      </span>
       <span className="min-w-0 flex-1 leading-tight">
-        <span className="block truncate text-sm font-semibold text-on-surface">
+        <span className="block truncate text-[13px] font-semibold text-on-surface">
           {name}
         </span>
         <span className="block truncate text-[11px] text-on-surface-variant">
@@ -39,7 +41,7 @@ export function UserProfile({ onNavigate }: { onNavigate?: () => void }) {
             aria-label="Account menu"
             aria-haspopup="menu"
             aria-expanded={open}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-on-surface-variant transition-colors hover:bg-surface-variant hover:text-on-surface"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-on-surface-variant transition-colors hover:bg-white/10 hover:text-on-surface"
           >
             <Icon name="more_horiz" size={18} />
           </button>

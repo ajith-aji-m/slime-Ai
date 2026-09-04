@@ -1,5 +1,64 @@
 @import "tailwindcss";
 
+/* -----------------------------------------------------------------------------
+   Animatable theme channels
+   Registering the mode-driven accents as <color> lets a [data-mode] change
+   *interpolate* everywhere they're consumed (primary accents, the slime mark,
+   the ambient glow) instead of snapping. The transition itself is declared on
+   `.sl-mode-root` (the workspace shell). Browsers without @property just skip
+   the animation and cascade normally.
+   -------------------------------------------------------------------------- */
+@property --sl-primary {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #38bdf8;
+}
+@property --sl-primary-container {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #0ea5e9;
+}
+@property --sl-on-primary-container {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #e0f2fe;
+}
+@property --sl-inverse-primary {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #7dd3fc;
+}
+@property --sl-slime-1 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #bff3f7;
+}
+@property --sl-slime-mid {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #38bdf8;
+}
+@property --sl-slime-2 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #0369a1;
+}
+@property --sl-mode-glow {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(56, 189, 248, 0.3);
+}
+@property --sl-mode-glow-2 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(99, 102, 241, 0.22);
+}
+@property --sl-mode-ring {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(94, 214, 250, 0.65);
+}
+
 /* =============================================================================
    Slime AI — Design tokens
    Source of truth: stitch_lumina_ai_workspace/aetheric_intelligence_light/DESIGN.md
@@ -8,7 +67,7 @@
 
 @theme inline {
   /* Fonts */
-  --font-sans: var(--font-hanken), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-app), "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: ui-monospace, "JetBrains Mono", SFMono-Regular, Menlo, Consolas, monospace;
 
   /* Material-3 surface + color roles (resolved from CSS vars below) */
@@ -87,181 +146,156 @@
   --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
 }
 
-/* ---- Light theme (default / source of truth) ---------------------------- */
+/* ---- Ocean "Liquid Glass" theme (default) -------------------------------
+   Deep-water blue workstation from the Stitch export (template/code.html):
+   translucent glass panels floating over an ambient ocean gradient, near-white
+   text, cyan / sky accents. Per-mode accent shifts live in the [data-mode]
+   blocks below — surfaces and typography stay put, only the accent family,
+   mascot gradient and ambient glow move. */
 :root {
-  --sl-surface: #f7f9fb;
-  --sl-surface-dim: #d8dadc;
-  --sl-surface-bright: #ffffff;
-  --sl-surface-container-lowest: #ffffff;
-  --sl-surface-container-low: #f2f4f6;
-  --sl-surface-container: #eceef0;
-  --sl-surface-container-high: #e6e8ea;
-  --sl-surface-container-highest: #e0e3e5;
-  --sl-surface-variant: #e0e3e5;
+  --sl-surface: #0b2039;
+  --sl-surface-dim: #071527;
+  --sl-surface-bright: #16395c;
+  --sl-surface-container-lowest: #081b31;
+  --sl-surface-container-low: #0d243f;
+  --sl-surface-container: #122b49;
+  --sl-surface-container-high: #1a3a5c;
+  --sl-surface-container-highest: #22496e;
+  --sl-surface-variant: #1c3f63;
 
-  --sl-on-surface: #191c1e;
-  --sl-on-surface-variant: #4a4455;
-  --sl-inverse-surface: #2d3133;
-  --sl-inverse-on-surface: #eff1f3;
+  --sl-on-surface: #ebf6ff;
+  --sl-on-surface-variant: #a9cee7;
+  --sl-inverse-surface: #ebf6ff;
+  --sl-inverse-on-surface: #0b2039;
 
-  --sl-background: #f7f9fb;
-  --sl-on-background: #191c1e;
+  --sl-background: #041024;
+  --sl-on-background: #ebf6ff;
 
-  --sl-outline: #7b7487;
-  --sl-outline-variant: #ccc3d8;
+  --sl-outline: rgba(255, 255, 255, 0.3);
+  --sl-outline-variant: rgba(255, 255, 255, 0.16);
 
-  --sl-primary: #630ed4;
-  --sl-on-primary: #ffffff;
-  --sl-primary-container: #7c3aed;
-  --sl-on-primary-container: #ede0ff;
-  --sl-inverse-primary: #d2bbff;
+  --sl-primary: #38bdf8;
+  --sl-on-primary: #042638;
+  --sl-primary-container: #0ea5e9;
+  --sl-on-primary-container: #e0f2fe;
+  --sl-inverse-primary: #7dd3fc;
 
-  --sl-secondary: #565e74;
-  --sl-on-secondary: #ffffff;
-  --sl-secondary-container: #dae2fd;
-  --sl-on-secondary-container: #5c647a;
+  --sl-secondary: #60a5fa;
+  --sl-on-secondary: #04283f;
+  --sl-secondary-container: #1e3a8a;
+  --sl-on-secondary-container: #dbeafe;
 
-  --sl-tertiary: #425064;
-  --sl-on-tertiary: #ffffff;
-  --sl-tertiary-container: #5a687c;
-  --sl-on-tertiary-container: #d9e7ff;
-
-  --sl-error: #ba1a1a;
-  --sl-on-error: #ffffff;
-  --sl-error-container: #ffdad6;
-  --sl-on-error-container: #93000a;
-
-  --sl-success: #059669;
-  --sl-success-container: #d1fae5;
-  --sl-on-success-container: #065f46;
-  --sl-warning: #b45309;
-  --sl-warning-container: #fef3c7;
-  --sl-on-warning-container: #92400e;
-  --sl-neutral-status: #64748b;
-  --sl-neutral-status-container: #f1f5f9;
-  --sl-on-neutral-status-container: #334155;
-
-  /* Code syntax tokens — mirrors the export's .keyword/.string/.function/.comment */
-  --sl-code-keyword: #7c3aed;
-  --sl-code-string: #059669;
-  --sl-code-function: #2563eb;
-  --sl-code-comment: #64748b;
-  --sl-code-number: #b45309;
-  --sl-code-property: #0369a1;
-  --sl-code-operator: #64748b;
-
-  /* Elevation + glass (from DESIGN.md "Elevation & Depth") */
-  --sl-glass-fill: rgba(255, 255, 255, 0.7);
-  --sl-glass-border: rgba(15, 23, 42, 0.08);
-  --sl-shadow-ambient: 0 10px 40px -10px rgba(15, 23, 42, 0.08);
-  --sl-shadow-composer: 0 -10px 40px -10px rgba(15, 23, 42, 0.08);
-  --sl-shadow-raised: 0 8px 40px rgba(15, 23, 42, 0.06);
-
-  color-scheme: light;
-}
-
-/* ---- Dark theme (wired, not exposed — enable via [data-theme="dark"]) --- */
-[data-theme="dark"] {
-  --sl-surface: #0b1326;
-  --sl-surface-dim: #0b1326;
-  --sl-surface-bright: #31394d;
-  --sl-surface-container-lowest: #060e20;
-  --sl-surface-container-low: #131b2e;
-  --sl-surface-container: #171f33;
-  --sl-surface-container-high: #222a3d;
-  --sl-surface-container-highest: #2d3449;
-  --sl-surface-variant: #2d3449;
-
-  --sl-on-surface: #dae2fd;
-  --sl-on-surface-variant: #ccc3d8;
-  --sl-inverse-surface: #dae2fd;
-  --sl-inverse-on-surface: #283044;
-
-  --sl-background: #0b1326;
-  --sl-on-background: #dae2fd;
-
-  --sl-outline: #958da1;
-  --sl-outline-variant: #4a4455;
-
-  --sl-primary: #d2bbff;
-  --sl-on-primary: #3f008e;
-  --sl-primary-container: #7c3aed;
-  --sl-on-primary-container: #ede0ff;
-  --sl-inverse-primary: #732ee4;
-
-  --sl-secondary: #4cd7f6;
-  --sl-on-secondary: #003640;
-  --sl-secondary-container: #03b5d3;
-  --sl-on-secondary-container: #00424e;
-
-  --sl-tertiary: #ffafd3;
-  --sl-on-tertiary: #620040;
-  --sl-tertiary-container: #ae397b;
-  --sl-on-tertiary-container: #ffdce9;
+  --sl-tertiary: #a5b4fc;
+  --sl-on-tertiary: #1e1b4b;
+  --sl-tertiary-container: #3730a3;
+  --sl-on-tertiary-container: #e0e7ff;
 
   --sl-error: #ffb4ab;
   --sl-on-error: #690005;
-  --sl-error-container: #93000a;
+  --sl-error-container: #7a1710;
   --sl-on-error-container: #ffdad6;
 
   --sl-success: #4ade80;
-  --sl-success-container: #052e16;
+  --sl-success-container: #0c3320;
   --sl-on-success-container: #bbf7d0;
   --sl-warning: #fbbf24;
-  --sl-warning-container: #422006;
+  --sl-warning-container: #3f2d06;
   --sl-on-warning-container: #fde68a;
   --sl-neutral-status: #94a3b8;
-  --sl-neutral-status-container: #1e293b;
+  --sl-neutral-status-container: #17293f;
   --sl-on-neutral-status-container: #cbd5e1;
 
-  --sl-code-keyword: #d2bbff;
-  --sl-code-string: #7ee787;
-  --sl-code-function: #79c0ff;
-  --sl-code-comment: #8b949e;
-  --sl-code-number: #ffa657;
-  --sl-code-property: #7ee7f0;
-  --sl-code-operator: #8b949e;
+  /* Code syntax tokens — tuned for the dark ocean surface */
+  --sl-code-keyword: #7dd3fc;
+  --sl-code-string: #6ee7b7;
+  --sl-code-function: #93c5fd;
+  --sl-code-comment: #7089a5;
+  --sl-code-number: #fbbf24;
+  --sl-code-property: #67e8f9;
+  --sl-code-operator: #9fb4cc;
 
-  --sl-glass-fill: rgba(11, 19, 38, 0.6);
-  --sl-glass-border: rgba(255, 255, 255, 0.08);
-  --sl-shadow-ambient: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
-  --sl-shadow-composer: 0 -10px 40px -10px rgba(0, 0, 0, 0.5);
-  --sl-shadow-raised: 0 8px 40px rgba(0, 0, 0, 0.45);
+  /* Liquid glass — gradient fills, borders and shadows straight from the
+     export's .liquid-glass / .liquid-glass-inner / .liquid-pill-active rules. */
+  --sl-glass-fill: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  --sl-glass-inner: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(56, 189, 248, 0.1) 100%
+  );
+  --sl-glass-border: rgba(255, 255, 255, 0.26);
+  --sl-glass-border-inner: rgba(255, 255, 255, 0.32);
+  --sl-shadow-ambient: 0 16px 40px 0 rgba(7, 89, 133, 0.35);
+  --sl-shadow-composer: 0 -12px 44px -6px rgba(2, 16, 36, 0.6);
+  --sl-shadow-raised: 0 12px 36px rgba(2, 16, 36, 0.5);
+
+  /* Mascot gradient + per-mode ambient glow (defaults = cyan / Search). */
+  --sl-slime-1: #bff3f7;
+  --sl-slime-mid: #38bdf8;
+  --sl-slime-2: #0369a1;
+  --sl-mode-glow: rgba(56, 189, 248, 0.3);
+  --sl-mode-glow-2: rgba(99, 102, 241, 0.22);
+  --sl-mode-ring: rgba(94, 214, 250, 0.65);
 
   color-scheme: dark;
 }
 
-/* ---- Mode accents ---------------------------------------------------------
-   Subtle, opt-in accent per active tool mode (Search/Code/Image Gen/Research).
-   Scoped to [data-mode] (set on the workspace shell root by useActiveToolMode)
-   so only the primary/accent family shifts — surfaces, layout and typography
-   are untouched. Never applied when no mode is active. */
+/* ---- Per-mode accents ---------------------------------------------------
+   [data-mode] is set on the workspace shell by useActiveToolMode. web_search
+   is the resting cyan identity; the others shift the accent + glow + mascot. */
 [data-mode="web_search"] {
-  --sl-primary: #0b63c9;
-  --sl-primary-container: #3d84d9;
-  --sl-on-primary-container: #e2eefd;
-  --sl-inverse-primary: #b8d7ff;
+  --sl-primary: #38bdf8;
+  --sl-primary-container: #0ea5e9;
+  --sl-on-primary-container: #e0f2fe;
+  --sl-inverse-primary: #7dd3fc;
+  --sl-slime-1: #bff3f7;
+  --sl-slime-mid: #38bdf8;
+  --sl-slime-2: #0369a1;
+  --sl-mode-glow: rgba(56, 189, 248, 0.32);
+  --sl-mode-glow-2: rgba(99, 102, 241, 0.22);
+  --sl-mode-ring: rgba(94, 214, 250, 0.7);
 }
 
 [data-mode="code"] {
-  --sl-primary: #0a8f66;
-  --sl-primary-container: #16a877;
-  --sl-on-primary-container: #dcfbee;
-  --sl-inverse-primary: #a3f0cf;
+  --sl-primary: #2dd4bf;
+  --sl-primary-container: #14b8a6;
+  --sl-on-primary-container: #ccfbf1;
+  --sl-inverse-primary: #5eead4;
+  --sl-slime-1: #c7fff0;
+  --sl-slime-mid: #2dd4bf;
+  --sl-slime-2: #0f766e;
+  --sl-mode-glow: rgba(45, 212, 191, 0.3);
+  --sl-mode-glow-2: rgba(16, 185, 129, 0.22);
+  --sl-mode-ring: rgba(94, 234, 212, 0.7);
 }
 
 [data-mode="research"] {
-  --sl-primary: #b1590a;
-  --sl-primary-container: #d4790f;
-  --sl-on-primary-container: #fef0da;
-  --sl-inverse-primary: #ffd6a3;
+  --sl-primary: #fbbf24;
+  --sl-primary-container: #f59e0b;
+  --sl-on-primary-container: #fef3c7;
+  --sl-inverse-primary: #fcd34d;
+  --sl-slime-1: #fff0c9;
+  --sl-slime-mid: #fbbf24;
+  --sl-slime-2: #b45309;
+  --sl-mode-glow: rgba(251, 191, 36, 0.28);
+  --sl-mode-glow-2: rgba(249, 115, 22, 0.2);
+  --sl-mode-ring: rgba(253, 211, 77, 0.7);
 }
 
 [data-mode="image_gen"] {
-  --sl-primary: #bc2589;
-  --sl-primary-container: #d84aa4;
-  --sl-on-primary-container: #ffe3f3;
-  --sl-inverse-primary: #ffc0e6;
+  --sl-primary: #f472b6;
+  --sl-primary-container: #ec4899;
+  --sl-on-primary-container: #fce7f3;
+  --sl-inverse-primary: #f9a8d4;
+  --sl-slime-1: #ffd8ef;
+  --sl-slime-mid: #f472b6;
+  --sl-slime-2: #be185d;
+  --sl-mode-glow: rgba(244, 114, 182, 0.28);
+  --sl-mode-glow-2: rgba(168, 85, 247, 0.22);
+  --sl-mode-ring: rgba(249, 168, 212, 0.7);
 }
 
 /* =============================================================================
@@ -275,6 +309,27 @@
   body {
     height: 100%;
     background-color: var(--color-background);
+    /* Ambient deep-ocean gel: a cool blue base with cyan / indigo light pooling
+       at the corners. Fixed so it stays calm while content scrolls. */
+    background-image:
+      radial-gradient(
+        1200px 780px at 4% -14%,
+        rgba(56, 189, 248, 0.28),
+        transparent 58%
+      ),
+      radial-gradient(
+        1120px 920px at 106% 108%,
+        rgba(59, 130, 246, 0.32),
+        transparent 55%
+      ),
+      radial-gradient(
+        1000px 760px at 52% 42%,
+        rgba(125, 211, 252, 0.1),
+        transparent 60%
+      ),
+      linear-gradient(158deg, #0a2f52 0%, #10456f 48%, #0a2c48 100%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
     color: var(--color-on-background);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
@@ -327,11 +382,125 @@
 /* =============================================================================
    Reusable surface primitives (single source — replaces per-file .glass-panel)
    ========================================================================== */
-@utility glass-panel {
+/* High-fidelity frosted liquid-glass panel — the three floating shell panels,
+   the composer, drawers, canvas. */
+@utility liquid-glass {
   background: var(--sl-glass-fill);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--color-outline-variant);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid var(--sl-glass-border);
+  box-shadow:
+    var(--sl-shadow-ambient),
+    inset 0 1px 2px rgba(255, 255, 255, 0.35);
+}
+
+/* Inner glass — buttons, cards, tool rows, pills nested inside a panel. */
+@utility liquid-inner {
+  background: var(--sl-glass-inner);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid var(--sl-glass-border-inner);
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.28),
+    0 8px 24px rgba(2, 132, 199, 0.18);
+}
+
+/* Active pill — nav selection, active mode tag. Accent gradient shifts with
+   the current [data-mode]. */
+@utility liquid-pill-active {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--sl-primary) 48%, transparent) 0%,
+    color-mix(in srgb, var(--sl-tertiary) 42%, transparent) 100%
+  );
+  border: 1px solid var(--sl-mode-ring);
+  box-shadow:
+    0 0 18px var(--sl-mode-glow),
+    inset 0 1px 1px rgba(255, 255, 255, 0.45);
+}
+
+/* Back-compat aliases (existing markup) — all resolve to a floating panel. */
+@utility glass-panel {
+  background: var(--sl-glass-inner);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid var(--sl-glass-border-inner);
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.28),
+    0 8px 24px rgba(2, 132, 199, 0.18);
+}
+@utility glass-rail {
+  background: var(--sl-glass-fill);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  box-shadow:
+    var(--sl-shadow-ambient),
+    inset 0 1px 2px rgba(255, 255, 255, 0.35);
+}
+@utility glass-surface {
+  background: var(--sl-glass-fill);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  box-shadow:
+    var(--sl-shadow-ambient),
+    inset 0 1px 2px rgba(255, 255, 255, 0.35);
+}
+@utility glass-composer {
+  background: var(--sl-glass-fill);
+  backdrop-filter: blur(30px) saturate(165%);
+  -webkit-backdrop-filter: blur(30px) saturate(165%);
+}
+
+/* Workspace shell root: owns the mode-accent interpolation + the ambient
+   mode glow layered behind the (translucent) panels. */
+@utility sl-mode-root {
+  position: relative;
+  isolation: isolate;
+  transition:
+    --sl-primary 480ms var(--ease-emphasized),
+    --sl-primary-container 480ms var(--ease-emphasized),
+    --sl-on-primary-container 480ms var(--ease-emphasized),
+    --sl-inverse-primary 480ms var(--ease-emphasized),
+    --sl-slime-1 480ms var(--ease-emphasized),
+    --sl-slime-mid 480ms var(--ease-emphasized),
+    --sl-slime-2 480ms var(--ease-emphasized),
+    --sl-mode-glow 480ms var(--ease-emphasized),
+    --sl-mode-glow-2 480ms var(--ease-emphasized),
+    --sl-mode-ring 480ms var(--ease-emphasized);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -20%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(
+        38% 42% at 8% 4%,
+        var(--sl-mode-glow),
+        transparent 70%
+      ),
+      radial-gradient(
+        40% 44% at 100% 100%,
+        var(--sl-mode-glow-2),
+        transparent 72%
+      ),
+      radial-gradient(
+        50% 40% at 55% 110%,
+        color-mix(in srgb, var(--sl-mode-glow) 50%, transparent),
+        transparent 74%
+      );
+    animation: sl-drift 24s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes sl-drift {
+  from {
+    transform: translate3d(-2%, -1%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(3%, 2%, 0) scale(1.08);
+  }
 }
 
 @utility shadow-ambient {
@@ -350,8 +519,8 @@
 @utility sl-field {
   width: 100%;
   border-radius: var(--radius-md);
-  border: 1px solid var(--color-outline-variant);
-  background: var(--color-surface-container-lowest);
+  border: 1px solid var(--sl-glass-border-inner);
+  background: rgba(255, 255, 255, 0.06);
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
   color: var(--color-on-surface);
@@ -418,6 +587,41 @@
     "wght" 400,
     "GRAD" 0,
     "opsz" 24;
+}
+
+/* Brand mascot — gradient driven by --sl-slime-1/mid/2 (which shift per mode),
+   plus a soft coloured glow that recolours with it. */
+.sl-slime-mark {
+  filter: drop-shadow(
+    0 4px 12px color-mix(in srgb, var(--sl-slime-2) 45%, transparent)
+  );
+  transition: filter 480ms var(--ease-emphasized);
+}
+.sl-slime-float {
+  animation: sl-float 4.5s ease-in-out infinite;
+}
+@keyframes sl-float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  50% {
+    transform: translateY(-9px) scale(1.03, 0.97);
+  }
+}
+.sl-slime-ripple {
+  animation: sl-ripple 3.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes sl-ripple {
+  0%,
+  100% {
+    transform: translateX(-50%) scale(0.9);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateX(-50%) scale(1.18);
+    opacity: 0.35;
+  }
 }
 
 @keyframes sl-fade-in-up {

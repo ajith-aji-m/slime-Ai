@@ -6,13 +6,24 @@ streaming provider answers.
 
 ## Source of truth for design
 
-`stitch_lumina_ai_workspace/` holds the original Stitch export (do not delete):
+`template/` holds the current Stitch export — the **"Liquid Aqua" deep-ocean
+glassmorphism** design (do not delete):
 
-- `aetheric_intelligence_light/DESIGN.md` — the shipped light design system (tokens in `src/app/globals.css`)
-- `aetheric_intelligence/DESIGN.md` — dark palette, wired behind `[data-theme="dark"]` but not exposed
-- `aetheric_workstation_*/` — the 3 reference screens (welcome, conversation, mobile chat) + PNGs
+- `template/code.html` — the reference markup + the `.liquid-glass` /
+  `.liquid-glass-inner` / `.liquid-pill-active` rules + the `slime` (sky) colour
+  scale. Ported into tokens in `src/app/globals.css`.
+- `template/screen.png` — the reference screen (welcome / new conversation, Search mode).
 
-Preserve this visual language. Don't introduce a generic UI or a dark theme.
+The theme is a single deep-ocean blue "liquid glass" surface (near-white text,
+cyan/sky accents, three glass panels floating over an ambient gradient with a
+`p-3.5`/`gap-3.5` gutter). It lives in `:root` — there is no separate light
+theme any more. Per-mode accent shifts (Search cyan · Code teal · Research amber
+· Image Gen magenta) are `[data-mode]` blocks that move only the accent family,
+the `--sl-slime-*` mascot gradient and the ambient glow, and interpolate via
+`@property`. Font is Inter. Preserve this visual language.
+
+`stitch_lumina_ai_workspace/` (the earlier violet light design) is gone; ignore
+older references to it or to `[data-theme="dark"]`.
 
 ## Architecture
 

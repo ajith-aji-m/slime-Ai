@@ -73,8 +73,8 @@ export function Tabs({
                 ? "flex flex-col items-center justify-center gap-1 tracking-wide"
                 : "text-center",
               active
-                ? "border-primary text-primary"
-                : "border-transparent text-on-surface-variant hover:text-primary",
+                ? "border-primary text-on-surface drop-shadow-[0_0_6px_var(--sl-mode-glow)]"
+                : "border-transparent text-on-surface-variant hover:text-on-surface",
             )}
           >
             {/* icons only in the stacked (mobile drawer) layout — the inline row

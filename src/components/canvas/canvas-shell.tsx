@@ -41,9 +41,9 @@ export function CanvasShell() {
         aria-hidden={!open}
         aria-label="Canvas workspace"
         className={cn(
-          "hidden shrink-0 overflow-hidden border-outline-variant bg-surface-container-lowest lg:block",
+          "hidden shrink-0 overflow-hidden lg:block",
           "transition-[width] duration-300 ease-[var(--ease-emphasized)] motion-reduce:transition-none",
-          open ? "border-l" : "w-0",
+          open ? "liquid-glass rounded-3xl" : "w-0",
         )}
         style={{ width: open ? PANEL_WIDTH : 0 }}
       >
@@ -59,7 +59,7 @@ export function CanvasShell() {
         aria-label="Canvas workspace"
         aria-hidden={!open}
         className={cn(
-          "fixed inset-0 z-50 flex flex-col bg-surface-container-lowest lg:hidden",
+          "fixed inset-0 z-50 flex flex-col bg-[var(--sl-background)]/95 backdrop-blur-xl lg:hidden",
           "transition-transform duration-300 ease-[var(--ease-emphasized)] motion-reduce:transition-none",
           open ? "translate-y-0" : "pointer-events-none translate-y-full",
         )}

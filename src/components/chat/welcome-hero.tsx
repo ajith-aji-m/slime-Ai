@@ -1,6 +1,6 @@
 "use client";
 
-import { Icon } from "@/components/ui";
+import { SlimeMark } from "@/components/ui";
 import { useSettingsStore } from "@/stores/settings-store";
 
 export function WelcomeHero() {
@@ -9,11 +9,9 @@ export function WelcomeHero() {
 
   return (
     <div className="animate-fade-in-up mx-auto max-w-xl text-center">
-      <div className="mx-auto mb-7 inline-flex h-[68px] w-[68px] items-center justify-center rounded-full border border-primary/15 bg-surface-container-lowest text-primary shadow-[0_0_44px_-10px_rgba(124,58,237,0.4)]">
-        <Icon name="auto_awesome" size={30} />
-      </div>
-      <h2 className="text-[1.6rem] font-bold tracking-tight text-on-surface sm:text-3xl md:text-[2rem]">
-        {name ? `Welcome back, ${name}` : "Welcome back"}
+      <SlimeMark size={150} ripple className="mx-auto mb-6" />
+      <h2 className="text-2xl font-bold tracking-tight text-on-surface drop-shadow-md sm:text-3xl">
+        {name ? `Welcome back, ${name}` : "How can I assist you today?"}
       </h2>
       <p className="mt-2 text-[15px] text-on-surface-variant md:text-base">
         What would you like to work on today?

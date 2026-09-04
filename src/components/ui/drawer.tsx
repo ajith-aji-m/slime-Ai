@@ -68,7 +68,7 @@ export function Drawer({
       <div
         onClick={onClose}
         className={cn(
-          "fixed inset-0 z-40 bg-on-surface/20 backdrop-blur-sm transition-opacity duration-300",
+          "fixed inset-0 z-40 bg-[#03101f]/60 backdrop-blur-sm transition-opacity duration-300",
           open ? "opacity-100" : "opacity-0",
         )}
       />
@@ -79,12 +79,12 @@ export function Drawer({
         aria-label={label}
         tabIndex={-1}
         className={cn(
-          "fixed inset-y-0 z-50 flex w-[min(20rem,85vw)] flex-col bg-surface-container-low outline-none",
+          "glass-rail fixed inset-y-0 z-50 flex w-[min(20rem,85vw)] flex-col outline-none",
           "transition-transform duration-300 ease-[var(--ease-emphasized)]",
           side === "left"
-            ? "left-0 border-r shadow-[20px_0_40px_rgba(15,23,42,0.1)]"
-            : "right-0 border-l shadow-[-20px_0_40px_rgba(15,23,42,0.1)]",
-          "border-outline-variant",
+            ? "left-0 border-r shadow-[20px_0_60px_rgba(30,58,110,0.16)]"
+            : "right-0 border-l shadow-[-20px_0_60px_rgba(30,58,110,0.16)]",
+          "border-[var(--sl-glass-border)]",
           open
             ? "translate-x-0"
             : side === "left"
