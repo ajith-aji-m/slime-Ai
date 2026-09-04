@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useParams } from "next/navigation";
 import { Drawer } from "@/components/ui";
 import { AmbientBackdrop } from "./ambient-backdrop";
 import { SidebarContent } from "./sidebar-content";
@@ -22,6 +22,7 @@ import { useActiveToolMode } from "@/hooks/use-active-tool-mode";
  */
 export function WorkspaceShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const params = useParams<{ conversationId?: string }>();
   const onChat = isChatRoute(pathname);
   const emptyContext = pathname === "/chat";
 
@@ -70,7 +71,10 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
 
       {showContextPanel ? (
         <aside className="liquid-glass hidden w-context-panel shrink-0 overflow-hidden rounded-3xl xl:flex">
-          <ContextPanel emptyContext={emptyContext} />
+          <ContextPanel
+            conversationId={params.conversationId}
+            emptyContext={emptyContext}
+          />
         </aside>
       ) : null}
 
@@ -91,7 +95,11 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
         side="right"
         label="Intelligence panel"
       >
-        <ContextPanel layout="stacked" emptyContext={emptyContext} />
+        <ContextPanel
+          layout="stacked"
+          conversationId={params.conversationId}
+          emptyContext={emptyContext}
+        />
       </Drawer>
     </div>
   );

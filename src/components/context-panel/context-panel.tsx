@@ -57,12 +57,16 @@ export function ContextPanel({
         aria-labelledby={`tab-${contextTab}`}
         className="min-h-0 flex-1 overflow-y-auto"
       >
-        {contextTab === "files" ? <FilesTab empty={emptyContext} /> : null}
+        {contextTab === "files" ? (
+          <FilesTab conversationId={conversationId} empty={emptyContext} />
+        ) : null}
         {contextTab === "sources" ? <SourcesTab /> : null}
         {contextTab === "tools" ? (
           <ToolsTab conversationId={conversationId} />
         ) : null}
-        {contextTab === "activity" ? <ActivityTab /> : null}
+        {contextTab === "activity" ? (
+          <ActivityTab conversationId={conversationId} />
+        ) : null}
       </div>
 
       {emptyContext ? (
