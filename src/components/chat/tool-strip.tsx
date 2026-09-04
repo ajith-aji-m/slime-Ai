@@ -20,7 +20,7 @@ export function ToolStrip({
   return (
     <div
       className={cn(
-        "flex flex-wrap items-center gap-1.5",
+        "flex flex-wrap items-center gap-2 sm:gap-1.5",
         align === "center" ? "justify-center" : "justify-start",
       )}
     >
@@ -34,12 +34,13 @@ export function ToolStrip({
               type="button"
               role="switch"
               aria-checked={on}
+              aria-label={tool.label}
               onClick={() => onToggle(tool.id)}
               className={cn(
-                "inline-flex items-center gap-1.5 font-semibold transition-[background-color,border-color,color,box-shadow] duration-[480ms] ease-[var(--ease-emphasized)]",
+                "inline-flex min-h-9 items-center gap-1.5 font-semibold transition-[background-color,border-color,color,box-shadow] duration-[480ms] ease-[var(--ease-emphasized)] sm:min-h-0",
                 variant === "pill"
                   ? "rounded-2xl border px-4 py-2 text-xs"
-                  : "rounded-xl border px-3 py-1 text-xs",
+                  : "rounded-xl border px-3 py-2 text-xs sm:py-1",
                 on
                   ? variant === "pill"
                     ? "liquid-pill-active text-white"
