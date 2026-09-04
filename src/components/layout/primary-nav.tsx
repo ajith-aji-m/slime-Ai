@@ -69,7 +69,7 @@ export function PrimaryNavLinks({
   return (
     <nav className="space-y-0.5 px-3" aria-label="Primary">
       {navigation
-        .filter((n) => n.section === "primary")
+        .filter((n) => n.section === "primary" && n.enabled !== false)
         .map((item) => (
           <NavLink
             key={item.href}
@@ -100,7 +100,7 @@ export function SecondaryNavLinks({ onNavigate }: { onNavigate?: () => void }) {
       aria-label="Secondary"
     >
       {navigation
-        .filter((n) => n.section === "secondary")
+        .filter((n) => n.section === "secondary" && n.enabled !== false)
         .map((item) => (
           <NavLink
             key={item.href}
