@@ -33,7 +33,7 @@ function NavLink({
         onClick={onNavigate}
         aria-current={active ? "page" : undefined}
         className={cn(
-          "flex flex-1 items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm transition-all",
+          "flex flex-1 items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm transition-[background-color,border-color,color,box-shadow] duration-[480ms] ease-[var(--ease-emphasized)]",
           trailing && "pr-11",
           active
             ? "liquid-pill-active font-medium text-white"

@@ -53,7 +53,7 @@ export function MessageRow({
   }
 
   return (
-    <div className="mx-auto max-w-thread px-4 pb-8 md:px-0">
+    <div className="animate-fade-in-up mx-auto max-w-thread px-4 pb-8 md:px-0">
       {item.message.role === "user" ? (
         <UserMessage
           message={item.message}

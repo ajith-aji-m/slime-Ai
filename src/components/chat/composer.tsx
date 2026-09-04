@@ -103,7 +103,7 @@ export function Composer({
           e.preventDefault();
           void submit();
         }}
-        className="liquid-glass rounded-3xl p-1.5 transition-[border-color,box-shadow] duration-300 focus-within:border-[var(--sl-mode-ring)] focus-within:shadow-[0_0_28px_-4px_var(--sl-mode-glow)]"
+        className="liquid-glass rounded-3xl p-1.5 transition-[border-color,box-shadow] duration-[480ms] ease-[var(--ease-emphasized)] focus-within:border-[var(--sl-mode-ring)] focus-within:shadow-[0_0_28px_-4px_var(--sl-mode-glow)]"
       >
         <div className="flex items-end gap-1.5 px-2 py-1.5">
           <IconButton
@@ -130,7 +130,7 @@ export function Composer({
               type="button"
               aria-label="Stop generating"
               onClick={() => conversationId && stopStreaming(conversationId)}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-[color-mix(in_srgb,var(--sl-primary)_45%,transparent)] bg-[color-mix(in_srgb,var(--sl-primary)_22%,transparent)] text-primary transition-all hover:brightness-125 active:scale-90"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-[color-mix(in_srgb,var(--sl-primary)_45%,transparent)] bg-[color-mix(in_srgb,var(--sl-primary)_22%,transparent)] text-primary transition-[background-color,border-color,color,filter] duration-[480ms] ease-[var(--ease-emphasized)] hover:brightness-125 active:scale-90 active:transition-transform active:duration-100"
             >
               <Icon name="stop" size={18} filled />
             </button>
@@ -139,7 +139,7 @@ export function Composer({
               type="submit"
               disabled={!value.trim()}
               aria-label="Send message"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-[color-mix(in_srgb,var(--sl-primary)_45%,transparent)] bg-[color-mix(in_srgb,var(--sl-primary)_22%,transparent)] text-primary transition-all hover:brightness-110 active:scale-90 disabled:border-glass-line disabled:bg-glass-fill disabled:text-on-surface-variant/50"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-[color-mix(in_srgb,var(--sl-primary)_45%,transparent)] bg-[color-mix(in_srgb,var(--sl-primary)_22%,transparent)] text-primary transition-[background-color,border-color,color,filter] duration-[480ms] ease-[var(--ease-emphasized)] hover:brightness-110 active:scale-90 active:transition-transform active:duration-100 disabled:border-glass-line disabled:bg-glass-fill disabled:text-on-surface-variant/50"
             >
               <Icon name="arrow_upward" size={18} />
             </button>

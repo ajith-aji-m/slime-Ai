@@ -36,7 +36,7 @@ export function ToolStrip({
               aria-checked={on}
               onClick={() => onToggle(tool.id)}
               className={cn(
-                "inline-flex items-center gap-1.5 font-semibold transition-all duration-300",
+                "inline-flex items-center gap-1.5 font-semibold transition-[background-color,border-color,color,box-shadow] duration-[480ms] ease-[var(--ease-emphasized)]",
                 variant === "pill"
                   ? "rounded-2xl border px-4 py-2 text-xs"
                   : "rounded-xl border px-3 py-1 text-xs",
