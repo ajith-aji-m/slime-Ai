@@ -36,7 +36,13 @@ export const navigation: NavItemConfig[] = [
     section: "primary",
     enabled: false, // TODO: re-enable when Tasks ships
   },
-  { label: "Agents", href: "/agents", icon: "smart_toy", section: "primary" },
+  {
+    label: "Agents",
+    href: "/agents",
+    icon: "smart_toy",
+    section: "primary",
+    enabled: false, // TODO: re-enable when Agents ships
+  },
   { label: "Settings", href: "/settings", icon: "settings", section: "secondary" },
   { label: "Help", href: "/help", icon: "help", section: "secondary" },
 ];
