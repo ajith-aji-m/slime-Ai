@@ -7,6 +7,7 @@ export type ToolId =
   | "code"
   | "image_gen"
   | "research"
+  | "humanizer"
   | "file_analysis";
 
 /** A message is an ordered list of typed parts so tool output slots in cleanly. */

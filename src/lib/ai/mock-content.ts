@@ -1,4 +1,5 @@
 import type { MessagePart, ToolId } from "@/types/chat";
+import { mockHumanize } from "@/lib/humanizer";
 
 const LOREM = [
   "Here's a structured take on that. I've broken the response into the parts that matter most so you can scan it quickly.",
@@ -116,6 +117,13 @@ function hash(input: string): number {
  * prompt + toolset. Swapped for a real provider stream later.
  */
 export function buildMockResponse(prompt: string, tools: ToolId[]): MessagePart[] {
+  // Humanizer mode: the offline provider just returns a heuristically rewritten
+  // version of the pasted text — the diff, keywords and report are derived from
+  // the (original, rewrite) pair in Canvas.
+  if (tools.includes("humanizer")) {
+    return [{ type: "text", text: mockHumanize(prompt) || prompt }];
+  }
+
   const seed = hash(prompt);
   const wantsHtml = /\bhtml|landing page|web ?page|markup\b/i.test(prompt);
   const wantsReport =

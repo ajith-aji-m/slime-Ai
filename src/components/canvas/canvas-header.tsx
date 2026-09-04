@@ -33,6 +33,7 @@ function copyPayload(artifact: CanvasArtifact): string {
       return artifact.html ?? artifact.code ?? "";
     case "table":
     case "report":
+    case "humanizer":
       return artifact.markdown ?? "";
     case "image":
       return artifact.imagePrompt ?? "";
@@ -62,6 +63,7 @@ function exportArtifact(artifact: CanvasArtifact) {
       return;
     }
     case "report":
+    case "humanizer":
       downloadText(`${base}.md`, artifact.markdown ?? "", "text/markdown");
       return;
     default:

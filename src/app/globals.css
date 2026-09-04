@@ -298,6 +298,21 @@
   --sl-mode-ring: rgba(249, 168, 212, 0.7);
 }
 
+/* Humanizer — a calm indigo "writing desk" accent, distinct from the other
+   modes. */
+[data-mode="humanizer"] {
+  --sl-primary: #a5b4fc;
+  --sl-primary-container: #818cf8;
+  --sl-on-primary-container: #e0e7ff;
+  --sl-inverse-primary: #c7d2fe;
+  --sl-slime-1: #dbe4ff;
+  --sl-slime-mid: #a5b4fc;
+  --sl-slime-2: #4338ca;
+  --sl-mode-glow: rgba(129, 140, 248, 0.28);
+  --sl-mode-glow-2: rgba(99, 102, 241, 0.22);
+  --sl-mode-ring: rgba(165, 180, 252, 0.7);
+}
+
 /* =============================================================================
    Base layer
    ========================================================================== */
