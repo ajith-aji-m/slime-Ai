@@ -7,6 +7,7 @@ import { Icon, IconButton } from "@/components/ui";
 import { ToolStrip } from "./tool-strip";
 import { useAutoResize } from "@/hooks/use-auto-resize";
 import { site } from "@/config/site";
+import { activeModeTool, toolsById } from "@/config/tools";
 import type { ToolId } from "@/types/chat";
 import { useConversationStore } from "@/stores/conversation-store";
 import { useComposerStore } from "@/stores/composer-store";
@@ -85,6 +86,11 @@ export function Composer({
   // the in-thread indicator, so the composer stays quiet.
   const statusLabel = routerStatus ?? null;
 
+  const activeMode = activeModeTool(activeTools);
+  const placeholder =
+    (activeMode && toolsById[activeMode]?.placeholder) ||
+    `Message ${site.shortName}…`;
+
   return (
     <div
       className={cn(
@@ -116,7 +122,7 @@ export function Composer({
             value={value}
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={onKeyDown}
-            placeholder={`Message ${site.shortName}…`}
+            placeholder={placeholder}
             className="max-h-52 min-h-[40px] flex-1 resize-none bg-transparent px-2 py-2 text-[15px] text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none"
           />
           {streaming ? (
