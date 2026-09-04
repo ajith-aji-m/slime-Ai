@@ -16,6 +16,7 @@ interface EnvModel {
   contextWindow?: number;
   strengths?: TaskCategory[];
   order?: number;
+  image?: boolean;
 }
 
 function envRegistry(): RegistryModel[] | null {
@@ -33,6 +34,7 @@ function envRegistry(): RegistryModel[] | null {
         streaming: true,
         strengths: m.strengths ?? ["general"],
         order: m.order ?? i + 1,
+        image: m.image ?? false,
       }));
   } catch {
     return null;
@@ -46,6 +48,15 @@ export function nvidiaRegistry(): RegistryModel[] {
 
 export function isNvidiaConfigured(): boolean {
   return readNvidiaEnv() !== null;
+}
+
+/**
+ * Whether any configured model can actually generate images. False for the
+ * default free-endpoint set (they're all text models). Set `image: true` on an
+ * entry in the `NVIDIA_MODELS` override to light up the image Canvas for real.
+ */
+export function supportsImageGeneration(): boolean {
+  return isNvidiaConfigured() && nvidiaRegistry().some((m) => m.image === true);
 }
 
 /**

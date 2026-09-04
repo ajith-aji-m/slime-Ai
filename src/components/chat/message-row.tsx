@@ -33,11 +33,13 @@ export function buildThreadItems(
 
 export function MessageRow({
   item,
+  conversationId,
   onRegenerate,
   onEdit,
   statusLabel,
 }: {
   item: ThreadItem;
+  conversationId: string;
   onRegenerate: () => void;
   onEdit: (messageId: string, text: string) => void;
   statusLabel?: string;
@@ -60,6 +62,7 @@ export function MessageRow({
       ) : (
         <AssistantMessage
           message={item.message}
+          conversationId={conversationId}
           isLast={item.isLastAssistant}
           onRegenerate={onRegenerate}
           statusLabel={item.isLastAssistant ? statusLabel : undefined}

@@ -43,6 +43,53 @@ export function useReconnectingSocket(url: string) {
   return { socket: socketRef, status };
 }`;
 
+const HTML_SAMPLE = `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Slime AI — Launch</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 0; background: #f7f9fb; color: #191c1e; }
+      .hero { max-width: 640px; margin: 0 auto; padding: 64px 24px; text-align: center; }
+      h1 { font-size: 2rem; letter-spacing: -0.02em; }
+      .cta { display: inline-block; margin-top: 16px; padding: 12px 24px;
+             border-radius: 9999px; background: #630ed4; color: #fff; text-decoration: none; }
+    </style>
+  </head>
+  <body>
+    <div class="hero">
+      <h1>Meet Slime AI</h1>
+      <p>One premium workspace for chat, research, code and canvas.</p>
+      <a class="cta" href="#">Get started</a>
+    </div>
+  </body>
+</html>`;
+
+const REPORT_SAMPLE = `# Q3 Engagement Report
+
+## Overview
+
+Overall engagement climbed in Q3, driven by stronger weekday activation and a healthier return rate among accounts created in the previous two quarters. The headline numbers are up across every segment except Professional Services, which is flagged for review below.
+
+## Key trends
+
+- **Weekly active accounts** rose 18% quarter over quarter.
+- **Session depth** (actions per session) improved from 6.2 to 7.4.
+- **Return rate** at day 7 held steady at 41%, and day 30 improved to 22%.
+
+## Segment breakdown
+
+| Segment | Q3 Amount (USD) | YoY Growth | Status |
+| --- | --- | --- | --- |
+| Enterprise Licensing | $4,250,000 | +24% | On Target |
+| API Usage (Metered) | $1,820,000 | +41% | Exceeding |
+| Professional Services | $850,000 | -5% | Review Needed |
+| Hardware Sales | $320,000 | +2% | Stable |
+
+## Recommendation
+
+Double down on the metered API motion, where growth and margin are both strong, and open a focused review of Professional Services delivery costs before the next planning cycle.`;
+
 const TABLE_SAMPLE = `| Segment | Q3 Amount (USD) | YoY Growth | Status |
 | --- | --- | --- | --- |
 | Enterprise Licensing | $4,250,000 | +24% | On Target |
@@ -70,11 +117,17 @@ function hash(input: string): number {
  */
 export function buildMockResponse(prompt: string, tools: ToolId[]): MessagePart[] {
   const seed = hash(prompt);
+  const wantsHtml = /\bhtml|landing page|web ?page|markup\b/i.test(prompt);
+  const wantsReport =
+    /\breport|write[- ]?up|analysis|breakdown|summary of\b/i.test(prompt) &&
+    !tools.includes("code");
   const wantsCode =
-    tools.includes("code") || /\bcode|hook|function|script|react\b/i.test(prompt);
+    !wantsHtml &&
+    (tools.includes("code") || /\bcode|hook|function|script|react\b/i.test(prompt));
   const wantsTable =
-    tools.includes("file_analysis") ||
-    /\banaly|metric|revenue|breakdown|table|trend\b/i.test(prompt);
+    !wantsReport &&
+    (tools.includes("file_analysis") ||
+      /\banaly|metric|revenue|breakdown|table|trend\b/i.test(prompt));
   const wantsSearch = tools.includes("web_search") || tools.includes("research");
 
   const parts: MessagePart[] = [];
@@ -98,6 +151,18 @@ export function buildMockResponse(prompt: string, tools: ToolId[]): MessagePart[
   }
 
   parts.push({ type: "text", text: pick(LOREM, seed) });
+
+  if (wantsReport) {
+    parts.push({ type: "text", text: REPORT_SAMPLE });
+  }
+
+  if (wantsHtml) {
+    parts.push({
+      type: "text",
+      text: "Here's a self-contained page you can preview in Canvas:",
+    });
+    parts.push({ type: "code", language: "html", filename: "index.html", code: HTML_SAMPLE });
+  }
 
   if (wantsCode) {
     parts.push({

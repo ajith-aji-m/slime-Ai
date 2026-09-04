@@ -18,6 +18,8 @@ export interface RegistryModel {
   strengths: TaskCategory[];
   /** lower = more reliable / preferred as a generic fallback */
   order: number;
+  /** set only for models that can produce images (none of the defaults can) */
+  image?: boolean;
 }
 
 /**

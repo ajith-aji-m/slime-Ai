@@ -68,15 +68,20 @@ export function Tabs({
             onClick={() => onValueChange(tab.id)}
             onKeyDown={(event) => onKeyDown(event, index)}
             className={cn(
-              "flex-1 border-b-2 px-2 py-3.5 text-xs font-semibold tracking-wide transition-colors",
-              layout === "stacked" &&
-                "flex flex-col items-center justify-center gap-1",
+              "flex-1 border-b-2 px-1 py-3 text-[13px] font-semibold tracking-tight transition-colors",
+              layout === "stacked"
+                ? "flex flex-col items-center justify-center gap-1 tracking-wide"
+                : "text-center",
               active
                 ? "border-primary text-primary"
                 : "border-transparent text-on-surface-variant hover:text-primary",
             )}
           >
-            {tab.icon ? <Icon name={tab.icon} size={18} /> : null}
+            {/* icons only in the stacked (mobile drawer) layout — the inline row
+                is too narrow at panel width to fit icon + label without clipping */}
+            {tab.icon && layout === "stacked" ? (
+              <Icon name={tab.icon} size={18} />
+            ) : null}
             {tab.label}
           </button>
         );

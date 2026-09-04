@@ -10,14 +10,14 @@ export default function ChatWelcomePage() {
   return (
     <div className="flex h-full flex-col">
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <div className="mx-auto flex min-h-full w-full max-w-4xl flex-col items-center justify-center gap-10 px-6 py-12">
+        <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col items-center justify-center gap-7 px-5 py-8 sm:gap-9 sm:px-6 sm:py-12">
           <WelcomeHero />
           <SuggestionGrid />
           <QuickActions />
         </div>
       </div>
-      <div className="shrink-0 px-6 pb-8 pt-2">
-        <Composer variant="hero" autoFocus />
+      <div className="shrink-0 px-5 pb-5 pt-2 sm:px-6 sm:pb-8">
+        <Composer variant="hero" autoFocus showToolStrip={false} />
       </div>
     </div>
   );

@@ -8,14 +8,17 @@ import type { Message } from "@/types/chat";
 import { MessageParts } from "./message-parts";
 import { MessageActions } from "./message-actions";
 import { AssistantError } from "./assistant-error";
+import { useAssistantArtifacts } from "@/components/canvas/use-assistant-artifacts";
 
 export function AssistantMessage({
   message,
+  conversationId,
   onRegenerate,
   isLast,
   statusLabel,
 }: {
   message: Message;
+  conversationId: string;
   onRegenerate?: () => void;
   isLast: boolean;
   /** transient internal-router status while this message streams */
@@ -24,6 +27,7 @@ export function AssistantMessage({
   const streaming = message.status === "streaming";
   const errored = message.status === "error";
   const hasContent = message.parts.length > 0;
+  const displayParts = useAssistantArtifacts(message, conversationId, isLast);
 
   return (
     <div className="group flex gap-4">
@@ -52,7 +56,7 @@ export function AssistantMessage({
                 {statusLabel ?? "Thinking…"}
               </span>
             ) : (
-              <MessageParts parts={message.parts} />
+              <MessageParts parts={displayParts} />
             )}
             {streaming && hasContent ? (
               <span className="ml-0.5 inline-block h-4 w-1.5 animate-pulse bg-primary align-middle" />

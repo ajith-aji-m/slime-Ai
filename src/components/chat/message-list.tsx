@@ -44,6 +44,7 @@ export function MessageList({
     scrollRef,
     streaming,
     statusLabel,
+    conversationId: conversation.id,
     signature: `${items.length}:${lastPartsLength}`,
     onRegenerate,
     onEdit,
@@ -60,6 +61,7 @@ interface ThreadProps {
   scrollRef: React.RefObject<HTMLDivElement | null>;
   streaming: boolean;
   statusLabel?: string;
+  conversationId: string;
   signature: string;
   onRegenerate: () => void;
   onEdit: (messageId: string, text: string) => void;
@@ -97,6 +99,7 @@ function PlainThread({
   scrollRef,
   streaming,
   statusLabel,
+  conversationId,
   signature,
   onRegenerate,
   onEdit,
@@ -118,6 +121,7 @@ function PlainThread({
         <MessageRow
           key={item.id}
           item={item}
+          conversationId={conversationId}
           onRegenerate={onRegenerate}
           onEdit={onEdit}
           statusLabel={statusLabel}
@@ -132,6 +136,7 @@ function VirtualThread({
   scrollRef,
   streaming,
   statusLabel,
+  conversationId,
   signature,
   onRegenerate,
   onEdit,
@@ -175,6 +180,7 @@ function VirtualThread({
         >
           <MessageRow
             item={items[row.index]}
+            conversationId={conversationId}
             onRegenerate={onRegenerate}
             onEdit={onEdit}
             statusLabel={statusLabel}

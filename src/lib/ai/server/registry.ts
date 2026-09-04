@@ -1,15 +1,24 @@
 import "server-only";
-import { isNvidiaConfigured } from "./nvidia";
+import { isNvidiaConfigured, supportsImageGeneration } from "./nvidia";
 
 export { routeChat } from "./router";
 
 export type AiMode = "mock" | "nvidia";
 
+export interface AiStatus {
+  mode: AiMode;
+  /** whether an image-capable model is configured (never a model name) */
+  imageGeneration: boolean;
+}
+
 /**
- * Whether the server can serve real responses. The client uses this only to
- * decide between the offline mock provider and the routed provider — it never
- * receives model or provider names.
+ * Whether the server can serve real responses + non-secret capability flags.
+ * The client uses this only to decide between the offline mock provider and the
+ * routed provider — it never receives model or provider names.
  */
-export function getAiMode(): AiMode {
-  return isNvidiaConfigured() ? "nvidia" : "mock";
+export function getAiStatus(): AiStatus {
+  return {
+    mode: isNvidiaConfigured() ? "nvidia" : "mock",
+    imageGeneration: supportsImageGeneration(),
+  };
 }
