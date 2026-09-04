@@ -11,6 +11,16 @@ import { createId } from "./id";
  */
 export const MAX_ATTACHMENT_BYTES = 8 * 1024 * 1024; // 8 MB
 
+/**
+ * Separate, tighter cap on images actually sent to a vision model (see
+ * `stripAttachmentData` in the conversation store): base64-encodes to ~1.33x,
+ * and the whole conversation history rides in one request body, so this
+ * keeps a single image request comfortably under typical serverless request
+ * body limits. Attachments above this are still stored/shown locally, just
+ * not sent for analysis.
+ */
+export const MAX_VISION_IMAGE_BYTES = 3 * 1024 * 1024; // 3 MB
+
 export class AttachmentTooLargeError extends Error {
   constructor(public fileName: string) {
     super(`"${fileName}" is larger than 8 MB`);

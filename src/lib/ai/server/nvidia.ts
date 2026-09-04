@@ -4,11 +4,14 @@ import type { StreamChunk } from "@/types/provider";
 import { DEFAULT_NVIDIA_MODELS, type RegistryModel } from "@/config/models";
 import type { TaskCategory } from "@/config/ai-router";
 import { readNvidiaEnv } from "./env";
-import { toOpenAIMessages } from "./messages";
+import { toOpenAIMessages, toOpenAIVisionMessages } from "./messages";
 import { streamOpenAICompatible } from "./openai-compatible";
 
 const SYSTEM_PROMPT =
   "You are Slime AI, a premium AI workstation assistant. Be precise and concise. Use Markdown, and fenced code blocks with a language tag for code. Never mention which underlying model or provider you are.";
+
+const VISION_SYSTEM_PROMPT =
+  "You are Slime AI, a premium AI workstation assistant. The user has attached an image — look at it carefully and answer their question about it directly and concisely. Never mention which underlying model or provider you are.";
 
 interface EnvModel {
   id: string;
@@ -62,6 +65,11 @@ export function supportsImageGeneration(): boolean {
   return isNvidiaConfigured() && nvidiaRegistry().some((m) => m.image === true);
 }
 
+/** Whether any configured model can read an attached image (see `RegistryModel.vision`). */
+export function supportsImageUnderstanding(): boolean {
+  return isNvidiaConfigured() && nvidiaRegistry().some((m) => m.vision === true);
+}
+
 /**
  * Low-level: stream ONE NVIDIA model. The internal router owns model choice and
  * fallback — this just does the call and normalises to `StreamChunk`.
@@ -86,6 +94,31 @@ export async function* streamNvidiaModel(params: {
     apiKey: env.apiKey,
     model: params.upstreamId,
     messages: toOpenAIMessages(params.messages, SYSTEM_PROMPT),
+    signal: params.signal,
+  });
+}
+
+/** Like `streamNvidiaModel`, but embeds the newest user message's image(s) as vision content. */
+export async function* streamNvidiaVision(params: {
+  upstreamId: string;
+  messages: Message[];
+  signal?: AbortSignal;
+}): AsyncGenerator<StreamChunk> {
+  const env = readNvidiaEnv();
+  if (!env) {
+    yield {
+      type: "error",
+      message: "NVIDIA is not configured on the server.",
+      code: "not_configured",
+    };
+    return;
+  }
+
+  yield* streamOpenAICompatible({
+    baseUrl: env.baseUrl,
+    apiKey: env.apiKey,
+    model: params.upstreamId,
+    messages: toOpenAIVisionMessages(params.messages, VISION_SYSTEM_PROMPT),
     signal: params.signal,
   });
 }
