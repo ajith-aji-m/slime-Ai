@@ -1,19 +1,37 @@
 "use client";
 
-import { Icon } from "@/components/ui";
+import { Icon, EmptyState } from "@/components/ui";
 import { formatRelativeTime } from "@/lib/utils/format";
-import { mockActivity } from "@/data/context";
+import { deriveActivity } from "@/lib/chat/activity";
+import { useConversationStore } from "@/stores/conversation-store";
 
-export function ActivityTab() {
+export function ActivityTab({ conversationId }: { conversationId?: string }) {
+  const conversation = useConversationStore((s) =>
+    conversationId ? s.conversations[conversationId] : undefined,
+  );
+
+  const events = conversation ? deriveActivity(conversation) : [];
+
+  if (events.length === 0) {
+    return (
+      <EmptyState
+        className="h-full"
+        icon="analytics"
+        title="No activity yet"
+        description="Responses, tool runs and files you add to this chat will show up here."
+      />
+    );
+  }
+
   return (
     <ol className="p-4">
-      {mockActivity.map((event, index) => (
+      {events.map((event, index) => (
         <li key={event.id} className="flex gap-3">
           <div className="flex flex-col items-center">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-variant text-primary">
               <Icon name={event.icon} size={16} />
             </span>
-            {index < mockActivity.length - 1 ? (
+            {index < events.length - 1 ? (
               <span className="my-1 w-px flex-1 bg-outline-variant" />
             ) : null}
           </div>

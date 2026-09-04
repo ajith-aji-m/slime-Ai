@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
 import { Icon, IconButton } from "@/components/ui";
 import { ToolStrip } from "./tool-strip";
+import { AttachmentChip } from "./attachment-chip";
 import { useAutoResize } from "@/hooks/use-auto-resize";
 import { site } from "@/config/site";
 import { activeModeTool, toolsById } from "@/config/tools";
-import type { ToolId } from "@/types/chat";
+import { AttachmentTooLargeError, fileToAttachment } from "@/lib/utils/file";
+import type { Attachment, ToolId } from "@/types/chat";
 import { useConversationStore } from "@/stores/conversation-store";
 import { useComposerStore } from "@/stores/composer-store";
 import { useAiStatusStore } from "@/stores/ai-status-store";
@@ -34,6 +36,9 @@ export function Composer({
   const router = useRouter();
   const [value, setValue] = useState(initialValue);
   const textareaRef = useAutoResize(value);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [attachmentError, setAttachmentError] = useState<string | null>(null);
 
   const conversation = useConversationStore((s) =>
     conversationId ? s.conversations[conversationId] : undefined,
@@ -59,19 +64,50 @@ export function Composer({
     else toggleDefaultTool(id);
   }
 
+  async function handleFilesSelected(fileList: FileList | null) {
+    if (!fileList || fileList.length === 0) return;
+    setAttachmentError(null);
+    const files = Array.from(fileList);
+    for (const file of files) {
+      try {
+        const attachment = await fileToAttachment(file);
+        setAttachments((prev) => [...prev, attachment]);
+      } catch (err) {
+        setAttachmentError(
+          err instanceof AttachmentTooLargeError
+            ? err.message
+            : `Couldn't read "${file.name}".`,
+        );
+      }
+    }
+  }
+
+  function removeAttachment(id: string) {
+    setAttachments((prev) => prev.filter((a) => a.id !== id));
+  }
+
   async function submit() {
     const text = value.trim();
-    if (!text || streaming) return;
+    if ((!text && attachments.length === 0) || streaming) return;
     setValue("");
+    const sentAttachments = attachments;
+    setAttachments([]);
+    setAttachmentError(null);
 
     if (conversationId) {
-      await sendMessage(conversationId, text, { tools: activeTools });
+      await sendMessage(conversationId, text, {
+        tools: activeTools,
+        attachments: sentAttachments.length ? sentAttachments : undefined,
+      });
       return;
     }
 
     const id = createConversation({ tools: defaultTools });
     router.push(`/chat/${id}`);
-    await sendMessage(id, text, { tools: defaultTools });
+    await sendMessage(id, text, {
+      tools: defaultTools,
+      attachments: sentAttachments.length ? sentAttachments : undefined,
+    });
   }
 
   function onKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -105,11 +141,34 @@ export function Composer({
         }}
         className="liquid-glass rounded-3xl p-1.5 transition-[border-color,box-shadow] duration-[480ms] ease-[var(--ease-emphasized)] focus-within:border-[var(--sl-mode-ring)] focus-within:shadow-[0_0_28px_-4px_var(--sl-mode-glow)]"
       >
+        {attachments.length > 0 ? (
+          <div className="flex flex-wrap gap-1.5 px-3 pt-2">
+            {attachments.map((attachment) => (
+              <AttachmentChip
+                key={attachment.id}
+                attachment={attachment}
+                onRemove={() => removeAttachment(attachment.id)}
+              />
+            ))}
+          </div>
+        ) : null}
+
         <div className="flex items-end gap-1.5 px-2 py-1.5">
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            className="sr-only"
+            onChange={(e) => {
+              void handleFilesSelected(e.target.files);
+              e.target.value = "";
+            }}
+          />
           <IconButton
             icon="attach_file"
             label="Attach file"
             className="shrink-0 -rotate-45"
+            onClick={() => fileInputRef.current?.click()}
           />
           <label htmlFor="composer-input" className="sr-only">
             Message {site.shortName}
@@ -137,7 +196,7 @@ export function Composer({
           ) : (
             <button
               type="submit"
-              disabled={!value.trim()}
+              disabled={!value.trim() && attachments.length === 0}
               aria-label="Send message"
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-[color-mix(in_srgb,var(--sl-primary)_45%,transparent)] bg-[color-mix(in_srgb,var(--sl-primary)_22%,transparent)] text-primary transition-[background-color,border-color,color,filter] duration-[480ms] ease-[var(--ease-emphasized)] hover:brightness-110 active:scale-90 active:transition-transform active:duration-100 disabled:border-glass-line disabled:bg-glass-fill disabled:text-on-surface-variant/50"
             >
@@ -160,7 +219,15 @@ export function Composer({
         ) : null}
       </form>
 
-      {statusLabel ? (
+      {attachmentError ? (
+        <p
+          className="mt-2 flex items-center justify-center gap-1.5 text-[11px] font-medium text-error"
+          aria-live="polite"
+        >
+          <Icon name="close" size={13} />
+          {attachmentError}
+        </p>
+      ) : statusLabel ? (
         <p
           className="mt-2 flex items-center justify-center gap-1.5 text-[11px] font-medium text-on-surface-variant"
           aria-live="polite"

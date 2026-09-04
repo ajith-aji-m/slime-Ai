@@ -263,7 +263,8 @@ export const useConversationStore = create<ConversationState>((set, get) => {
 
     async sendMessage(id, text, options) {
       const trimmed = text.trim();
-      if (!trimmed) return;
+      const attachments = options.attachments;
+      if (!trimmed && !attachments?.length) return;
       let conversation = get().conversations[id];
       if (!conversation) {
         await get().loadConversation(id);
@@ -276,14 +277,23 @@ export const useConversationStore = create<ConversationState>((set, get) => {
         role: "user",
         parts: [{ type: "text", text: trimmed }],
         createdAt: nowIso(),
-        attachments: options.attachments,
+        attachments,
       };
 
+      const fallbackTitle =
+        attachments?.length === 1
+          ? attachments[0].name
+          : attachments?.length
+            ? `${attachments.length} files`
+            : undefined;
       const isFirst = conversation.messages.length === 0;
       update(id, (c) => ({
         ...c,
         tools: options.tools,
-        title: isFirst ? mockTitleFromPrompt(trimmed) : c.title,
+        title: isFirst
+          ? (mockTitleFromPrompt(trimmed) === "New conversation" && fallbackTitle) ||
+            mockTitleFromPrompt(trimmed)
+          : c.title,
         messages: [...c.messages, userMessage],
       }));
 
