@@ -1,0 +1,55 @@
+NVIDIA NIM â€” Free Endpoint Model IDs
+(use as the "model" value in API calls, base_url = https://integrate.api.nvidia.com/v1)
+
+# Recommended general-purpose chat / reasoning models
+deepseek-ai/deepseek-v4-flash-0731
+deepseek-ai/deepseek-v4-pro-0813
+nvidia/nemotron-3-super-120b-a12b
+nvidia/nemotron-3-ultra-550b-a55b
+nvidia/nemotron-3.5-lightning-30b-a3b
+nvidia/nemotron-3-nano-omni-30b-a3b-reasoning
+openai/gpt-oss-120b
+openai/gpt-oss-20b
+meta/muse-glimmer-30b
+google/gemma-4-31b-it
+moonshotai/kimi-k3
+minimaxai/minimax-m3
+poolside/laguna-xs-2.1
+mistralai/mistral-nemotron
+
+# Vision / multimodal
+meta/llama-3.2-11b-vision-instruct
+meta/llama-3.2-90b-vision-instruct
+google/google-paligemma
+nvidia/ising-calibration-1.5-31b
+nvidia/ising-calibration-1-35b-a3b
+nvidia/cosmos3-nano-reasoner
+
+# Translation / speech / TTS
+nvidia/riva-translate-4b-instruct-v2
+nvidia/riva-translate-4b-instruct-v1_1
+nvidia/nemotron-voicechat
+nvidia/magpie-tts-zeroshot
+nvidia/studiovoice
+
+# Embeddings / retrieval
+nvidia/nemotron-3-embed-1b
+
+# Safety / guardrails
+nvidia/nemotron-3.5-content-safety
+nvidia/llama-3_1-nemotron-safety-guard-8b-v3
+meta/llama-guard-4-12b
+
+# Video / physical AI / synthetic data
+nvidia/cosmos3-nano
+nvidia/cosmos-transfer2_5-2b
+nvidia/cosmos-transfer1-7b
+nvidia/synthetic-video-detector
+nvidia/active-speaker-detection
+nvidia/streampetr
+nvidia/sparsedrive
+nvidia/bevformer
+nvidia/bnr
+google/diffusiongemma-26b-a4b-it
+
+Source: https://build.nvidia.com/models?filters=nimType%3Anim_type_preview (Free Endpoint filter, 39 models)

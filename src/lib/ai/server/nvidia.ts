@@ -17,6 +17,8 @@ interface EnvModel {
   strengths?: TaskCategory[];
   order?: number;
   image?: boolean;
+  /** required for a real image model — see `RegistryModel.endpoint` */
+  endpoint?: string;
 }
 
 function envRegistry(): RegistryModel[] | null {
@@ -35,6 +37,7 @@ function envRegistry(): RegistryModel[] | null {
         strengths: m.strengths ?? ["general"],
         order: m.order ?? i + 1,
         image: m.image ?? false,
+        endpoint: m.endpoint,
       }));
   } catch {
     return null;

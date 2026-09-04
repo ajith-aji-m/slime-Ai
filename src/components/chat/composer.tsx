@@ -10,6 +10,7 @@ import { site } from "@/config/site";
 import type { ToolId } from "@/types/chat";
 import { useConversationStore } from "@/stores/conversation-store";
 import { useComposerStore } from "@/stores/composer-store";
+import { useAiStatusStore } from "@/stores/ai-status-store";
 
 export interface ComposerProps {
   conversationId?: string;
@@ -49,6 +50,8 @@ export function Composer({
   const toggleDefaultTool = useComposerStore((s) => s.toggleDefaultTool);
 
   const activeTools = conversation?.tools ?? defaultTools;
+  const imageGenReady = useAiStatusStore((s) => s.imageGeneration);
+  const imageGenBlocked = activeTools.includes("image_gen") && !imageGenReady;
 
   function handleToolToggle(id: ToolId) {
     if (conversationId) toggleTool(conversationId, id);
@@ -158,6 +161,14 @@ export function Composer({
             className="animate-pulse text-primary"
           />
           {statusLabel}
+        </p>
+      ) : imageGenBlocked ? (
+        <p
+          className="mt-2 flex items-center justify-center gap-1.5 text-[11px] font-medium text-on-surface-variant"
+          aria-live="polite"
+        >
+          <Icon name="image" size={13} className="text-on-surface-variant/70" />
+          No NVIDIA image-generation model is configured yet.
         </p>
       ) : !showToolStrip ? (
         <p className="mt-2 text-center text-[11px] text-on-surface-variant/70">

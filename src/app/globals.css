@@ -231,6 +231,39 @@
   color-scheme: dark;
 }
 
+/* ---- Mode accents ---------------------------------------------------------
+   Subtle, opt-in accent per active tool mode (Search/Code/Image Gen/Research).
+   Scoped to [data-mode] (set on the workspace shell root by useActiveToolMode)
+   so only the primary/accent family shifts — surfaces, layout and typography
+   are untouched. Never applied when no mode is active. */
+[data-mode="web_search"] {
+  --sl-primary: #0b63c9;
+  --sl-primary-container: #3d84d9;
+  --sl-on-primary-container: #e2eefd;
+  --sl-inverse-primary: #b8d7ff;
+}
+
+[data-mode="code"] {
+  --sl-primary: #0a8f66;
+  --sl-primary-container: #16a877;
+  --sl-on-primary-container: #dcfbee;
+  --sl-inverse-primary: #a3f0cf;
+}
+
+[data-mode="research"] {
+  --sl-primary: #b1590a;
+  --sl-primary-container: #d4790f;
+  --sl-on-primary-container: #fef0da;
+  --sl-inverse-primary: #ffd6a3;
+}
+
+[data-mode="image_gen"] {
+  --sl-primary: #bc2589;
+  --sl-primary-container: #d84aa4;
+  --sl-on-primary-container: #ffe3f3;
+  --sl-inverse-primary: #ffc0e6;
+}
+
 /* =============================================================================
    Base layer
    ========================================================================== */

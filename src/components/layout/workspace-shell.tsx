@@ -12,6 +12,7 @@ import { useUiStore } from "@/stores/ui-store";
 import { useConversationStore } from "@/stores/conversation-store";
 import { useAiStatusStore } from "@/stores/ai-status-store";
 import { useCanvasStore } from "@/stores/canvas-store";
+import { useActiveToolMode } from "@/hooks/use-active-tool-mode";
 
 /**
  * The persistent workspace frame: left rail + main column + optional Intelligence
@@ -27,6 +28,7 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
   const contextDrawerOpen = useUiStore((s) => s.contextDrawerOpen);
   const closeDrawers = useUiStore((s) => s.closeDrawers);
   const canvasOpen = useCanvasStore((s) => s.open);
+  const activeMode = useActiveToolMode();
 
   // Canvas takes the right side of the workspace; the Intelligence panel yields
   // to it while it's open.
@@ -43,7 +45,10 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
   }, [pathname, closeDrawers]);
 
   return (
-    <div className="flex h-full w-full overflow-hidden">
+    <div
+      className="flex h-full w-full overflow-hidden"
+      data-mode={onChat ? activeMode : undefined}
+    >
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-[60] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-on-primary"

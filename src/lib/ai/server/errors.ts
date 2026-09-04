@@ -15,6 +15,7 @@ const PERMANENT_CODES = new Set([
   "http_501", // not implemented / unsupported
   "not_configured",
   "no_models",
+  "no_image_model", // no NVIDIA model in the registry is marked image-capable
 ]);
 
 /**
@@ -42,6 +43,8 @@ export function permanentUserMessage(code?: string): string {
       return "Slime AI is not configured on the server yet.";
     case "no_models":
       return "Slime AI has no models available right now.";
+    case "no_image_model":
+      return "No suitable NVIDIA image-generation model is configured.";
     default:
       return "Slime AI couldn't complete that request.";
   }

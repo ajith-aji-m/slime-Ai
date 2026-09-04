@@ -1,6 +1,10 @@
 import "server-only";
 import type { Message, ToolId } from "@/types/chat";
-import { LONG_CONTEXT_CHARS, type TaskCategory } from "@/config/ai-router";
+import {
+  LONG_CONTEXT_CHARS,
+  TOOL_MODE_CATEGORY,
+  type TaskCategory,
+} from "@/config/ai-router";
 
 const PATTERNS: { category: TaskCategory; re: RegExp }[] = [
   {
@@ -42,7 +46,14 @@ export function classifyTask(
   messages: Message[],
   tools: ToolId[],
 ): TaskCategory {
-  if (tools.includes("research")) return "research";
+  // An active mode tool (Search / Code / Research) is an explicit, user-picked
+  // instruction — it always wins over the text heuristics below.
+  // (`image_gen` never reaches here: the router branches to the image path
+  // before classification.)
+  for (const tool of tools) {
+    const forced = TOOL_MODE_CATEGORY[tool];
+    if (forced) return forced;
+  }
 
   const chars = estimateInputChars(messages);
   const lastUser = [...messages].reverse().find((m) => m.role === "user");

@@ -7,8 +7,11 @@
  * env var — never hard-coded here or anywhere else.
  */
 
+import type { ToolId } from "@/types/chat";
+
 export type TaskCategory =
   | "general"
+  | "search"
   | "coding"
   | "long_context"
   | "reasoning"
@@ -17,6 +20,7 @@ export type TaskCategory =
 
 export const TASK_CATEGORIES: TaskCategory[] = [
   "general",
+  "search",
   "coding",
   "long_context",
   "reasoning",
@@ -32,11 +36,24 @@ export const TASK_CATEGORIES: TaskCategory[] = [
  */
 export const CATEGORY_ROUTING: Record<TaskCategory, string[]> = {
   general: ["slime-general", "slime-versatile", "slime-fast"],
+  search: ["slime-fast", "slime-general", "slime-versatile"],
   coding: ["slime-versatile", "slime-general", "slime-fast"],
   long_context: ["slime-reasoning", "slime-general", "slime-versatile"],
   reasoning: ["slime-reasoning", "slime-versatile", "slime-general"],
   research: ["slime-reasoning", "slime-versatile", "slime-general"],
   structured: ["slime-general", "slime-versatile", "slime-fast"],
+};
+
+/**
+ * Maps a composer "mode" tool straight to its task category — the router
+ * trusts an explicit mode over text heuristics. `image_gen` is deliberately
+ * absent: it never resolves to a text category, it's routed to an
+ * image-capable model only (see `routeChat`'s image branch) or rejected.
+ */
+export const TOOL_MODE_CATEGORY: Partial<Record<ToolId, TaskCategory>> = {
+  web_search: "search",
+  code: "coding",
+  research: "research",
 };
 
 /**
