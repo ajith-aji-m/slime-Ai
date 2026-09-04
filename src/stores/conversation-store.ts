@@ -51,6 +51,29 @@ function persist(conversation: Conversation) {
   void conversationStore.put(conversation);
 }
 
+/**
+ * Attachments are inlined as data URLs for local storage (see
+ * `src/lib/utils/file.ts`), which can be megabytes per file — fine for
+ * IndexedDB, but sent as JSON to `/api/chat` it can blow past the
+ * platform's request body limit and fail the whole turn (no model reads
+ * file contents yet anyway, see the model-registry audit in
+ * `src/config/models.ts`). Strip the heavy `url` before the request ever
+ * leaves the browser; keep the metadata so a future multimodal model still
+ * knows a file was attached.
+ */
+function stripAttachmentData(messages: Message[]): Message[] {
+  return messages.map((m) =>
+    m.attachments?.length
+      ? {
+          ...m,
+          attachments: m.attachments.map(
+            ({ id, name, size, mimeType }) => ({ id, name, size, mimeType }),
+          ),
+        }
+      : m,
+  );
+}
+
 export const useConversationStore = create<ConversationState>((set, get) => {
   /** Apply a patch to one conversation in state + storage + summary list. */
   function update(id: string, patch: (c: Conversation) => Conversation) {
@@ -95,10 +118,11 @@ export const useConversationStore = create<ConversationState>((set, get) => {
     // Humanizer mode: prepend the rewrite instruction as a (non-persisted)
     // system message. Everything else — provider choice, internal routing,
     // fallback, error handling — is unchanged.
-    const outgoing =
+    const outgoing = stripAttachmentData(
       activeModeTool(conversation.tools) === "humanizer"
         ? buildHumanizerMessages(upToUser)
-        : upToUser;
+        : upToUser,
+    );
 
     const assistantId = createId("msg");
     update(id, (c) => ({
