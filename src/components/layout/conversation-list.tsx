@@ -1,24 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
 import { Icon } from "@/components/ui";
-import { Popover } from "@/components/ui/popover";
+import type { ConversationSummary } from "@/types/chat";
 import { useConversationStore } from "@/stores/conversation-store";
 
 const COLLAPSED_COUNT = 8;
 
+/** Row slides this far to expose the Delete action. */
+const REVEAL = 72;
+/** Drag past this (px) and releasing deletes outright. */
+const COMMIT = 132;
+
 export function ConversationList({ onNavigate }: { onNavigate?: () => void }) {
   const params = useParams<{ conversationId?: string }>();
-  const router = useRouter();
   const summaries = useConversationStore((s) => s.summaries);
   const hydrated = useConversationStore((s) => s.hydrated);
-  const { renameConversation, deleteConversation } =
-    useConversationStore.getState();
+  const { renameConversation } = useConversationStore.getState();
   const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [openId, setOpenId] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
+
+  // Collapse an open swipe row whenever the route changes (React's
+  // "adjust state during render" pattern — no effect needed).
+  const [lastRoute, setLastRoute] = useState(params.conversationId);
+  if (lastRoute !== params.conversationId) {
+    setLastRoute(params.conversationId);
+    if (openId !== null) setOpenId(null);
+  }
 
   if (hydrated && summaries.length === 0) {
     return (
@@ -40,86 +52,26 @@ export function ConversationList({ onNavigate }: { onNavigate?: () => void }) {
         Recents
       </p>
       <ul className="space-y-0.5">
-        {visible.map((summary) => {
-          const active = summary.id === params.conversationId;
-          return (
-            <li key={summary.id} className="group/item relative">
-              {renamingId === summary.id ? (
-                <input
-                  autoFocus
-                  defaultValue={summary.title}
-                  onBlur={(e) => {
-                    renameConversation(summary.id, e.target.value);
-                    setRenamingId(null);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") e.currentTarget.blur();
-                    if (e.key === "Escape") setRenamingId(null);
-                  }}
-                  className="sl-field border-primary"
-                />
-              ) : (
-                <Link
-                  href={`/chat/${summary.id}`}
-                  onClick={onNavigate}
-                  aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "flex min-w-0 items-center gap-2 rounded-2xl py-2 pl-3.5 pr-8 text-[13px] font-medium transition-all",
-                    active
-                      ? "liquid-pill-active text-white"
-                      : "border border-glass-line bg-glass-fill text-on-surface-variant hover:bg-glass-hover hover:text-on-surface",
-                  )}
-                >
-                  {summary.pinned ? (
-                    <Icon name="star" size={14} className="text-primary" />
-                  ) : null}
-                  <span className="truncate">{summary.title}</span>
-                </Link>
-              )}
-
-              <span className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 transition-opacity group-hover/item:opacity-100 focus-within:opacity-100">
-                <Popover
-                  align="end"
-                  trigger={({ toggle, open }) => (
-                    <button
-                      type="button"
-                      onClick={toggle}
-                      aria-label={`Options for ${summary.title}`}
-                      aria-haspopup="menu"
-                      aria-expanded={open}
-                      className="flex h-7 w-7 items-center justify-center rounded-md text-on-surface-variant hover:bg-surface-container-high"
-                    >
-                      <Icon name="more_horiz" size={18} />
-                    </button>
-                  )}
-                >
-                  {({ close }) => (
-                    <div className="min-w-[160px]">
-                      <MenuItem
-                        icon="edit"
-                        label="Rename"
-                        onClick={() => {
-                          setRenamingId(summary.id);
-                          close();
-                        }}
-                      />
-                      <MenuItem
-                        icon="delete"
-                        label="Delete"
-                        destructive
-                        onClick={async () => {
-                          close();
-                          await deleteConversation(summary.id);
-                          if (active) router.push("/chat");
-                        }}
-                      />
-                    </div>
-                  )}
-                </Popover>
-              </span>
-            </li>
-          );
-        })}
+        {visible.map((summary) => (
+          <ConversationRow
+            key={summary.id}
+            summary={summary}
+            active={summary.id === params.conversationId}
+            renaming={renamingId === summary.id}
+            open={openId === summary.id}
+            onNavigate={onNavigate}
+            onOpenChange={(next) => setOpenId(next ? summary.id : null)}
+            onStartRename={() => {
+              setOpenId(null);
+              setRenamingId(summary.id);
+            }}
+            onRename={(title) => {
+              renameConversation(summary.id, title);
+              setRenamingId(null);
+            }}
+            onCancelRename={() => setRenamingId(null)}
+          />
+        ))}
       </ul>
 
       {hasMore ? (
@@ -140,28 +92,221 @@ export function ConversationList({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-function MenuItem({
+interface RowProps {
+  summary: ConversationSummary;
+  active: boolean;
+  renaming: boolean;
+  open: boolean;
+  onNavigate?: () => void;
+  onOpenChange: (open: boolean) => void;
+  onStartRename: () => void;
+  onRename: (title: string) => void;
+  onCancelRename: () => void;
+}
+
+function ConversationRow({
+  summary,
+  active,
+  renaming,
+  open,
+  onNavigate,
+  onOpenChange,
+  onStartRename,
+  onRename,
+  onCancelRename,
+}: RowProps) {
+  const router = useRouter();
+  const [dragX, setDragX] = useState<number | null>(null);
+  const drag = useRef({ startX: 0, startY: 0, mode: "idle" as "idle" | "maybe" | "drag" });
+  const suppressClick = useRef(false);
+
+  const shown = dragX ?? (open ? -REVEAL : 0);
+
+  async function remove() {
+    onOpenChange(false);
+    await useConversationStore.getState().deleteConversation(summary.id);
+    if (active) router.push("/chat");
+  }
+
+  function onPointerDown(e: React.PointerEvent) {
+    if (renaming) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    // Clear any stale suppression from a previous gesture whose synthetic click
+    // landed on the wrapper rather than the link.
+    suppressClick.current = false;
+    drag.current = { startX: e.clientX, startY: e.clientY, mode: "maybe" };
+  }
+
+  function onPointerMove(e: React.PointerEvent) {
+    const d = drag.current;
+    if (d.mode === "idle") return;
+    const dx = e.clientX - d.startX;
+    const dy = e.clientY - d.startY;
+    if (d.mode === "maybe") {
+      if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+      // A mostly-vertical move is a scroll — let the list have it.
+      if (Math.abs(dy) >= Math.abs(dx)) {
+        d.mode = "idle";
+        return;
+      }
+      d.mode = "drag";
+      e.currentTarget.setPointerCapture(e.pointerId);
+    }
+    const base = open ? -REVEAL : 0;
+    setDragX(Math.max(-(COMMIT + 40), Math.min(0, base + dx)));
+  }
+
+  function onPointerUp(e: React.PointerEvent) {
+    const d = drag.current;
+    const wasDrag = d.mode === "drag";
+    d.mode = "idle";
+    if (!wasDrag) return;
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      /* pointer already released */
+    }
+    suppressClick.current = true;
+    const x = dragX ?? 0;
+    setDragX(null);
+    if (x <= -COMMIT) {
+      void remove();
+      return;
+    }
+    onOpenChange(x <= -REVEAL / 2);
+  }
+
+  if (renaming) {
+    return (
+      <li>
+        <input
+          autoFocus
+          defaultValue={summary.title}
+          onBlur={(e) => onRename(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") e.currentTarget.blur();
+            if (e.key === "Escape") onCancelRename();
+          }}
+          className="sl-field border-primary"
+        />
+      </li>
+    );
+  }
+
+  return (
+    <li className="group/item relative">
+      {shown < -1 ? (
+        <button
+          type="button"
+          onClick={() => void remove()}
+          aria-label={`Delete ${summary.title}`}
+          tabIndex={open ? 0 : -1}
+          className="absolute inset-y-0 right-0 flex w-[72px] flex-col items-center justify-center gap-0.5 rounded-2xl bg-error text-[10px] font-semibold text-on-error"
+        >
+          <Icon name="delete" size={16} />
+          Delete
+        </button>
+      ) : null}
+
+      <div
+        className={cn(
+          "relative touch-pan-y",
+          dragX === null && "transition-transform duration-200 ease-out",
+        )}
+        style={{ transform: `translateX(${shown}px)` }}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+      >
+        <Link
+          href={`/chat/${summary.id}`}
+          aria-current={active ? "page" : undefined}
+          onClick={(e) => {
+            if (suppressClick.current) {
+              suppressClick.current = false;
+              e.preventDefault();
+              return;
+            }
+            if (open) {
+              e.preventDefault();
+              onOpenChange(false);
+              return;
+            }
+            onNavigate?.();
+          }}
+          className={cn(
+            "flex min-w-0 items-center gap-2 rounded-2xl border py-2 pl-3.5 pr-16 text-[13px] font-medium transition-colors",
+            active
+              ? "liquid-pill-active border-transparent text-white"
+              : "border-glass-line bg-surface text-on-surface-variant hover:bg-surface-container hover:text-on-surface",
+          )}
+        >
+          {summary.pinned ? (
+            <Icon
+              name="star"
+              size={14}
+              className={active ? "text-white" : "text-primary"}
+            />
+          ) : null}
+          <span className="truncate">{summary.title}</span>
+        </Link>
+
+        {shown === 0 ? (
+          <span className="absolute right-1.5 top-1/2 flex -translate-y-1/2 items-center gap-0.5 opacity-0 transition-opacity group-hover/item:opacity-100 group-focus-within/item:opacity-100">
+            <RowIcon
+              icon="edit"
+              label={`Rename ${summary.title}`}
+              active={active}
+              onClick={onStartRename}
+            />
+            <RowIcon
+              icon="delete"
+              label={`Delete ${summary.title}`}
+              active={active}
+              destructive
+              onClick={() => void remove()}
+            />
+          </span>
+        ) : null}
+      </div>
+    </li>
+  );
+}
+
+function RowIcon({
   icon,
   label,
-  onClick,
+  active,
   destructive = false,
+  onClick,
 }: {
   icon: React.ComponentProps<typeof Icon>["name"];
   label: string;
-  onClick: () => void;
+  active: boolean;
   destructive?: boolean;
+  onClick: () => void;
 }) {
   return (
     <button
       type="button"
-      onClick={onClick}
+      aria-label={label}
+      onPointerDown={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onClick();
+      }}
       className={cn(
-        "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-surface-variant",
-        destructive ? "text-error" : "text-on-surface",
+        "flex h-7 w-7 items-center justify-center rounded-md transition-colors",
+        active
+          ? "text-white/80 hover:bg-white/20 hover:text-white"
+          : destructive
+            ? "text-on-surface-variant hover:bg-error/10 hover:text-error"
+            : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface",
       )}
     >
       <Icon name={icon} size={16} />
-      {label}
     </button>
   );
 }
