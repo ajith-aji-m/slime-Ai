@@ -58,6 +58,8 @@ export function Composer({
   const activeTools = conversation?.tools ?? defaultTools;
   const imageGenReady = useAiStatusStore((s) => s.imageGeneration);
   const imageGenBlocked = activeTools.includes("image_gen") && !imageGenReady;
+  const webSearchReady = useAiStatusStore((s) => s.webSearch);
+  const webSearchLimited = activeTools.includes("web_search") && !webSearchReady;
 
   function handleToolToggle(id: ToolId) {
     if (conversationId) toggleTool(conversationId, id);
@@ -246,6 +248,14 @@ export function Composer({
         >
           <Icon name="image" size={13} className="text-on-surface-variant/70" />
           No NVIDIA image-generation model is configured yet.
+        </p>
+      ) : webSearchLimited ? (
+        <p
+          className="mt-2 flex items-center justify-center gap-1.5 text-[11px] font-medium text-on-surface-variant"
+          aria-live="polite"
+        >
+          <Icon name="search" size={13} className="text-on-surface-variant/70" />
+          Live web search isn&apos;t configured yet — answers use the model&apos;s own knowledge.
         </p>
       ) : !showToolStrip ? (
         <p className="mt-2 text-center text-[11px] text-on-surface-variant/70">

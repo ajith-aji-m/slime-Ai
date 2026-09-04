@@ -1,5 +1,6 @@
 import "server-only";
 import type { Attachment, Message } from "@/types/chat";
+import { isImageAttachment, isTextAttachment } from "@/lib/utils/file";
 
 export type OpenAIContentPart =
   | { type: "text"; text: string }
@@ -27,7 +28,11 @@ export function toOpenAIMessages(
       out.push({ role: "system", content: partsToText(message) });
       continue;
     }
-    const content = [partsToText(message), attachmentsNote(message)]
+    const content = [
+      partsToText(message),
+      attachmentsContent(message),
+      attachmentsNote(message),
+    ]
       .filter(Boolean)
       .join("\n\n");
     if (!content) continue;
@@ -83,15 +88,60 @@ export function toOpenAIVisionMessages(
 
 /**
  * A note for attachments whose data never made it to this request (every
- * non-image file, and any oversized image — see `stripAttachmentData` in the
- * conversation store) — so the model states plainly that it can't view them,
- * instead of denying anything was attached at all.
+ * non-image, non-text file, and anything oversized — see
+ * `stripAttachmentData` in the conversation store) — so the model states
+ * plainly that it can't view them, instead of denying anything was attached
+ * at all.
  */
 function attachmentsNote(message: Message): string {
   const unseen = (message.attachments ?? []).filter((a) => !a.url);
   if (unseen.length === 0) return "";
   const names = unseen.map((a) => a.name).join(", ");
   return `[The user attached ${unseen.length === 1 ? "a file" : "files"} you cannot view the contents of: ${names}. Say so plainly if asked about it — never claim nothing was attached.]`;
+}
+
+const MAX_INLINED_CHARS = 8_000;
+
+/**
+ * Inlines the raw content of text-like attachments (CSV, JSON, plain text,
+ * Markdown, etc. — see `isTextAttachment`) that survived the client's
+ * size-gated strip, as a fenced block per file. Images are handled
+ * separately by `toOpenAIVisionMessages`, never here.
+ */
+function attachmentsContent(message: Message): string {
+  const files = (message.attachments ?? []).filter(
+    (a): a is Attachment & { url: string } =>
+      !!a.url && isTextAttachment(a) && !isImageAttachment(a),
+  );
+  if (files.length === 0) return "";
+
+  return files
+    .map((a) => {
+      const text = decodeDataUrlText(a.url);
+      if (!text) return "";
+      const truncated =
+        text.length > MAX_INLINED_CHARS
+          ? `${text.slice(0, MAX_INLINED_CHARS)}\n… (truncated)`
+          : text;
+      return `Attached file "${a.name}":\n\`\`\`\n${truncated}\n\`\`\``;
+    })
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+function decodeDataUrlText(dataUrl: string): string {
+  try {
+    const comma = dataUrl.indexOf(",");
+    if (comma === -1) return "";
+    const meta = dataUrl.slice(0, comma);
+    const data = dataUrl.slice(comma + 1);
+    if (meta.includes(";base64")) {
+      return Buffer.from(data, "base64").toString("utf-8");
+    }
+    return decodeURIComponent(data);
+  } catch {
+    return "";
+  }
 }
 
 function partsToText(message: Message): string {
