@@ -30,7 +30,7 @@ export function MessageActions({
   }, [detectSupport]);
 
   return (
-    <div className="mt-2 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+    <div className="mt-2 flex items-center gap-1 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100">
       <IconButton
         icon={copied ? "check" : "content_copy"}
         label="Copy response"
