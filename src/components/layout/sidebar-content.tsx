@@ -43,7 +43,7 @@ export function SidebarContent({
       </div>
 
       <SecondaryNavLinks onNavigate={onNavigate} />
-      <UserProfile onNavigate={onNavigate} />
+      <UserProfile />
     </div>
   );
 }
