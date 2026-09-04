@@ -1,6 +1,6 @@
 "use client";
 
-import { Icon, SlimeMark } from "@/components/ui";
+import { SlimeMark } from "@/components/ui";
 import { site } from "@/config/site";
 import { formatClockTime } from "@/lib/utils/format";
 import { messageToPlainText } from "@/lib/utils/message-text";
@@ -8,6 +8,7 @@ import type { Message } from "@/types/chat";
 import { MessageParts } from "./message-parts";
 import { MessageActions } from "./message-actions";
 import { AssistantError } from "./assistant-error";
+import { SlimeThinking } from "./slime-thinking";
 import { useAssistantArtifacts } from "@/components/canvas/use-assistant-artifacts";
 
 export function AssistantMessage({
@@ -47,10 +48,7 @@ export function AssistantMessage({
         {(hasContent || streaming) && !(errored && !hasContent) ? (
           <div className="liquid-inner rounded-2xl rounded-tl-sm px-5 py-4">
             {!hasContent && streaming ? (
-              <span className="flex items-center gap-1.5 text-sm text-on-surface-variant">
-                <Icon name="graphic_eq" size={16} className="animate-pulse" />
-                {statusLabel ?? "Thinking…"}
-              </span>
+              <SlimeThinking label={statusLabel ?? "Thinking…"} />
             ) : (
               <MessageParts parts={displayParts} />
             )}
