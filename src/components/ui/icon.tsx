@@ -85,6 +85,8 @@ export const ICON_NAMES = [
   "upload",
   "view_list",
   "visibility",
+  "volume_off",
+  "volume_up",
   "web",
 ] as const;
 
