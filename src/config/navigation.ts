@@ -6,6 +6,11 @@ export interface NavItemConfig {
   icon: IconName;
   /** Rendered in the secondary group at the bottom of the sidebar. */
   section: "primary" | "secondary";
+  /**
+   * Set to false to hide a sidebar entry without deleting it — for features
+   * that are built but not ready to ship yet. Defaults to true when omitted.
+   */
+  enabled?: boolean;
 }
 
 /**
@@ -17,9 +22,27 @@ export interface NavItemConfig {
  */
 export const navigation: NavItemConfig[] = [
   { label: "Chats", href: "/chat", icon: "chat", section: "primary" },
-  { label: "Projects", href: "/projects", icon: "folder", section: "primary" },
-  { label: "Tasks", href: "/tasks", icon: "task_alt", section: "primary" },
-  { label: "Agents", href: "/agents", icon: "smart_toy", section: "primary" },
+  {
+    label: "Projects",
+    href: "/projects",
+    icon: "folder",
+    section: "primary",
+    enabled: false, // TODO: re-enable when Projects ships
+  },
+  {
+    label: "Tasks",
+    href: "/tasks",
+    icon: "task_alt",
+    section: "primary",
+    enabled: false, // TODO: re-enable when Tasks ships
+  },
+  {
+    label: "Agents",
+    href: "/agents",
+    icon: "smart_toy",
+    section: "primary",
+    enabled: false, // TODO: re-enable when Agents ships
+  },
   { label: "Settings", href: "/settings", icon: "settings", section: "secondary" },
   { label: "Help", href: "/help", icon: "help", section: "secondary" },
 ];
