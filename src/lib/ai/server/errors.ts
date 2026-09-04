@@ -16,6 +16,7 @@ const PERMANENT_CODES = new Set([
   "not_configured",
   "no_models",
   "no_image_model", // no NVIDIA model in the registry is marked image-capable
+  "no_vision_model", // no NVIDIA model in the registry can read an attached image
 ]);
 
 /**
@@ -45,6 +46,8 @@ export function permanentUserMessage(code?: string): string {
       return "Slime AI has no models available right now.";
     case "no_image_model":
       return "No suitable NVIDIA image-generation model is configured.";
+    case "no_vision_model":
+      return "I can't see image contents yet — no image-understanding model is configured on the server.";
     default:
       return "Slime AI couldn't complete that request.";
   }

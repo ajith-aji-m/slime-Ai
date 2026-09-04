@@ -48,10 +48,23 @@ export const mockChatProvider: ChatProvider = {
       .map((p) => (p.type === "text" ? p.text : ""))
       .join(" ")
       .trim();
+    const hasImage = lastUser?.attachments?.some((a) =>
+      a.mimeType.startsWith("image/"),
+    );
 
     try {
       await sleep(280, signal);
-      const parts = buildMockResponse(prompt ?? "", tools);
+      // Honest about a real limitation rather than a canned response that
+      // ignores the attachment (or worse, hallucinates having seen it): the
+      // offline mock provider never reads file contents, image included.
+      const parts = hasImage
+        ? [
+            {
+              type: "text" as const,
+              text: "I can see you've attached an image, but I'm running in offline demo mode right now and can't analyze image contents. Configure a real NVIDIA connection to get an actual answer about it.",
+            },
+          ]
+        : buildMockResponse(prompt ?? "", tools);
 
       for (const part of parts) {
         if (signal?.aborted) return;

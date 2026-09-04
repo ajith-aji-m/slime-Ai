@@ -31,6 +31,15 @@ export interface RegistryModel {
    * that guess, but it is unverified and should be treated as a last resort.
    */
   endpoint?: string;
+  /**
+   * Set only for models that can read an *attached* image and answer
+   * questions about it (image-in, text-out) — distinct from `image`
+   * (text-in, image-out generation). Vision models are never selected by
+   * ordinary text-category routing (see `planModels`'s filter); `routeChat`
+   * forks to one explicitly when the newest user message carries an image
+   * attachment.
+   */
+  vision?: boolean;
 }
 
 /**
@@ -98,5 +107,18 @@ export const DEFAULT_NVIDIA_MODELS: RegistryModel[] = [
     streaming: true,
     strengths: ["general", "search", "coding"],
     order: 2,
+  },
+  {
+    // Image *understanding* (image-in, text-out) — answers questions about an
+    // attached image. Never picked by ordinary text routing (empty
+    // strengths + excluded in planModels); routeChat forks to it explicitly
+    // when the newest user message has an image attachment.
+    id: "slime-vision",
+    upstreamId: "meta/llama-3.2-11b-vision-instruct",
+    contextWindow: 8_000,
+    streaming: true,
+    strengths: [],
+    order: 99,
+    vision: true,
   },
 ];
