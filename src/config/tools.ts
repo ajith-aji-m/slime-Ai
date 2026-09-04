@@ -9,6 +9,12 @@ export interface ToolConfig {
   /** shown in the composer tool strip */
   inComposer: boolean;
   /**
+   * Composer placeholder shown while this tool is the active mode. Only
+   * meaningful for `mode` tools — falls back to the generic
+   * "Message {site.shortName}…" placeholder when unset.
+   */
+  placeholder?: string;
+  /**
    * A "mode" tool drives the whole request — the internal router picks the
    * NVIDIA model for it and the UI applies its accent. Only one mode tool can
    * be active at a time; toggling one on turns the others off. Non-mode tools
@@ -33,6 +39,7 @@ export const tools: ToolConfig[] = [
     description: "Search the web and cite sources.",
     inComposer: true,
     mode: true,
+    placeholder: "Search the web…",
   },
   {
     id: "code",
@@ -41,6 +48,7 @@ export const tools: ToolConfig[] = [
     description: "Run code and return the output.",
     inComposer: true,
     mode: true,
+    placeholder: "Describe what you want to build or debug…",
   },
   // {
   //   id: "image_gen",
@@ -49,6 +57,7 @@ export const tools: ToolConfig[] = [
   //   description: "Generate images from a prompt.",
   //   inComposer: true,
   //   mode: true,
+  //   placeholder: "Describe the image you want to generate…",
   // },
   {
     id: "research",
@@ -57,6 +66,7 @@ export const tools: ToolConfig[] = [
     description: "Deep multi-step research with a written report.",
     inComposer: true,
     mode: true,
+    placeholder: "What do you want to research?",
   },
   {
     id: "humanizer",
@@ -66,6 +76,7 @@ export const tools: ToolConfig[] = [
       "Rewrite AI-generated text to sound natural — with a highlighted, keyword-checked preview in Canvas.",
     inComposer: true,
     mode: true,
+    placeholder: "Paste the content you want to humanize…",
   },
   {
     id: "file_analysis",
