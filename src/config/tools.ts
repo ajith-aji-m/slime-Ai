@@ -17,7 +17,7 @@ export interface ToolConfig {
   mode?: boolean;
 }
 
-/** Tool strip in the exported composer: Search · Code · Image Gen · Research. */
+/** Composer tool strip: Search · Code · Image Gen · Research · Humanizer. */
 export const tools: ToolConfig[] = [
   {
     id: "web_search",
@@ -48,6 +48,15 @@ export const tools: ToolConfig[] = [
     label: "Research",
     icon: "library_books",
     description: "Deep multi-step research with a written report.",
+    inComposer: true,
+    mode: true,
+  },
+  {
+    id: "humanizer",
+    label: "Humanizer",
+    icon: "draw",
+    description:
+      "Rewrite AI-generated text to sound natural — with a highlighted, keyword-checked preview in Canvas.",
     inComposer: true,
     mode: true,
   },

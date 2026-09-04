@@ -6,6 +6,7 @@ import { HtmlCanvas } from "./html-canvas";
 import { TableCanvas } from "./table-canvas";
 import { ReportCanvas } from "./report-canvas";
 import { ImageCanvas } from "./image-canvas";
+import { HumanizerCanvas } from "./humanizer-canvas";
 
 /** Routes an artifact to its type-specific Canvas view. */
 export function CanvasContent({ artifact }: { artifact: CanvasArtifact }) {
@@ -20,6 +21,8 @@ export function CanvasContent({ artifact }: { artifact: CanvasArtifact }) {
       return <ReportCanvas artifact={artifact} />;
     case "image":
       return <ImageCanvas artifact={artifact} />;
+    case "humanizer":
+      return <HumanizerCanvas artifact={artifact} />;
     default:
       return null;
   }

@@ -7,8 +7,15 @@
  */
 
 import type { IconName } from "@/components/ui/icon";
+import type { HumanizerAnalysis } from "@/types/humanizer";
 
-export type CanvasArtifactType = "code" | "html" | "table" | "report" | "image";
+export type CanvasArtifactType =
+  | "code"
+  | "html"
+  | "table"
+  | "report"
+  | "image"
+  | "humanizer";
 
 export interface CanvasArtifact {
   /** deterministic: `${messageId}:${partIndex}` so re-derivation is idempotent */
@@ -34,6 +41,10 @@ export interface CanvasArtifact {
   imageUrl?: string;
   imagePrompt?: string;
 
+  /** humanizer — `markdown` holds the humanized text */
+  originalText?: string;
+  humanizer?: HumanizerAnalysis;
+
   /** safe, user-useful metadata shown in the Canvas header/side */
   meta?: Record<string, string | number>;
 }
@@ -54,6 +65,7 @@ export const CANVAS_TYPE_LABEL: Record<CanvasArtifactType, string> = {
   table: "Table",
   report: "Report",
   image: "Image",
+  humanizer: "Humanized",
 };
 
 export const CANVAS_TYPE_ICON: Record<CanvasArtifactType, IconName> = {
@@ -62,4 +74,5 @@ export const CANVAS_TYPE_ICON: Record<CanvasArtifactType, IconName> = {
   table: "table_chart",
   report: "article",
   image: "image",
+  humanizer: "draw",
 };

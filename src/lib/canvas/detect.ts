@@ -4,6 +4,7 @@ import type {
   CanvasArtifactRef,
   CanvasArtifactType,
 } from "@/types/canvas";
+import { analyzeHumanization } from "@/lib/humanizer";
 
 /**
  * A chat-thread display part. Same shape as a stored `MessagePart`, plus a
@@ -17,6 +18,79 @@ export type DisplayPart =
 export interface MessageDisplayPlan {
   displayParts: DisplayPart[];
   artifacts: CanvasArtifact[];
+}
+
+/** Extra context the caller can supply to steer derivation. */
+export interface PlanContext {
+  /**
+   * When set, the assistant message is a Humanizer rewrite of this text: the
+   * whole answer becomes a single `humanizer` artifact (with the diff, keyword
+   * check and readability) instead of going through normal artifact detection.
+   */
+  humanizerOriginal?: string;
+}
+
+const HUMANIZER_TEASER =
+  "Your text has been rewritten to sound more natural. Open Canvas to review every change, the keywords, and the readability.";
+
+/** Flatten the assistant's text parts into one string (the humanized output). */
+function assistantText(message: Message): string {
+  return message.parts
+    .filter((p): p is Extract<MessagePart, { type: "text" }> => p.type === "text")
+    .map((p) => p.text)
+    .join("\n\n")
+    .trim();
+}
+
+function planHumanizerDisplay(
+  message: Message,
+  original: string,
+): MessageDisplayPlan {
+  const humanized = assistantText(message);
+  if (!humanized) return { displayParts: message.parts, artifacts: [] };
+
+  const analysis = analyzeHumanization(original, humanized);
+  const id = `${message.id}:humanizer`;
+  const artifact: CanvasArtifact = {
+    id,
+    type: "humanizer",
+    title: "Humanized text",
+    conversationId: "",
+    messageId: message.id,
+    createdAt: message.createdAt,
+    markdown: humanized,
+    originalText: original,
+    humanizer: analysis,
+    meta: {
+      changes: analysis.changeCount,
+      highlights: analysis.highlightCount,
+      keywords: analysis.keywords.length,
+    },
+  };
+
+  const subtitleBits = [
+    `${analysis.changeCount} ${analysis.changeCount === 1 ? "change" : "changes"}`,
+    `${analysis.keywords.length} ${analysis.keywords.length === 1 ? "keyword" : "keywords"}`,
+  ];
+  if (analysis.droppedKeywords.length > 0) {
+    subtitleBits.push(`${analysis.droppedKeywords.length} to check`);
+  }
+
+  return {
+    displayParts: [
+      {
+        type: "canvas_ref",
+        artifact: {
+          id,
+          type: "humanizer",
+          title: "Humanized text",
+          subtitle: subtitleBits.join(" · "),
+          teaser: HUMANIZER_TEASER,
+        },
+      },
+    ],
+    artifacts: [artifact],
+  };
 }
 
 const HTML_LANGS = new Set(["html", "htm", "xml", "svg", "xhtml"]);
@@ -168,9 +242,16 @@ function mergeAdjacentText(parts: DisplayPart[]): DisplayPart[] {
  * cards). While a message is still streaming this is a no-op so the answer
  * appears normally as it arrives.
  */
-export function planMessageDisplay(message: Message): MessageDisplayPlan {
+export function planMessageDisplay(
+  message: Message,
+  context?: PlanContext,
+): MessageDisplayPlan {
   if (message.role !== "assistant" || message.status === "streaming") {
     return { displayParts: message.parts, artifacts: [] };
+  }
+
+  if (context?.humanizerOriginal != null && context.humanizerOriginal.trim()) {
+    return planHumanizerDisplay(message, context.humanizerOriginal.trim());
   }
 
   const artifacts: CanvasArtifact[] = [];

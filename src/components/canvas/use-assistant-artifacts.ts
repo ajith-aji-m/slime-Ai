@@ -2,8 +2,11 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import type { Message } from "@/types/chat";
+import { activeModeTool } from "@/config/tools";
 import { planMessageDisplay, type DisplayPart } from "@/lib/canvas/detect";
+import { messageToPlainText } from "@/lib/utils/message-text";
 import { useCanvasStore } from "@/stores/canvas-store";
+import { useConversationStore } from "@/stores/conversation-store";
 
 /**
  * Derives the Canvas artifacts for one assistant message, keeps the Canvas
@@ -20,13 +23,30 @@ export function useAssistantArtifacts(
   const openArtifact = useCanvasStore((s) => s.openArtifact);
   const noteAutoOpened = useCanvasStore((s) => s.noteAutoOpened);
 
+  // When the conversation is in Humanizer mode, the text this assistant message
+  // rewrote is the user message just before it — that's the diff baseline.
+  const humanizerOriginal = useConversationStore((s) => {
+    const conversation = s.conversations[conversationId];
+    if (!conversation || activeModeTool(conversation.tools) !== "humanizer") {
+      return undefined;
+    }
+    const index = conversation.messages.findIndex((m) => m.id === message.id);
+    if (index <= 0) return undefined;
+    for (let i = index - 1; i >= 0; i -= 1) {
+      if (conversation.messages[i].role === "user") {
+        return messageToPlainText(conversation.messages[i]) || undefined;
+      }
+    }
+    return undefined;
+  });
+
   const { displayParts, artifacts } = useMemo(() => {
-    const plan = planMessageDisplay(message);
+    const plan = planMessageDisplay(message, { humanizerOriginal });
     return {
       displayParts: plan.displayParts,
       artifacts: plan.artifacts.map((a) => ({ ...a, conversationId })),
     };
-  }, [message, conversationId]);
+  }, [message, conversationId, humanizerOriginal]);
 
   useEffect(() => {
     registerArtifacts(artifacts);

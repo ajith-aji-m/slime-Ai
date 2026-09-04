@@ -5,7 +5,7 @@ import { Brand } from "./brand";
 import { PrimaryNavLinks, SecondaryNavLinks } from "./primary-nav";
 import { ConversationList } from "./conversation-list";
 import { UserProfile } from "./user-profile";
-import { Button, IconButton } from "@/components/ui";
+import { IconButton } from "@/components/ui";
 import { useConversationStore } from "@/stores/conversation-store";
 
 /**
@@ -36,20 +36,7 @@ export function SidebarContent({
         ) : null}
       </div>
 
-      <div className="mb-2 px-3">
-        <Button
-          fullWidth
-          size="md"
-          variant="glass"
-          iconLeft="add"
-          onClick={handleNewChat}
-          className="h-11 gap-2 rounded-2xl text-[13px] font-semibold tracking-wide"
-        >
-          New Chat
-        </Button>
-      </div>
-
-      <PrimaryNavLinks onNavigate={onNavigate} />
+      <PrimaryNavLinks onNavigate={onNavigate} onNewChat={handleNewChat} />
 
       <div className="my-1 flex min-h-0 w-full min-w-0 flex-1 flex-col">
         <ConversationList onNavigate={onNavigate} />

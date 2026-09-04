@@ -47,6 +47,7 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
           existing.markdown !== artifact.markdown ||
           existing.html !== artifact.html ||
           existing.imageUrl !== artifact.imageUrl ||
+          existing.originalText !== artifact.originalText ||
           existing.title !== artifact.title
         ) {
           artifacts[artifact.id] = artifact;

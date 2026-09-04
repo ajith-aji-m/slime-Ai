@@ -82,21 +82,37 @@ Substantial structured output opens in the **Canvas** workspace (right side on
 desktop — the chat resizes, no overlay; full-screen slide-up on mobile) instead
 of being dumped into the thread.
 
-- `src/lib/canvas/detect.ts` `planMessageDisplay(message)` runs on **completed**
-  assistant messages: it returns the derived `CanvasArtifact[]` plus the parts
-  the thread should render, with big artifacts collapsed to a `canvas_ref` card.
-  Artifact ids are deterministic (`${messageId}:${partIndex}`) so re-derivation
-  is idempotent. Nothing is written back to stored messages.
+- `src/lib/canvas/detect.ts` `planMessageDisplay(message, context?)` runs on
+  **completed** assistant messages: it returns the derived `CanvasArtifact[]`
+  plus the parts the thread should render, with big artifacts collapsed to a
+  `canvas_ref` card. Artifact ids are deterministic (`${messageId}:${partIndex}`)
+  so re-derivation is idempotent. Nothing is written back to stored messages.
+  `context.humanizerOriginal` (set by `useAssistantArtifacts` when the
+  conversation is in Humanizer mode) makes the whole answer one `humanizer`
+  artifact instead.
 - `useAssistantArtifacts` (in `src/components/canvas/`) registers artifacts in
   `canvas-store` and auto-opens Canvas **once**, only on a live streaming→complete
   transition — never when reopening an old conversation. Manual open is the
   `CanvasReference` card or the top-bar toggle.
 - Artifact types: `code` · `html` (sandboxed `<iframe sandbox>`, no scripts) ·
-  `table` (filter + CSV export) · `report` (Markdown document) · `image`.
+  `table` (filter + CSV export) · `report` (Markdown document) · `image` ·
+  `humanizer` (humanized text + word-level diff + keyword check + readability).
   Add a type: extend `CanvasArtifactType`, add a `*-canvas.tsx` view, wire it in
   `canvas-content.tsx` + the detector.
 - Image generation is capability-gated (`/api/ai/status` `imageGeneration`,
   driven by `image: true` on a model in `NVIDIA_MODELS`) — never faked.
+
+### Humanizer mode
+
+`humanizer` is a mutually-exclusive composer mode (like Search / Code). When
+active, `conversation-store` prepends `HUMANIZER_SYSTEM_PROMPT` as a
+non-persisted system message (`buildHumanizerMessages`) and the request rides the
+normal provider + router path (category `general`; mock provider uses the
+offline `mockHumanize` heuristic). On completion the answer becomes one
+`humanizer` Canvas artifact: `src/lib/humanizer/` computes the word-level diff
+(`diffWords` — LCS over "word + trailing space" tokens, so every highlight is a
+real edit), preserved-keyword check, and Flesch readability. The stored user
+message keeps the raw paste — that's the diff baseline.
 
 ### Local dev tools
 

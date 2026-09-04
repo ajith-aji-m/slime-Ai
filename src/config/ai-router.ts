@@ -54,6 +54,10 @@ export const TOOL_MODE_CATEGORY: Partial<Record<ToolId, TaskCategory>> = {
   web_search: "search",
   code: "coding",
   research: "research",
+  // Rewriting AI text is a general language task — routed like everyday chat,
+  // with the same fallback chain. The Humanizer instruction rides as a system
+  // message (see `buildHumanizerMessages`), not a new provider.
+  humanizer: "general",
 };
 
 /**

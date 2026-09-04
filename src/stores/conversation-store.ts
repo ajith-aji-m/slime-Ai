@@ -14,6 +14,8 @@ import { getChatProvider } from "@/lib/ai";
 import { mockTitleFromPrompt } from "@/lib/ai/mock-content";
 import { createId, nowIso } from "@/lib/utils/id";
 import { toggleToolInList } from "@/lib/tool-mode";
+import { activeModeTool } from "@/config/tools";
+import { buildHumanizerMessages } from "@/lib/humanizer";
 
 /** Abort controllers for in-flight streams — kept outside React state. */
 const streams = new Map<string, AbortController>();
@@ -90,6 +92,14 @@ export const useConversationStore = create<ConversationState>((set, get) => {
       conversation.messages.findIndex((m) => m.id === sinceMessageId) + 1,
     );
 
+    // Humanizer mode: prepend the rewrite instruction as a (non-persisted)
+    // system message. Everything else — provider choice, internal routing,
+    // fallback, error handling — is unchanged.
+    const outgoing =
+      activeModeTool(conversation.tools) === "humanizer"
+        ? buildHumanizerMessages(upToUser)
+        : upToUser;
+
     const assistantId = createId("msg");
     update(id, (c) => ({
       ...c,
@@ -112,7 +122,7 @@ export const useConversationStore = create<ConversationState>((set, get) => {
 
     try {
       for await (const chunk of provider.streamChat({
-        messages: upToUser,
+        messages: outgoing,
         tools: conversation.tools,
         signal: controller.signal,
       })) {
