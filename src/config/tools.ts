@@ -17,7 +17,14 @@ export interface ToolConfig {
   mode?: boolean;
 }
 
-/** Composer tool strip: Search · Code · Image Gen · Research · Humanizer. */
+/**
+ * Composer tool strip: Search · Code · Research · Humanizer.
+ *
+ * `image_gen` is intentionally omitted for now — no NVIDIA image model is wired
+ * up, so it's hidden from every UI surface. The routing/detection code still
+ * understands the `"image_gen"` id, so restoring it is just re-adding the entry
+ * below.
+ */
 export const tools: ToolConfig[] = [
   {
     id: "web_search",
@@ -35,14 +42,14 @@ export const tools: ToolConfig[] = [
     inComposer: true,
     mode: true,
   },
-  {
-    id: "image_gen",
-    label: "Image Gen",
-    icon: "image",
-    description: "Generate images from a prompt.",
-    inComposer: true,
-    mode: true,
-  },
+  // {
+  //   id: "image_gen",
+  //   label: "Image Gen",
+  //   icon: "image",
+  //   description: "Generate images from a prompt.",
+  //   inComposer: true,
+  //   mode: true,
+  // },
   {
     id: "research",
     label: "Research",

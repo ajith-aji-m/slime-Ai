@@ -6,7 +6,6 @@ import { PrimaryNavLinks, SecondaryNavLinks } from "./primary-nav";
 import { ConversationList } from "./conversation-list";
 import { UserProfile } from "./user-profile";
 import { IconButton } from "@/components/ui";
-import { useConversationStore } from "@/stores/conversation-store";
 
 /**
  * Sidebar body — shared verbatim between the desktop rail and the mobile nav
@@ -22,9 +21,10 @@ export function SidebarContent({
   const router = useRouter();
 
   function handleNewChat() {
-    const id = useConversationStore.getState().createConversation();
+    // Land on the welcome screen; the conversation is created on the first
+    // message, so repeated clicks don't litter the history with empty chats.
     onNavigate?.();
-    router.push(`/chat/${id}`);
+    router.push("/chat");
   }
 
   return (
