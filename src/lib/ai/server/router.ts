@@ -14,6 +14,7 @@ import {
   interruptedUserMessage,
   permanentUserMessage,
 } from "./errors";
+import { streamNvidiaImage } from "./image";
 import { routerLog } from "./logger";
 import { isNvidiaConfigured, nvidiaRegistry, streamNvidiaModel } from "./nvidia";
 
@@ -46,6 +47,92 @@ function planModels(
   return plan.slice(0, Math.max(maxAttempts(), 1));
 }
 
+function lastUserText(messages: ChatRequest["messages"]): string {
+  const lastUser = [...messages].reverse().find((m) => m.role === "user");
+  return (
+    lastUser?.parts.map((p) => (p.type === "text" ? p.text : "")).join(" ").trim() ?? ""
+  );
+}
+
+/**
+ * Image Generation is routed separately from every text category: it is only
+ * ever allowed to reach a model the registry explicitly marks `image: true`.
+ * If none is configured, this reports that plainly instead of silently
+ * falling back to a text model. Falls back across image-capable models only.
+ */
+async function* routeImageGeneration(
+  request: ChatRequest,
+): AsyncGenerator<StreamChunk> {
+  const imageModels = nvidiaRegistry()
+    .filter((m) => m.image === true)
+    .sort((a, b) => a.order - b.order);
+
+  if (imageModels.length === 0) {
+    routerLog({ event: "permanent_error", category: "image", reason: "no_image_model", errorCategory: "permanent" });
+    yield {
+      type: "error",
+      message: permanentUserMessage("no_image_model"),
+      code: "no_image_model",
+      recoverable: false,
+    };
+    return;
+  }
+
+  const prompt = lastUserText(request.messages);
+  const plan = imageModels.slice(0, Math.max(maxAttempts(), 1));
+  const startedAt = Date.now();
+  let attempt = 0;
+
+  for (const model of plan) {
+    attempt += 1;
+    if (attempt > 1) {
+      yield { type: "status", label: "Optimizing response…" };
+      routerLog({ event: "fallback", category: "image", toRole: model.id, attempt });
+    } else {
+      routerLog({ event: "attempt", category: "image", role: model.id, attempt });
+    }
+
+    let modelError: Extract<StreamChunk, { type: "error" }> | undefined;
+    try {
+      for await (const chunk of streamNvidiaImage({
+        upstreamId: model.upstreamId,
+        endpoint: model.endpoint,
+        prompt,
+        signal: request.signal,
+      })) {
+        if (chunk.type === "error") {
+          modelError = chunk;
+          break;
+        }
+        yield chunk;
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      modelError = { type: "error", message: "stream error", code: "stream" };
+    }
+
+    if (!modelError) {
+      routerLog({ event: "success", category: "image", role: model.id, attempt, attempts: attempt, durationMs: Date.now() - startedAt });
+      yield { type: "done", meta: { finalRole: model.id, attempts: attempt } };
+      return;
+    }
+
+    if (categorizeError(modelError.code) === "permanent") {
+      yield {
+        type: "error",
+        message: permanentUserMessage(modelError.code),
+        code: modelError.code,
+        recoverable: false,
+      };
+      return;
+    }
+    // recoverable — try the next image-capable model, if any
+  }
+
+  routerLog({ event: "exhausted", category: "image", attempts: attempt, durationMs: Date.now() - startedAt });
+  yield { type: "error", message: exhaustedUserMessage(), code: "exhausted", recoverable: true };
+}
+
 /**
  * Internal AI Router. Classifies the task, picks an NVIDIA model, streams it,
  * and on a *recoverable* pre-content failure transparently falls back to the
@@ -64,6 +151,13 @@ export async function* routeChat(
       message: permanentUserMessage("not_configured"),
       code: "not_configured",
     };
+    return;
+  }
+
+  // Image Generation is a hard fork: it never shares a code path with the
+  // text categories below, so it can never fall back to a text model.
+  if (request.tools.includes("image_gen")) {
+    yield* routeImageGeneration(request);
     return;
   }
 

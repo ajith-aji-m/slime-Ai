@@ -18,7 +18,7 @@ export interface IconButtonProps
   size?: IconButtonSize;
   filled?: boolean;
   active?: boolean;
-  variant?: "ghost" | "surface";
+  variant?: "ghost" | "surface" | "glass";
 }
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
@@ -45,8 +45,11 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         title={label}
         aria-pressed={rest.onClick && active ? active : undefined}
         className={cn(
-          "inline-flex items-center justify-center rounded-full transition-colors duration-200",
-          "hover:bg-surface-variant hover:text-primary disabled:pointer-events-none disabled:opacity-50",
+          "inline-flex items-center justify-center rounded-full transition-all duration-200",
+          "hover:text-primary disabled:pointer-events-none disabled:opacity-50",
+          variant === "glass"
+            ? "liquid-inner rounded-xl hover:scale-105 hover:brightness-125 active:scale-95"
+            : "hover:bg-surface-variant",
           variant === "surface" && "bg-surface-container-high",
           active ? "text-primary" : "text-on-surface-variant",
           s.box,

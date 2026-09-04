@@ -10,6 +10,7 @@ import { site } from "@/config/site";
 import type { ToolId } from "@/types/chat";
 import { useConversationStore } from "@/stores/conversation-store";
 import { useComposerStore } from "@/stores/composer-store";
+import { useAiStatusStore } from "@/stores/ai-status-store";
 
 export interface ComposerProps {
   conversationId?: string;
@@ -49,6 +50,8 @@ export function Composer({
   const toggleDefaultTool = useComposerStore((s) => s.toggleDefaultTool);
 
   const activeTools = conversation?.tools ?? defaultTools;
+  const imageGenReady = useAiStatusStore((s) => s.imageGeneration);
+  const imageGenBlocked = activeTools.includes("image_gen") && !imageGenReady;
 
   function handleToolToggle(id: ToolId) {
     if (conversationId) toggleTool(conversationId, id);
@@ -94,10 +97,14 @@ export function Composer({
           e.preventDefault();
           void submit();
         }}
-        className="rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-sm transition-[border-color,box-shadow] duration-150 focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/10"
+        className="liquid-glass rounded-3xl p-1.5 transition-[border-color,box-shadow] duration-300 focus-within:border-[var(--sl-mode-ring)] focus-within:shadow-[0_0_28px_-4px_var(--sl-mode-glow)]"
       >
-        <div className="flex items-end gap-1 p-2">
-          <IconButton icon="attach_file" label="Attach file" className="shrink-0" />
+        <div className="flex items-end gap-1.5 px-2 py-1.5">
+          <IconButton
+            icon="attach_file"
+            label="Attach file"
+            className="shrink-0 -rotate-45"
+          />
           <label htmlFor="composer-input" className="sr-only">
             Message {site.shortName}
           </label>
@@ -117,7 +124,7 @@ export function Composer({
               type="button"
               aria-label="Stop generating"
               onClick={() => conversationId && stopStreaming(conversationId)}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary transition-colors hover:bg-primary/90"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-[color-mix(in_srgb,var(--sl-primary)_45%,transparent)] bg-[color-mix(in_srgb,var(--sl-primary)_22%,transparent)] text-primary transition-all hover:brightness-125 active:scale-90"
             >
               <Icon name="stop" size={18} filled />
             </button>
@@ -126,7 +133,7 @@ export function Composer({
               type="submit"
               disabled={!value.trim()}
               aria-label="Send message"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary transition-colors hover:bg-primary/90 disabled:bg-surface-container-high disabled:text-on-surface-variant/60"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-[color-mix(in_srgb,var(--sl-primary)_45%,transparent)] bg-[color-mix(in_srgb,var(--sl-primary)_22%,transparent)] text-primary transition-all hover:brightness-125 active:scale-90 disabled:border-white/10 disabled:bg-white/5 disabled:text-on-surface-variant/50"
             >
               <Icon name="arrow_upward" size={18} />
             </button>
@@ -134,7 +141,7 @@ export function Composer({
         </div>
 
         {showToolStrip ? (
-          <div className="flex items-center justify-between gap-3 border-t border-outline-variant px-3 py-2">
+          <div className="flex items-center justify-between gap-3 border-t border-white/10 px-3 py-2">
             <ToolStrip
               active={activeTools}
               onToggle={handleToolToggle}
@@ -158,6 +165,14 @@ export function Composer({
             className="animate-pulse text-primary"
           />
           {statusLabel}
+        </p>
+      ) : imageGenBlocked ? (
+        <p
+          className="mt-2 flex items-center justify-center gap-1.5 text-[11px] font-medium text-on-surface-variant"
+          aria-live="polite"
+        >
+          <Icon name="image" size={13} className="text-on-surface-variant/70" />
+          No NVIDIA image-generation model is configured yet.
         </p>
       ) : !showToolStrip ? (
         <p className="mt-2 text-center text-[11px] text-on-surface-variant/70">

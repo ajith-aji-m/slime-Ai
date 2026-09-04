@@ -17,10 +17,10 @@ export function ToolsTab({ conversationId }: { conversationId?: string }) {
   const active = conversation?.tools ?? defaultTools;
 
   return (
-    <div className="space-y-1 p-3">
-      <h3 className="px-1 pb-2 text-sm font-semibold text-on-surface">
+    <div className="flex flex-col gap-2.5 p-3">
+      <span className="px-1 text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant/70">
         Tools
-      </h3>
+      </span>
       {tools.map((tool) => {
         const enabled = active.includes(tool.id);
         return (
@@ -34,35 +34,32 @@ export function ToolsTab({ conversationId }: { conversationId?: string }) {
                 ? toggleConversationTool(conversationId, tool.id)
                 : toggleDefaultTool(tool.id)
             }
-            className="flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-surface-variant"
+            className="liquid-inner group flex w-full items-center justify-between gap-2.5 rounded-2xl p-3 text-left transition-all hover:brightness-125"
           >
+            <span className="flex items-start gap-2.5">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[color-mix(in_srgb,var(--sl-primary)_35%,transparent)] bg-[color-mix(in_srgb,var(--sl-primary)_18%,transparent)] text-primary">
+                <Icon name={tool.icon} size={16} />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-xs font-bold leading-tight text-on-surface">
+                  {tool.label}
+                </span>
+                <span className="mt-0.5 block text-[11px] leading-snug text-on-surface-variant">
+                  {tool.description}
+                </span>
+              </span>
+            </span>
             <span
               className={cn(
-                "mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg",
+                "flex h-6 w-10 shrink-0 items-center rounded-full p-0.5 transition-all",
                 enabled
-                  ? "bg-primary text-on-primary"
-                  : "bg-surface-variant text-on-surface-variant",
-              )}
-            >
-              <Icon name={tool.icon} size={18} />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-sm font-medium text-on-surface">
-                {tool.label}
-              </span>
-              <span className="block text-xs text-on-surface-variant">
-                {tool.description}
-              </span>
-            </span>
-            <span
-              className={cn(
-                "mt-1 h-5 w-9 shrink-0 rounded-full p-0.5 transition-colors",
-                enabled ? "bg-primary" : "bg-surface-variant",
+                  ? "bg-gradient-to-r from-[var(--sl-primary)] to-[var(--sl-tertiary)] shadow-[0_0_14px_var(--sl-mode-glow)]"
+                  : "bg-white/20",
               )}
             >
               <span
                 className={cn(
-                  "block h-4 w-4 rounded-full bg-white transition-transform",
+                  "block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200 ease-out",
                   enabled && "translate-x-4",
                 )}
               />

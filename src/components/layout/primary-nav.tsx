@@ -29,13 +29,18 @@ function NavLink({
       onClick={onNavigate}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+        "flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm transition-all",
         active
-          ? "bg-primary/10 font-semibold text-primary"
-          : "font-medium text-on-surface-variant hover:bg-surface-variant hover:text-on-surface",
+          ? "liquid-pill-active font-medium text-white"
+          : "font-medium text-on-surface-variant hover:bg-white/10 hover:text-on-surface",
       )}
     >
-      <Icon name={icon} filled={active} size={20} />
+      <Icon
+        name={icon}
+        filled={active}
+        size={18}
+        className={active ? "text-white" : "text-primary/80"}
+      />
       {label}
     </Link>
   );

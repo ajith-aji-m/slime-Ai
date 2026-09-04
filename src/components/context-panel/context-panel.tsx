@@ -32,9 +32,16 @@ export function ContextPanel({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b border-outline-variant p-4">
-        <h2 className="text-sm font-bold text-on-surface">Intelligence</h2>
-        <p className="mt-0.5 text-xs text-on-surface-variant">Context &amp; Tools</p>
+      <div className="flex items-center gap-3 border-b border-white/10 p-4">
+        <span className="liquid-inner flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-primary">
+          <Icon name="auto_awesome" size={18} className="animate-pulse" />
+        </span>
+        <div>
+          <h2 className="text-sm font-bold tracking-tight text-on-surface">
+            Intelligence
+          </h2>
+          <p className="text-xs text-on-surface-variant">Context &amp; Tools</p>
+        </div>
       </div>
 
       <Tabs
@@ -59,8 +66,8 @@ export function ContextPanel({
       </div>
 
       {emptyContext ? (
-        <div className="border-t border-outline-variant p-4">
-          <div className="rounded-lg border border-outline-variant bg-surface-container-low p-3">
+        <div className="border-t border-white/10 p-4">
+          <div className="liquid-inner rounded-2xl p-3">
             <p className="flex items-center gap-1.5 text-xs font-semibold text-on-surface">
               <Icon name="bolt" size={14} className="text-primary" />
               Tip

@@ -56,7 +56,7 @@ export function UserMessage({
 
   return (
     <div className="group flex justify-end">
-      <div className="max-w-[80%] rounded-2xl rounded-tr-sm border border-outline-variant bg-surface-container-high px-5 py-3.5 text-[15px] leading-relaxed text-on-surface shadow-ambient">
+      <div className="max-w-[80%] rounded-2xl rounded-tr-sm border border-[var(--sl-mode-ring)] bg-[color-mix(in_srgb,var(--sl-primary)_20%,transparent)] px-5 py-3.5 text-[15px] leading-relaxed text-on-surface shadow-[0_8px_24px_-8px_var(--sl-mode-glow)]">
         <p className="whitespace-pre-wrap">{text}</p>
         <div className="mt-1 flex justify-end opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
           <IconButton

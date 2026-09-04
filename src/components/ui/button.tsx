@@ -2,19 +2,21 @@ import { forwardRef } from "react";
 import { cn } from "@/lib/utils/cn";
 import { Icon, type IconName } from "./icon";
 
-type ButtonVariant = "primary" | "ghost" | "outline" | "subtle";
+type ButtonVariant = "primary" | "ghost" | "outline" | "subtle" | "glass";
 type ButtonSize = "sm" | "md" | "lg";
 
 const VARIANTS: Record<ButtonVariant, string> = {
-  // DESIGN.md: primary = Electric Violet fill, white text
+  // primary = accent fill (cyan in the ocean theme), dark text
   primary:
     "bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container shadow-sm",
-  // DESIGN.md: ghost-style with a 1px border, low emphasis
+  // ghost-style, low emphasis
   ghost:
     "text-on-surface-variant hover:bg-surface-variant hover:text-on-surface",
   outline:
     "border border-outline-variant text-on-surface hover:bg-surface-variant",
   subtle: "bg-surface-container-high text-on-surface hover:bg-surface-variant",
+  // frosted liquid-glass pill
+  glass: "liquid-inner text-on-surface hover:brightness-125 active:scale-[0.98]",
 };
 
 const SIZES: Record<ButtonSize, string> = {

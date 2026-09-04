@@ -13,6 +13,7 @@ import { conversationStore, runRetention } from "@/lib/storage";
 import { getChatProvider } from "@/lib/ai";
 import { mockTitleFromPrompt } from "@/lib/ai/mock-content";
 import { createId, nowIso } from "@/lib/utils/id";
+import { toggleToolInList } from "@/lib/tool-mode";
 
 /** Abort controllers for in-flight streams — kept outside React state. */
 const streams = new Map<string, AbortController>();
@@ -350,12 +351,7 @@ export const useConversationStore = create<ConversationState>((set, get) => {
     },
 
     toggleTool(id, tool) {
-      update(id, (c) => ({
-        ...c,
-        tools: c.tools.includes(tool)
-          ? c.tools.filter((t) => t !== tool)
-          : [...c.tools, tool],
-      }));
+      update(id, (c) => ({ ...c, tools: toggleToolInList(c.tools, tool) }));
     },
   };
 });

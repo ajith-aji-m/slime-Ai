@@ -16,12 +16,12 @@ export function Card({
   return (
     <div
       className={cn(
-        "rounded-lg border border-outline-variant",
+        "rounded-2xl",
         variant === "grounded"
-          ? "bg-surface-container-lowest"
-          : "bg-surface-container-low",
+          ? "glass-panel"
+          : "border border-white/10 bg-white/5 backdrop-blur-md",
         interactive &&
-          "transition-colors duration-150 hover:border-outline hover:bg-surface-container-low",
+          "transition-all duration-200 hover:border-[var(--sl-mode-ring)] hover:brightness-125",
         className,
       )}
       {...rest}

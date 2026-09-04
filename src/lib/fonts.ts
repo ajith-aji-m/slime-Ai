@@ -1,14 +1,14 @@
-import { Hanken_Grotesk } from "next/font/google";
+import { Inter } from "next/font/google";
 import localFont from "next/font/local";
 
 /**
- * Hanken Grotesk — the single typeface for the whole product.
- * Source: aetheric_intelligence_light/DESIGN.md ("leverages Hanken Grotesk across all roles").
+ * Inter — the single typeface for the whole product.
+ * Source: the Stitch "Liquid Aqua" export (template/code.html).
  */
-export const hankenGrotesk = Hanken_Grotesk({
+export const appFont = Inter({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-hanken",
+  variable: "--font-app",
   weight: ["400", "500", "600", "700"],
 });
 

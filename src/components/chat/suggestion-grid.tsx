@@ -7,10 +7,10 @@ import { useConversationStore } from "@/stores/conversation-store";
 import type { ToolId } from "@/types/chat";
 
 const ACCENT: Record<SuggestionAccent, string> = {
-  purple: "bg-primary/10 text-primary",
-  green: "bg-success/10 text-success",
-  blue: "bg-[#2563eb]/10 text-[#2563eb]",
-  amber: "bg-warning/10 text-warning",
+  purple: "bg-primary/15 text-primary",
+  green: "bg-success/15 text-success",
+  blue: "bg-secondary/15 text-secondary",
+  amber: "bg-warning/15 text-warning",
 };
 
 export function SuggestionGrid() {

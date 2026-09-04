@@ -36,17 +36,17 @@ export function ToolStrip({
               aria-checked={on}
               onClick={() => onToggle(tool.id)}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full text-xs font-semibold transition-colors",
+                "inline-flex items-center gap-1.5 font-semibold transition-all duration-300",
                 variant === "pill"
-                  ? "border px-3.5 py-2"
-                  : "px-2.5 py-1.5",
+                  ? "rounded-2xl border px-4 py-2 text-xs"
+                  : "rounded-xl border px-3 py-1 text-xs",
                 on
                   ? variant === "pill"
-                    ? "border-primary/30 bg-primary/10 text-primary"
-                    : "bg-primary/10 text-primary"
+                    ? "liquid-pill-active text-white"
+                    : "border-[var(--sl-mode-ring)] bg-[color-mix(in_srgb,var(--sl-primary)_22%,transparent)] text-primary"
                   : variant === "pill"
-                    ? "border-outline-variant text-on-surface-variant hover:border-outline hover:text-on-surface"
-                    : "text-on-surface-variant hover:bg-surface-variant hover:text-on-surface",
+                    ? "liquid-inner border-white/20 text-on-surface-variant hover:brightness-125"
+                    : "border-transparent text-on-surface-variant hover:bg-white/10 hover:text-on-surface",
               )}
             >
               <Icon name={tool.icon} size={16} />

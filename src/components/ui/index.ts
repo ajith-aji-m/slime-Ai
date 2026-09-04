@@ -7,4 +7,5 @@ export { EmptyState } from "./empty-state";
 export { GlassPanel } from "./glass-panel";
 export { Icon, ICON_NAMES, type IconName } from "./icon";
 export { IconButton } from "./icon-button";
+export { SlimeMark, type SlimeMarkProps } from "./slime-mark";
 export { Tabs, type TabItem } from "./tabs";

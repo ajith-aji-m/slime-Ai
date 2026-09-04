@@ -38,13 +38,14 @@ export function TopAppBar() {
     <header
       className={cn(
         "sticky top-0 z-30 flex h-16 w-full items-center justify-between gap-4",
-        "border-b border-outline-variant bg-surface-container-lowest px-4 md:px-8",
+        "bg-transparent px-4 md:px-6",
       )}
     >
       <div className="flex min-w-0 flex-1 items-center gap-3 pr-2">
         <IconButton
           icon="menu"
           label="Open menu"
+          variant="glass"
           className="md:hidden"
           onClick={openNavDrawer}
         />
@@ -74,17 +75,19 @@ export function TopAppBar() {
         })}
       </nav>
 
-      <div className="flex shrink-0 items-center gap-1 md:gap-2">
-        <IconButton icon="history" label="History" />
+      <div className="flex shrink-0 items-center gap-1.5 md:gap-2">
+        <IconButton icon="history" label="History" variant="glass" />
         <IconButton
           icon="notifications"
           label="Notifications"
+          variant="glass"
           className="hidden md:inline-flex"
         />
         {onChat && conversationArtifacts.length > 0 ? (
           <IconButton
             icon="space_dashboard"
             label={canvasOpen ? "Hide Canvas" : "Open Canvas"}
+            variant="glass"
             filled={canvasOpen}
             active={canvasOpen}
             className={canvasOpen ? "text-primary" : undefined}
@@ -101,22 +104,27 @@ export function TopAppBar() {
           <IconButton
             icon="analytics"
             label="Toggle Intelligence panel"
+            variant="glass"
             filled
             className="text-primary xl:hidden"
             onClick={openContextDrawer}
           />
         ) : null}
         <Button
-          variant="outline"
+          variant="glass"
           size="sm"
           pill
           iconLeft="share"
-          className="ml-1 hidden md:inline-flex"
+          className="ml-1 hidden !rounded-xl md:inline-flex"
         >
           Share
         </Button>
-        <Link href="/settings" aria-label="Account" className="ml-1 hidden md:block">
-          <Avatar name="You" size={32} />
+        <Link
+          href="/settings"
+          aria-label="Account"
+          className="liquid-inner ml-1 hidden !rounded-xl md:block"
+        >
+          <Avatar name="You" size={34} className="border-0 bg-transparent text-on-surface-variant" />
         </Link>
       </div>
     </header>

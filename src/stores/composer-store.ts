@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { ToolId } from "@/types/chat";
+import { toggleToolInList } from "@/lib/tool-mode";
 
 interface ComposerState {
   /** tools pre-enabled on the composer before a conversation exists */
@@ -15,11 +16,7 @@ export const useComposerStore = create<ComposerState>()(
     (set) => ({
       defaultTools: [],
       toggleDefaultTool: (id) =>
-        set((s) => ({
-          defaultTools: s.defaultTools.includes(id)
-            ? s.defaultTools.filter((t) => t !== id)
-            : [...s.defaultTools, id],
-        })),
+        set((s) => ({ defaultTools: toggleToolInList(s.defaultTools, id) })),
     }),
     { name: "slime-composer" },
   ),
