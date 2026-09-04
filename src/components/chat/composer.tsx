@@ -133,7 +133,7 @@ export function Composer({
               type="submit"
               disabled={!value.trim()}
               aria-label="Send message"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-[color-mix(in_srgb,var(--sl-primary)_45%,transparent)] bg-[color-mix(in_srgb,var(--sl-primary)_22%,transparent)] text-primary transition-all hover:brightness-125 active:scale-90 disabled:border-white/10 disabled:bg-white/5 disabled:text-on-surface-variant/50"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-[color-mix(in_srgb,var(--sl-primary)_45%,transparent)] bg-[color-mix(in_srgb,var(--sl-primary)_22%,transparent)] text-primary transition-all hover:brightness-110 active:scale-90 disabled:border-glass-line disabled:bg-glass-fill disabled:text-on-surface-variant/50"
             >
               <Icon name="arrow_upward" size={18} />
             </button>
@@ -141,7 +141,7 @@ export function Composer({
         </div>
 
         {showToolStrip ? (
-          <div className="flex items-center justify-between gap-3 border-t border-white/10 px-3 py-2">
+          <div className="flex items-center justify-between gap-3 border-t border-glass-line px-3 py-2">
             <ToolStrip
               active={activeTools}
               onToggle={handleToolToggle}

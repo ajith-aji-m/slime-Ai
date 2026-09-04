@@ -45,7 +45,7 @@ export function HumanizerReport({ analysis }: { analysis: HumanizerAnalysis }) {
   }
 
   return (
-    <div className="shrink-0 border-b border-white/10 bg-white/[0.03] px-3 py-3">
+    <div className="shrink-0 border-b border-glass-line bg-glass-fill px-3 py-3">
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
         {tiles.map((tile) => (
           <div

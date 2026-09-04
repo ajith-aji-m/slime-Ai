@@ -54,7 +54,7 @@ export function ToolsTab({ conversationId }: { conversationId?: string }) {
                 "flex h-6 w-10 shrink-0 items-center rounded-full p-0.5 transition-all",
                 enabled
                   ? "bg-gradient-to-r from-[var(--sl-primary)] to-[var(--sl-tertiary)] shadow-[0_0_14px_var(--sl-mode-glow)]"
-                  : "bg-white/20",
+                  : "bg-[color-mix(in_srgb,var(--sl-on-surface)_22%,transparent)]",
               )}
             >
               <span

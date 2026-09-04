@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Drawer } from "@/components/ui";
+import { AmbientBackdrop } from "./ambient-backdrop";
 import { SidebarContent } from "./sidebar-content";
 import { TopAppBar } from "./top-app-bar";
 import { ContextPanel } from "@/components/context-panel/context-panel";
@@ -49,6 +50,7 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
       className="sl-mode-root flex h-full w-full gap-0 overflow-hidden p-0 md:gap-3.5 md:p-3.5"
       data-mode={onChat ? activeMode : undefined}
     >
+      <AmbientBackdrop />
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-[60] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-on-primary"
