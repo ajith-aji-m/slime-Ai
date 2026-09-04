@@ -21,7 +21,7 @@ export function AttachmentChip({
   const image = isImageAttachment(attachment) && attachment.url;
 
   return (
-    <span className="liquid-inner flex max-w-[220px] items-center gap-2 rounded-xl py-1.5 pl-1.5 pr-2.5 text-xs">
+    <span className="liquid-inner flex max-w-[180px] items-center gap-2 rounded-xl py-1.5 pl-1.5 pr-2.5 text-xs sm:max-w-[220px]">
       {image ? (
         // eslint-disable-next-line @next/next/no-img-element -- local data: URL thumbnail, not a remote asset
         <img
@@ -47,7 +47,7 @@ export function AttachmentChip({
           type="button"
           aria-label={`Remove ${attachment.name}`}
           onClick={onRemove}
-          className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-glass-hover hover:text-on-surface"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-glass-hover hover:text-on-surface sm:h-5 sm:w-5"
         >
           <Icon name="close" size={13} />
         </button>
