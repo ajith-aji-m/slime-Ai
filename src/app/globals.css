@@ -810,12 +810,16 @@
    independent CSS properties (unlike the `transform` shorthand), so one
    keyframes timeline can drive position+hops, squash/stretch, and lean all
    at once: translate/opacity carry it across the track, scale/rotate give
-   it the squash-and-stretch + forward lean on every hop. (Splitting these
-   across two classes doesn't work — two rules both setting the `animation`
-   shorthand on the same element don't compose, the later one just wins.)
-   `.sl-slime-walk-gaze`, on the eyes only, glances the way it's heading
-   then re-centres + blinks once it stops. Typing overrides all of it with
-   `.sl-slime-typing`. */
+   it the squash-and-stretch + forward lean on every footstep. (Splitting
+   these across two classes doesn't work — two rules both setting the
+   `animation` shorthand on the same element don't compose, the later one
+   just wins.) Six short, low footsteps keep the crossing itself reading as
+   one continuous forward glide (translate/x only ever pauses at the
+   deliberate rest-left and arrived-right holds, never mid-stride) — the
+   crouch beat before each step's push-off only touches scale/rotate, so it
+   never interrupts that horizontal advance. `.sl-slime-walk-gaze`, on the
+   eyes only, glances the way it's heading then re-centres + blinks once it
+   stops. Typing overrides all of it with `.sl-slime-typing`. */
 .sl-slime-walk {
   animation: sl-slime-walk 9s cubic-bezier(0.45, 0, 0.2, 1) infinite;
 }
@@ -831,62 +835,90 @@
     scale: 1 1;
     rotate: 0deg;
   }
-  7% {
-    scale: 1.12 0.86; /* crouch, leaning into hop 1 */
+  6% {
+    scale: 1.13 0.87; /* crouch, push-off into step 1 */
+    rotate: 2deg;
+  }
+  9% {
+    translate: calc(var(--sl-walk-x) * 0.083) -6%; /* step 1, low hop */
+    scale: 0.95 1.08; /* stretch */
     rotate: 3deg;
   }
-  10% {
-    translate: calc(var(--sl-walk-x) * 0.14) -16%; /* hop 1, airborne */
-    scale: 0.9 1.14; /* stretch */
-    rotate: 6deg;
+  13% {
+    translate: calc(var(--sl-walk-x) * 0.167) 0; /* step 1, contact */
+    scale: 1.32 0.7; /* strong squash on contact */
+    rotate: 1deg;
   }
-  16% {
-    translate: calc(var(--sl-walk-x) * 0.25) 0; /* hop 1, land */
-    scale: 1.16 0.82; /* squash */
+  15% {
+    scale: 1.14 0.88; /* crouch, step 2 */
+    rotate: 2deg;
+  }
+  18% {
+    translate: calc(var(--sl-walk-x) * 0.25) -6%; /* step 2, low hop */
+    scale: 0.95 1.08;
     rotate: 3deg;
   }
   22% {
-    scale: 1.12 0.87; /* crouch, hop 2 */
-    rotate: 4deg;
+    translate: calc(var(--sl-walk-x) * 0.333) 0; /* step 2, contact */
+    scale: 1.32 0.7;
+    rotate: 1deg;
   }
-  25% {
-    translate: calc(var(--sl-walk-x) * 0.39) -16%; /* hop 2, airborne */
-    scale: 0.9 1.14;
-    rotate: 6deg;
+  24% {
+    scale: 1.14 0.88; /* crouch, step 3 */
+    rotate: 2deg;
+  }
+  27% {
+    translate: calc(var(--sl-walk-x) * 0.417) -6%; /* step 3, low hop */
+    scale: 0.95 1.08;
+    rotate: 3deg;
   }
   31% {
-    translate: calc(var(--sl-walk-x) * 0.5) 0; /* hop 2, land */
-    scale: 1.16 0.82;
-    rotate: 4deg;
+    translate: calc(var(--sl-walk-x) * 0.5) 0; /* step 3, contact */
+    scale: 1.32 0.7;
+    rotate: 1deg;
   }
-  37% {
-    scale: 1.12 0.87; /* crouch, hop 3 */
-    rotate: 5deg;
+  33% {
+    scale: 1.14 0.88; /* crouch, step 4 */
+    rotate: 2deg;
+  }
+  36% {
+    translate: calc(var(--sl-walk-x) * 0.583) -6%; /* step 4, low hop */
+    scale: 0.95 1.08;
+    rotate: 3deg;
   }
   40% {
-    translate: calc(var(--sl-walk-x) * 0.64) -16%; /* hop 3, airborne */
-    scale: 0.9 1.14;
-    rotate: 6deg;
+    translate: calc(var(--sl-walk-x) * 0.667) 0; /* step 4, contact */
+    scale: 1.32 0.7;
+    rotate: 1deg;
   }
-  46% {
-    translate: calc(var(--sl-walk-x) * 0.75) 0; /* hop 3, land */
-    scale: 1.16 0.82;
-    rotate: 4deg;
+  42% {
+    scale: 1.14 0.88; /* crouch, step 5 */
+    rotate: 2deg;
+  }
+  45% {
+    translate: calc(var(--sl-walk-x) * 0.75) -6%; /* step 5, low hop */
+    scale: 0.95 1.08;
+    rotate: 3deg;
+  }
+  49% {
+    translate: calc(var(--sl-walk-x) * 0.833) 0; /* step 5, contact */
+    scale: 1.32 0.7;
+    rotate: 1deg;
   }
   51% {
-    scale: 1.08 0.9; /* crouch, hop 4 */
-    rotate: 4deg;
+    scale: 1.12 0.9; /* crouch, final step */
+    rotate: 1deg;
   }
   54% {
-    translate: calc(var(--sl-walk-x) * 0.9) -13%; /* hop 4, short + airborne */
-    scale: 0.92 1.1;
-    rotate: 5deg;
+    translate: calc(var(--sl-walk-x) * 0.917) -5%; /* final step, low hop */
+    scale: 0.96 1.06;
+    rotate: 2deg;
   }
   58% {
-    translate: var(--sl-walk-x) 0; /* arrived right, final squash landing */
+    translate: var(--sl-walk-x) 0; /* arrived right, strongest contact squash */
     opacity: 1;
-    scale: 1.12 0.85;
-    rotate: 2deg;
+    scale: 1.3 0.72;
+    rotate: 0deg;
   }
   63% {
     scale: 1 1; /* levelled out, facing the camera */
