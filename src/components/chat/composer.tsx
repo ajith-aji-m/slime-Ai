@@ -41,6 +41,7 @@ export function Composer({
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [attachmentError, setAttachmentError] = useState<string | null>(null);
   const setTyping = useMascotStore((s) => s.setTyping);
+  const notifySent = useMascotStore((s) => s.notifySent);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function noteTyping(text: string) {
@@ -115,6 +116,7 @@ export function Composer({
     if ((!text && attachments.length === 0) || streaming) return;
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     setTyping(false);
+    notifySent();
     setValue("");
     const sentAttachments = attachments;
     setAttachments([]);

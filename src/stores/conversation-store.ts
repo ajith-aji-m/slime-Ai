@@ -17,6 +17,7 @@ import { toggleToolInList } from "@/lib/tool-mode";
 import { activeModeTool } from "@/config/tools";
 import { buildHumanizerMessages } from "@/lib/humanizer";
 import { withIdentitySystemMessage } from "@/lib/ai/identity";
+import { useMascotStore } from "@/stores/mascot-store";
 import {
   MAX_TEXT_ATTACHMENT_BYTES,
   MAX_VISION_IMAGE_BYTES,
@@ -203,6 +204,7 @@ export const useConversationStore = create<ConversationState>((set, get) => {
           }
           continue;
         } else if (chunk.type === "error") {
+          useMascotStore.getState().notifyError();
           update(id, (c) => ({
             ...c,
             messages: c.messages.map((m) =>
@@ -231,6 +233,9 @@ export const useConversationStore = create<ConversationState>((set, get) => {
         }));
       }
 
+      if (!controller.signal.aborted) {
+        useMascotStore.getState().notifyReceived();
+      }
       update(id, (c) => ({
         ...c,
         messages: c.messages.map((m) =>

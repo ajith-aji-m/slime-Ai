@@ -7,14 +7,14 @@ import { useMascotStore } from "@/stores/mascot-store";
 export function WelcomeHero() {
   const displayName = useSettingsStore((s) => s.displayName);
   const name = displayName && displayName !== "You" ? displayName : null;
-  const typing = useMascotStore((s) => s.typing);
+  const action = useMascotStore((s) => s.action);
 
   return (
     <div className="animate-fade-in-up mx-auto max-w-xl text-center">
       <SlimeMark
         size={150}
         ripple
-        mood={typing ? "typing" : "idle"}
+        mood={action}
         className="mx-auto mb-6"
       />
       <h2 className="text-2xl font-bold tracking-tight text-on-surface drop-shadow-md sm:text-3xl">

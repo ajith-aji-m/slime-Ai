@@ -10,8 +10,13 @@ export interface SlimeMarkProps {
   face?: boolean;
   /** hero treatment: adds the water puddle + ripple rings and a gentle float */
   ripple?: boolean;
-  /** expression — "typing" glances down in concentration; crossfades from "idle" */
-  mood?: "idle" | "typing";
+  /**
+   * expression/action — mirrors `SlimeAction` from `mascot-store`. "typing"
+   * glances down in concentration, "sent" is a quick perk-up, "celebrate" is
+   * a happy bounce, "error" droops, "sleeping" closes its eyes. All crossfade
+   * from "idle".
+   */
+  mood?: "idle" | "typing" | "sent" | "celebrate" | "error" | "sleeping";
 }
 
 /**
@@ -35,7 +40,7 @@ export function SlimeMark({
   // stops, turns to face the camera and blinks. Typing overrides it with the
   // concentrating nod instead — the water surface itself never moves either
   // way, only the slime's own body/eyes do.
-  const walking = ripple && mood !== "typing";
+  const walking = ripple && mood === "idle";
   // px the slime travels left → right; the track is exactly wide enough to
   // hold that walk (slime width + the walk distance).
   const walkDistance = Math.round(size * 1.3);
@@ -89,9 +94,17 @@ export function SlimeMark({
           "relative",
           mood === "typing"
             ? "sl-slime-typing"
-            : walking
-              ? "sl-slime-walk"
-              : ripple && "sl-slime-float",
+            : mood === "sent"
+              ? "sl-slime-sent"
+              : mood === "celebrate"
+                ? "sl-slime-celebrate"
+                : mood === "error"
+                  ? "sl-slime-error"
+                  : mood === "sleeping"
+                    ? "sl-slime-sleeping"
+                    : walking
+                      ? "sl-slime-walk"
+                      : ripple && "sl-slime-float",
         )}
       >
         <defs>
@@ -157,7 +170,7 @@ export function SlimeMark({
                 blink runs once during that stopped pause. */}
             <g
               className="sl-slime-face"
-              style={{ opacity: mood === "typing" ? 0 : 1 }}
+              style={{ opacity: mood === "idle" ? 1 : 0 }}
             >
               <g className={walking ? "sl-slime-walk-gaze" : undefined}>
                 <ellipse cx="78" cy="116" rx="6" ry="8.5" fill="#082f49" />
@@ -196,6 +209,104 @@ export function SlimeMark({
                 d="M95 129 Q100 132.5 105 129"
                 stroke="#082f49"
                 strokeWidth="2.8"
+                strokeLinecap="round"
+                fill="none"
+              />
+            </g>
+            {/* sent — a quick, wide-eyed perk-up as the message goes out */}
+            <g
+              className="sl-slime-face"
+              style={{ opacity: mood === "sent" ? 1 : 0 }}
+            >
+              <ellipse cx="78" cy="113" rx="6.5" ry="9.5" fill="#082f49" />
+              <circle cx="76.5" cy="109.5" r="3" fill="#ffffff" />
+              <ellipse cx="122" cy="113" rx="6.5" ry="9.5" fill="#082f49" />
+              <circle cx="120.5" cy="109.5" r="3" fill="#ffffff" />
+              <path
+                d="M90 122 Q100 132 110 122"
+                stroke="#082f49"
+                strokeWidth="3.2"
+                strokeLinecap="round"
+                fill="none"
+              />
+            </g>
+            {/* celebrate — a reply landed: big grin, happy squeezed eyes */}
+            <g
+              className="sl-slime-face"
+              style={{ opacity: mood === "celebrate" ? 1 : 0 }}
+            >
+              <path
+                d="M70 114 Q78 106 86 114"
+                stroke="#082f49"
+                strokeWidth="4"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <path
+                d="M114 114 Q122 106 130 114"
+                stroke="#082f49"
+                strokeWidth="4"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <path
+                d="M84 122 Q100 140 116 122"
+                stroke="#082f49"
+                strokeWidth="3.4"
+                strokeLinecap="round"
+                fill="none"
+              />
+            </g>
+            {/* error — a stream failed: droopy eyes, small frown */}
+            <g
+              className="sl-slime-face"
+              style={{ opacity: mood === "error" ? 1 : 0 }}
+            >
+              <path
+                d="M70 112 Q78 118 86 112"
+                stroke="#082f49"
+                strokeWidth="3.4"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <path
+                d="M114 112 Q122 118 130 112"
+                stroke="#082f49"
+                strokeWidth="3.4"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <path
+                d="M91 132 Q100 125 109 132"
+                stroke="#082f49"
+                strokeWidth="3.2"
+                strokeLinecap="round"
+                fill="none"
+              />
+            </g>
+            {/* sleeping — closed eyes, gentle neutral mouth */}
+            <g
+              className="sl-slime-face"
+              style={{ opacity: mood === "sleeping" ? 1 : 0 }}
+            >
+              <path
+                d="M71 116 Q78 120 85 116"
+                stroke="#082f49"
+                strokeWidth="3.2"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <path
+                d="M115 116 Q122 120 129 116"
+                stroke="#082f49"
+                strokeWidth="3.2"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <path
+                d="M95 127 Q100 129 105 127"
+                stroke="#082f49"
+                strokeWidth="2.6"
                 strokeLinecap="round"
                 fill="none"
               />

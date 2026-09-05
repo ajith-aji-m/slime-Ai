@@ -1007,6 +1007,126 @@
   }
 }
 
+/* NPC reaction beats — each plays once for its transient's fixed duration
+   (see `mascot-store`), then the mood/action snaps back to "idle" and the
+   element returns to whatever base animation it had (float/walk). All are
+   translate/scale/rotate-only so they compose cleanly with the base
+   animations they briefly interrupt. */
+
+/* sent — a quick upward perk as the message goes out */
+.sl-slime-sent {
+  animation: sl-slime-sent 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes sl-slime-sent {
+  0% {
+    scale: 1 1;
+    translate: 0 0;
+  }
+  30% {
+    scale: 0.9 1.14;
+    translate: 0 -8px;
+  }
+  55% {
+    scale: 1.1 0.9;
+    translate: 0 1px;
+  }
+  100% {
+    scale: 1 1;
+    translate: 0 0;
+  }
+}
+
+/* celebrate — a happy bounce when a reply finishes */
+.sl-slime-celebrate {
+  animation: sl-slime-celebrate 1.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes sl-slime-celebrate {
+  0%,
+  100% {
+    scale: 1 1;
+    translate: 0 0;
+    rotate: 0deg;
+  }
+  15% {
+    scale: 0.88 1.16;
+    translate: 0 -3px;
+  }
+  32% {
+    scale: 1.08 0.9;
+    translate: 0 -14px;
+    rotate: -4deg;
+  }
+  48% {
+    scale: 0.94 1.08;
+    translate: 0 0;
+    rotate: 3deg;
+  }
+  64% {
+    scale: 1.05 0.94;
+    translate: 0 -6px;
+    rotate: -2deg;
+  }
+  80% {
+    scale: 0.98 1.02;
+    translate: 0 0;
+    rotate: 0deg;
+  }
+}
+
+/* error — a brief droop/shake when a stream fails */
+.sl-slime-error {
+  animation: sl-slime-error 2s ease-in-out both;
+}
+@keyframes sl-slime-error {
+  0% {
+    scale: 1 1;
+    translate: 0 0;
+    rotate: 0deg;
+  }
+  15% {
+    scale: 1.06 0.92;
+    translate: -3px 4px;
+    rotate: -3deg;
+  }
+  30% {
+    scale: 1.06 0.92;
+    translate: 3px 4px;
+    rotate: 3deg;
+  }
+  45% {
+    scale: 1.06 0.92;
+    translate: -2px 4px;
+    rotate: -2deg;
+  }
+  60%,
+  85% {
+    scale: 0.97 1.05;
+    translate: 0 5px;
+    rotate: 0deg;
+  }
+  100% {
+    scale: 1 1;
+    translate: 0 0;
+    rotate: 0deg;
+  }
+}
+
+/* sleeping — a slow, low-amplitude sink/rise, well calmer than idle float */
+.sl-slime-sleeping {
+  animation: sl-slime-sleeping 5.5s ease-in-out infinite;
+}
+@keyframes sl-slime-sleeping {
+  0%,
+  100% {
+    translate: 0 0;
+    scale: 1 1;
+  }
+  50% {
+    translate: 0 3px;
+    scale: 1.015 0.985;
+  }
+}
+
 /* Layer 1 — the water surface. Its own gentle shimmer only pulses scale +
    opacity in place; it never translates, so it stays put no matter what the
    slime on top of it is doing. */
