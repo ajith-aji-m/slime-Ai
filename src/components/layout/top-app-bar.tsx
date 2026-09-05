@@ -11,6 +11,12 @@ import { useConversationStore } from "@/stores/conversation-store";
 import { useCanvasStore } from "@/stores/canvas-store";
 import { useSettingsStore } from "@/stores/settings-store";
 
+/**
+ * History, Notifications and Share aren't wired to real functionality yet.
+ * Hidden for now — flip to `true` once they do something real.
+ */
+const SHOW_HISTORY_NOTIFICATIONS_SHARE = false;
+
 export function TopAppBar() {
   const pathname = usePathname();
   const params = useParams<{ conversationId?: string }>();
@@ -78,13 +84,17 @@ export function TopAppBar() {
       </nav>
 
       <div className="flex shrink-0 items-center gap-1.5 md:gap-2">
-        <IconButton icon="history" label="History" variant="glass" />
-        <IconButton
-          icon="notifications"
-          label="Notifications"
-          variant="glass"
-          className="hidden md:inline-flex"
-        />
+        {SHOW_HISTORY_NOTIFICATIONS_SHARE ? (
+          <>
+            <IconButton icon="history" label="History" variant="glass" />
+            <IconButton
+              icon="notifications"
+              label="Notifications"
+              variant="glass"
+              className="hidden md:inline-flex"
+            />
+          </>
+        ) : null}
         {onChat && conversationArtifacts.length > 0 ? (
           <IconButton
             icon="space_dashboard"
@@ -112,15 +122,17 @@ export function TopAppBar() {
             onClick={openContextDrawer}
           />
         ) : null}
-        <Button
-          variant="glass"
-          size="sm"
-          pill
-          iconLeft="share"
-          className="ml-1 hidden !rounded-xl md:inline-flex"
-        >
-          Share
-        </Button>
+        {SHOW_HISTORY_NOTIFICATIONS_SHARE ? (
+          <Button
+            variant="glass"
+            size="sm"
+            pill
+            iconLeft="share"
+            className="ml-1 hidden !rounded-xl md:inline-flex"
+          >
+            Share
+          </Button>
+        ) : null}
         <Link
           href="/settings"
           aria-label="Account"
