@@ -1,5 +1,14 @@
 import type { MessagePart, ToolId } from "@/types/chat";
 import { mockHumanize } from "@/lib/humanizer";
+import { site } from "@/config/site";
+
+/**
+ * Matches "who founded/created/built/made Slime AI (or you)" style questions.
+ * The assistant in this app is always Slime AI, so a bare "who created you" is
+ * still a question about Slime AI's founder.
+ */
+const FOUNDER_QUESTION =
+  /\b(founder|founded|creator of|created|built|made)\b.*\b(slime(\s*ai)?|you)\b|\bwho\s+(is\s+)?(the\s+)?founder\b/i;
 
 const LOREM = [
   "Here's a structured take on that. I've broken the response into the parts that matter most so you can scan it quickly.",
@@ -122,6 +131,15 @@ export function buildMockResponse(prompt: string, tools: ToolId[]): MessagePart[
   // the (original, rewrite) pair in Canvas.
   if (tools.includes("humanizer")) {
     return [{ type: "text", text: mockHumanize(prompt) || prompt }];
+  }
+
+  if (FOUNDER_QUESTION.test(prompt)) {
+    return [
+      {
+        type: "text",
+        text: `${site.assistantName} was founded by ${site.founder}.`,
+      },
+    ];
   }
 
   const seed = hash(prompt);

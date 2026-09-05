@@ -799,6 +799,25 @@
     transform: translateY(-9px) scale(1.03, 0.97);
   }
 }
+.sl-slime-face {
+  transition: opacity 320ms var(--ease-emphasized);
+}
+/* typing mood — a gentle downward nod/tilt, as if reading the composer
+   below it. Layered on top of (replaces) `sl-slime-float` via the same
+   transform property, so only one is ever applied per instant. */
+.sl-slime-typing {
+  animation: sl-slime-typing-tilt 2.2s ease-in-out infinite;
+}
+@keyframes sl-slime-typing-tilt {
+  0%,
+  100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-3deg) translateY(3px);
+  }
+}
+
 .sl-slime-ripple {
   animation: sl-ripple 3.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
