@@ -16,6 +16,7 @@ import { createId, nowIso } from "@/lib/utils/id";
 import { toggleToolInList } from "@/lib/tool-mode";
 import { activeModeTool } from "@/config/tools";
 import { buildHumanizerMessages } from "@/lib/humanizer";
+import { withIdentitySystemMessage } from "@/lib/ai/identity";
 import {
   MAX_TEXT_ATTACHMENT_BYTES,
   MAX_VISION_IMAGE_BYTES,
@@ -135,11 +136,14 @@ export const useConversationStore = create<ConversationState>((set, get) => {
 
     // Humanizer mode: prepend the rewrite instruction as a (non-persisted)
     // system message. Everything else — provider choice, internal routing,
-    // fallback, error handling — is unchanged.
+    // fallback, error handling — is unchanged. The identity system message
+    // (assistant name, founder answer) rides every request underneath that.
     const outgoing = stripAttachmentData(
-      activeModeTool(conversation.tools) === "humanizer"
-        ? buildHumanizerMessages(upToUser)
-        : upToUser,
+      withIdentitySystemMessage(
+        activeModeTool(conversation.tools) === "humanizer"
+          ? buildHumanizerMessages(upToUser)
+          : upToUser,
+      ),
     );
 
     const assistantId = createId("msg");

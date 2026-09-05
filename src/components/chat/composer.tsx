@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
 import { Icon, IconButton } from "@/components/ui";
@@ -14,6 +14,7 @@ import type { Attachment, ToolId } from "@/types/chat";
 import { useConversationStore } from "@/stores/conversation-store";
 import { useComposerStore } from "@/stores/composer-store";
 import { useAiStatusStore } from "@/stores/ai-status-store";
+import { useMascotStore } from "@/stores/mascot-store";
 
 export interface ComposerProps {
   conversationId?: string;
@@ -39,6 +40,27 @@ export function Composer({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [attachmentError, setAttachmentError] = useState<string | null>(null);
+  const setTyping = useMascotStore((s) => s.setTyping);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function noteTyping(text: string) {
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    if (!text.trim()) {
+      setTyping(false);
+      return;
+    }
+    setTyping(true);
+    // glance back up once the user pauses, so it doesn't stare down forever
+    typingTimeoutRef.current = setTimeout(() => setTyping(false), 1200);
+  }
+
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      setTyping(false);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const conversation = useConversationStore((s) =>
     conversationId ? s.conversations[conversationId] : undefined,
@@ -91,6 +113,8 @@ export function Composer({
   async function submit() {
     const text = value.trim();
     if ((!text && attachments.length === 0) || streaming) return;
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    setTyping(false);
     setValue("");
     const sentAttachments = attachments;
     setAttachments([]);
@@ -181,8 +205,15 @@ export function Composer({
             rows={1}
             autoFocus={autoFocus}
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={(e) => {
+              setValue(e.target.value);
+              noteTyping(e.target.value);
+            }}
             onKeyDown={onKeyDown}
+            onBlur={() => {
+              if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+              setTyping(false);
+            }}
             placeholder={placeholder}
             className="max-h-52 min-h-[40px] flex-1 resize-none bg-transparent px-2 py-2 text-[15px] text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none"
           />

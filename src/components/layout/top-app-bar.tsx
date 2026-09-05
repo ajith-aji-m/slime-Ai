@@ -9,12 +9,14 @@ import { cn } from "@/lib/utils/cn";
 import { useUiStore } from "@/stores/ui-store";
 import { useConversationStore } from "@/stores/conversation-store";
 import { useCanvasStore } from "@/stores/canvas-store";
+import { useSettingsStore } from "@/stores/settings-store";
 
 export function TopAppBar() {
   const pathname = usePathname();
   const params = useParams<{ conversationId?: string }>();
   const openNavDrawer = useUiStore((s) => s.openNavDrawer);
   const openContextDrawer = useUiStore((s) => s.openContextDrawer);
+  const displayName = useSettingsStore((s) => s.displayName);
 
   const conversationTitle = useConversationStore((s) =>
     params.conversationId
@@ -124,7 +126,7 @@ export function TopAppBar() {
           aria-label="Account"
           className="liquid-inner ml-1 hidden !rounded-xl md:block"
         >
-          <Avatar name="You" size={34} className="border-0 bg-transparent text-on-surface-variant" />
+          <Avatar name={displayName} size={34} className="border-0 bg-transparent text-on-surface-variant" />
         </Link>
       </div>
     </header>

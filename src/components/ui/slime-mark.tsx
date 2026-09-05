@@ -10,6 +10,8 @@ export interface SlimeMarkProps {
   face?: boolean;
   /** hero treatment: adds the water puddle + ripple rings and a gentle float */
   ripple?: boolean;
+  /** expression — "typing" glances down in concentration; crossfades from "idle" */
+  mood?: "idle" | "typing";
 }
 
 /**
@@ -24,6 +26,7 @@ export function SlimeMark({
   className,
   face = true,
   ripple = false,
+  mood = "idle",
 }: SlimeMarkProps) {
   const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
   const body = `slime-body-${uid}`;
@@ -63,7 +66,10 @@ export function SlimeMark({
         height={size}
         viewBox="0 0 200 180"
         fill="none"
-        className={cn("relative", ripple && "sl-slime-float")}
+        className={cn(
+          "relative",
+          mood === "typing" ? "sl-slime-typing" : ripple && "sl-slime-float",
+        )}
       >
         <defs>
           <linearGradient
@@ -110,22 +116,63 @@ export function SlimeMark({
           strokeWidth="4.5"
           strokeLinecap="round"
         />
+        {/* Mirrored specular streak, opposite side */}
+        <path
+          d="M158 92 C160 62 130 32 100 30"
+          stroke="#ffffff"
+          strokeOpacity="0.35"
+          strokeWidth="3.5"
+          strokeLinecap="round"
+        />
         <circle cx="118" cy="38" r="2.5" fill="#ffffff" fillOpacity="0.8" />
 
         {face ? (
-          <g>
-            <ellipse cx="78" cy="116" rx="6" ry="8.5" fill="#082f49" />
-            <circle cx="76" cy="113" r="2.8" fill="#ffffff" />
-            <ellipse cx="122" cy="116" rx="6" ry="8.5" fill="#082f49" />
-            <circle cx="120" cy="113" r="2.8" fill="#ffffff" />
-            <path
-              d="M92 124 Q100 133 108 124"
-              stroke="#082f49"
-              strokeWidth="3.2"
-              strokeLinecap="round"
-              fill="none"
-            />
-          </g>
+          <>
+            {/* idle — open eyes, soft smile */}
+            <g
+              className="sl-slime-face"
+              style={{ opacity: mood === "typing" ? 0 : 1 }}
+            >
+              <ellipse cx="78" cy="116" rx="6" ry="8.5" fill="#082f49" />
+              <circle cx="76" cy="113" r="2.8" fill="#ffffff" />
+              <ellipse cx="122" cy="116" rx="6" ry="8.5" fill="#082f49" />
+              <circle cx="120" cy="113" r="2.8" fill="#ffffff" />
+              <path
+                d="M92 124 Q100 133 108 124"
+                stroke="#082f49"
+                strokeWidth="3.2"
+                strokeLinecap="round"
+                fill="none"
+              />
+            </g>
+            {/* typing — glancing down in concentration */}
+            <g
+              className="sl-slime-face"
+              style={{ opacity: mood === "typing" ? 1 : 0 }}
+            >
+              <path
+                d="M70 118 Q78 124 86 118"
+                stroke="#082f49"
+                strokeWidth="3.4"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <path
+                d="M114 118 Q122 124 130 118"
+                stroke="#082f49"
+                strokeWidth="3.4"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <path
+                d="M95 129 Q100 132.5 105 129"
+                stroke="#082f49"
+                strokeWidth="2.8"
+                strokeLinecap="round"
+                fill="none"
+              />
+            </g>
+          </>
         ) : null}
       </svg>
     </span>
