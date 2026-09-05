@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useId, type CSSProperties } from "react";
 import { cn } from "@/lib/utils/cn";
 
 export interface SlimeMarkProps {
@@ -31,36 +31,55 @@ export function SlimeMark({
   const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
   const body = `slime-body-${uid}`;
   const glow = `slime-glow-${uid}`;
+  // hero treatment walks left → right across a static water surface, then
+  // stops, turns to face the camera and blinks. Typing overrides it with the
+  // concentrating nod instead — the water surface itself never moves either
+  // way, only the slime's own body/eyes do.
+  const walking = ripple && mood !== "typing";
+  // px the slime travels left → right; the track is exactly wide enough to
+  // hold that walk (slime width + the walk distance).
+  const walkDistance = Math.round(size * 1.3);
+  const trackWidth = size + walkDistance;
 
   return (
     <span
       aria-hidden
       className={cn(
-        "sl-slime-mark relative inline-flex shrink-0 items-center justify-center",
+        "sl-slime-mark relative inline-flex shrink-0 items-center",
+        walking ? "justify-start" : "justify-center",
         className,
       )}
-      style={{ width: size, height: ripple ? size * 1.04 : size }}
+      style={
+        {
+          width: walking ? trackWidth : size,
+          height: ripple ? size * 1.2 : size,
+          "--sl-walk-x": `${walkDistance}px`,
+        } as CSSProperties
+      }
     >
       {ripple ? (
+        // Layer 1 — the static water surface. Absolutely positioned against
+        // the track, so it never moves no matter what the slime does.
         <>
           <span
             className="sl-slime-ripple absolute left-1/2 bottom-[3%] -translate-x-1/2 rounded-[100%] border"
             style={{
-              width: size * 1.15,
-              height: size * 0.32,
+              width: walking ? trackWidth * 0.88 : size * 1.15,
+              height: size * 0.3,
               borderColor: "color-mix(in srgb, var(--sl-slime-mid) 55%, transparent)",
             }}
           />
           <span
             className="absolute left-1/2 bottom-[6%] -translate-x-1/2 rounded-[100%] blur-[3px]"
             style={{
-              width: size * 0.92,
-              height: size * 0.22,
+              width: walking ? trackWidth * 0.7 : size * 0.92,
+              height: size * 0.2,
               background: "color-mix(in srgb, var(--sl-slime-mid) 30%, transparent)",
             }}
           />
         </>
       ) : null}
+      {/* Layer 2 — the slime itself. Only this element moves. */}
       <svg
         width={size}
         height={size}
@@ -68,7 +87,11 @@ export function SlimeMark({
         fill="none"
         className={cn(
           "relative",
-          mood === "typing" ? "sl-slime-typing" : ripple && "sl-slime-float",
+          mood === "typing"
+            ? "sl-slime-typing"
+            : walking
+              ? "sl-slime-walk"
+              : ripple && "sl-slime-float",
         )}
       >
         <defs>
@@ -128,15 +151,20 @@ export function SlimeMark({
 
         {face ? (
           <>
-            {/* idle — open eyes, soft smile */}
+            {/* idle — open eyes, soft smile. While walking, the eyes turn to
+                look the way it's heading and only turn back to the user once
+                it has stopped (see `.sl-slime-walk-gaze`); the same group's
+                blink runs once during that stopped pause. */}
             <g
               className="sl-slime-face"
               style={{ opacity: mood === "typing" ? 0 : 1 }}
             >
-              <ellipse cx="78" cy="116" rx="6" ry="8.5" fill="#082f49" />
-              <circle cx="76" cy="113" r="2.8" fill="#ffffff" />
-              <ellipse cx="122" cy="116" rx="6" ry="8.5" fill="#082f49" />
-              <circle cx="120" cy="113" r="2.8" fill="#ffffff" />
+              <g className={walking ? "sl-slime-walk-gaze" : undefined}>
+                <ellipse cx="78" cy="116" rx="6" ry="8.5" fill="#082f49" />
+                <circle cx="76" cy="113" r="2.8" fill="#ffffff" />
+                <ellipse cx="122" cy="116" rx="6" ry="8.5" fill="#082f49" />
+                <circle cx="120" cy="113" r="2.8" fill="#ffffff" />
+              </g>
               <path
                 d="M92 124 Q100 133 108 124"
                 stroke="#082f49"
