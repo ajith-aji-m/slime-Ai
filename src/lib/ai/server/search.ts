@@ -12,11 +12,11 @@ export function isSearchConfigured(): boolean {
 }
 
 /**
- * Real web search via the Brave Search API. Returns a handful of results for
- * the internal router to ground an answer in and cite — never fabricated:
- * absent an API key, callers must fall back to telling the model (and thus
- * the user) that search isn't available, not to silently answering from
- * memory while pretending to have searched.
+ * Real web search via Firecrawl's `/v1/search` endpoint. Returns a handful
+ * of results for the internal router to ground an answer in and cite —
+ * never fabricated: absent an API key, callers must fall back to telling the
+ * model (and thus the user) that search isn't available, not to silently
+ * answering from memory while pretending to have searched.
  */
 export async function searchWeb(
   query: string,
@@ -33,25 +33,26 @@ export async function searchWeb(
     : timeout.signal;
 
   try {
-    const url = new URL("https://api.search.brave.com/res/v1/web/search");
-    url.searchParams.set("q", query);
-    url.searchParams.set("count", String(count));
-
-    const response = await fetch(url, {
+    const response = await fetch("https://api.firecrawl.dev/v1/search", {
+      method: "POST",
       headers: {
-        Accept: "application/json",
-        "X-Subscription-Token": env.apiKey,
+        Authorization: `Bearer ${env.apiKey}`,
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({ query, limit: count }),
       signal: combinedSignal,
     });
 
     if (!response.ok) return [];
 
     const data = (await response.json()) as {
-      web?: { results?: { title?: string; url?: string; description?: string }[] };
+      success?: boolean;
+      data?: { title?: string; url?: string; description?: string }[];
     };
 
-    return (data.web?.results ?? [])
+    if (!data.success || !Array.isArray(data.data)) return [];
+
+    return data.data
       .filter((r): r is { title: string; url: string; description?: string } =>
         !!r.title && !!r.url,
       )
@@ -59,7 +60,7 @@ export async function searchWeb(
       .map((r) => ({
         title: r.title,
         url: r.url,
-        snippet: (r.description ?? "").replace(/<\/?[^>]+>/g, ""),
+        snippet: r.description ?? "",
       }));
   } catch {
     return [];

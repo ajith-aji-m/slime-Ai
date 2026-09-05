@@ -34,13 +34,13 @@ export interface SearchEnv {
 }
 
 /**
- * Optional real web search backend (Brave Search API — generous free tier,
- * simple REST GET). Absent by default: Search mode still works as a
+ * Optional real web search backend (Firecrawl's /v1/search endpoint —
+ * https://firecrawl.dev). Absent by default: Search mode still works as a
  * routing hint without it, it just can't ground answers in live results —
  * see `isSearchConfigured`/`searchWeb` in `./search.ts`.
  */
 export function readSearchEnv(): SearchEnv | null {
-  const apiKey = process.env.BRAVE_SEARCH_API_KEY?.trim();
+  const apiKey = process.env.FIRECRAWL_API_KEY?.trim();
   if (!apiKey) return null;
   return { apiKey };
 }
