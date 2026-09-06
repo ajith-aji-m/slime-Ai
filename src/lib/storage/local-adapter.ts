@@ -22,18 +22,28 @@ function toSummary(c: Conversation): ConversationSummary {
   };
 }
 
+async function allConversationKeys(): Promise<string[]> {
+  return (await keys(store)).filter(
+    (k): k is string => typeof k === "string" && k.startsWith("conv:"),
+  );
+}
+
+async function allConversations(): Promise<Conversation[]> {
+  const rows = await getMany<Conversation | undefined>(
+    await allConversationKeys(),
+    store,
+  );
+  return rows.filter((c): c is Conversation => Boolean(c));
+}
+
 /**
  * IndexedDB-backed conversation store — the default local-first persistence.
  * Implements the same `ConversationStore` contract a cloud adapter will.
  */
 export const localConversationStore: ConversationStore = {
   async listSummaries() {
-    const allKeys = (await keys(store)).filter(
-      (k): k is string => typeof k === "string" && k.startsWith("conv:"),
-    );
-    const rows = await getMany<Conversation | undefined>(allKeys, store);
+    const rows = await allConversations();
     return rows
-      .filter((c): c is Conversation => Boolean(c))
       .map(toSummary)
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   },
@@ -51,22 +61,15 @@ export const localConversationStore: ConversationStore = {
   },
 
   async clear() {
-    const allKeys = (await keys(store)).filter(
-      (k): k is string => typeof k === "string" && k.startsWith("conv:"),
-    );
+    const allKeys = await allConversationKeys();
     await Promise.all(allKeys.map((k) => del(k, store)));
   },
 
   async pruneOlderThan(isoCutoff) {
-    const allKeys = (await keys(store)).filter(
-      (k): k is string => typeof k === "string" && k.startsWith("conv:"),
-    );
-    const rows = await getMany<Conversation | undefined>(allKeys, store);
+    const rows = await allConversations();
     const removed: string[] = [];
     await Promise.all(
-      rows
-        .filter((c): c is Conversation => Boolean(c))
-        .map(async (c) => {
+      rows.map(async (c) => {
         if (!c.pinned && c.updatedAt < isoCutoff) {
           await del(KEY(c.id), store);
           removed.push(c.id);
@@ -74,5 +77,9 @@ export const localConversationStore: ConversationStore = {
       }),
     );
     return removed;
+  },
+
+  async getAll() {
+    return allConversations();
   },
 };

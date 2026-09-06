@@ -1,14 +1,18 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
 import { Icon } from "@/components/ui";
 import type { ConversationSummary } from "@/types/chat";
-import { useConversationStore } from "@/stores/conversation-store";
+import {
+  useConversationStore,
+  type ConversationSearchResult,
+} from "@/stores/conversation-store";
 
 const COLLAPSED_COUNT = 8;
+const SEARCH_DEBOUNCE_MS = 200;
 
 /** Row slides this far to expose the Delete action. */
 const REVEAL = 72;
@@ -23,6 +27,9 @@ export function ConversationList({ onNavigate }: { onNavigate?: () => void }) {
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<ConversationSearchResult[]>([]);
+  const [searching, setSearching] = useState(false);
 
   // Collapse an open swipe row whenever the route changes (React's
   // "adjust state during render" pattern — no effect needed).
@@ -32,13 +39,44 @@ export function ConversationList({ onNavigate }: { onNavigate?: () => void }) {
     if (openId !== null) setOpenId(null);
   }
 
-  if (hydrated && summaries.length === 0) {
-    return (
-      <p className="px-4 py-3 text-xs text-on-surface-variant">
-        No conversations yet. Start a new chat to see it here.
-      </p>
-    );
+  const searchActive = query.trim().length > 0;
+
+  function handleQueryChange(next: string) {
+    setQuery(next);
+    // both branches are synchronous with the keystroke that caused them,
+    // not derived inside the debounce effect below
+    if (!next.trim()) {
+      setResults([]);
+      setSearching(false);
+    } else {
+      setSearching(true);
+    }
   }
+
+  // Debounced full-text search (title + message content) across every
+  // stored conversation — client-only, matching the local-first storage.
+  // Marking "searching" true and clearing stale results both happen in
+  // `handleQueryChange` above; this effect only resolves the query.
+  useEffect(() => {
+    const q = query.trim();
+    if (!q) return;
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      void useConversationStore
+        .getState()
+        .searchConversations(q)
+        .then((r) => {
+          if (!cancelled) {
+            setResults(r);
+            setSearching(false);
+          }
+        });
+    }, SEARCH_DEBOUNCE_MS);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [query]);
 
   const visible =
     expanded || summaries.length <= COLLAPSED_COUNT
@@ -47,48 +85,132 @@ export function ConversationList({ onNavigate }: { onNavigate?: () => void }) {
   const hasMore = summaries.length > COLLAPSED_COUNT;
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto px-3 py-1">
-      <p className="px-2 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant/70">
-        Recents
-      </p>
-      <ul className="space-y-0.5">
-        {visible.map((summary) => (
-          <ConversationRow
-            key={summary.id}
-            summary={summary}
-            active={summary.id === params.conversationId}
-            renaming={renamingId === summary.id}
-            open={openId === summary.id}
-            onNavigate={onNavigate}
-            onOpenChange={(next) => setOpenId(next ? summary.id : null)}
-            onStartRename={() => {
-              setOpenId(null);
-              setRenamingId(summary.id);
-            }}
-            onRename={(title) => {
-              renameConversation(summary.id, title);
-              setRenamingId(null);
-            }}
-            onCancelRename={() => setRenamingId(null)}
-          />
-        ))}
-      </ul>
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="relative px-3 pb-1 pt-1">
+        <Icon
+          name="search"
+          size={16}
+          className="pointer-events-none absolute left-6 top-1/2 -translate-y-1/2 text-on-surface-variant/60"
+        />
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => handleQueryChange(e.target.value)}
+          placeholder="Search conversations…"
+          aria-label="Search conversations"
+          className="sl-field w-full py-1.5 pl-8 text-[13px]"
+        />
+      </div>
 
-      {hasMore ? (
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          className="mt-1 flex w-full items-center gap-1 rounded-lg px-3 py-1.5 text-[13px] font-medium text-on-surface-variant transition-colors hover:bg-surface-variant/60 hover:text-on-surface"
-        >
-          {expanded ? "Show less" : "View all conversations"}
-          <Icon
-            name={expanded ? "expand_more" : "chevron_right"}
-            size={16}
-            className={cn(expanded && "rotate-180")}
+      <div className="min-h-0 flex-1 overflow-y-auto px-3 py-1">
+        {searchActive ? (
+          <SearchResults
+            results={results}
+            loading={searching}
+            active={params.conversationId}
+            onNavigate={onNavigate}
           />
-        </button>
-      ) : null}
+        ) : hydrated && summaries.length === 0 ? (
+          <p className="px-1 py-3 text-xs text-on-surface-variant">
+            No conversations yet. Start a new chat to see it here.
+          </p>
+        ) : (
+          <>
+            <p className="px-2 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant/70">
+              Recents
+            </p>
+            <ul className="space-y-0.5">
+              {visible.map((summary) => (
+                <ConversationRow
+                  key={summary.id}
+                  summary={summary}
+                  active={summary.id === params.conversationId}
+                  renaming={renamingId === summary.id}
+                  open={openId === summary.id}
+                  onNavigate={onNavigate}
+                  onOpenChange={(next) => setOpenId(next ? summary.id : null)}
+                  onStartRename={() => {
+                    setOpenId(null);
+                    setRenamingId(summary.id);
+                  }}
+                  onRename={(title) => {
+                    renameConversation(summary.id, title);
+                    setRenamingId(null);
+                  }}
+                  onCancelRename={() => setRenamingId(null)}
+                />
+              ))}
+            </ul>
+
+            {hasMore ? (
+              <button
+                type="button"
+                onClick={() => setExpanded((v) => !v)}
+                className="mt-1 flex w-full items-center gap-1 rounded-lg px-3 py-1.5 text-[13px] font-medium text-on-surface-variant transition-colors hover:bg-surface-variant/60 hover:text-on-surface"
+              >
+                {expanded ? "Show less" : "View all conversations"}
+                <Icon
+                  name={expanded ? "expand_more" : "chevron_right"}
+                  size={16}
+                  className={cn(expanded && "rotate-180")}
+                />
+              </button>
+            ) : null}
+          </>
+        )}
+      </div>
     </div>
+  );
+}
+
+function SearchResults({
+  results,
+  loading,
+  active,
+  onNavigate,
+}: {
+  results: ConversationSearchResult[];
+  loading: boolean;
+  active?: string;
+  onNavigate?: () => void;
+}) {
+  if (loading && results.length === 0) {
+    return (
+      <p className="px-1 py-3 text-xs text-on-surface-variant">Searching…</p>
+    );
+  }
+  if (results.length === 0) {
+    return (
+      <p className="px-1 py-3 text-xs text-on-surface-variant">
+        No conversations match.
+      </p>
+    );
+  }
+  return (
+    <ul className="space-y-0.5">
+      {results.map((r) => (
+        <li key={r.id}>
+          <Link
+            href={`/chat/${r.id}`}
+            onClick={onNavigate}
+            aria-current={r.id === active ? "page" : undefined}
+            className={cn(
+              "flex min-w-0 flex-col gap-0.5 rounded-2xl border px-3.5 py-2 text-[13px] transition-colors",
+              r.id === active
+                ? "liquid-pill-active border-transparent text-white"
+                : "border-glass-line bg-surface text-on-surface-variant hover:bg-surface-container hover:text-on-surface",
+            )}
+          >
+            <span className="truncate font-medium">{r.title}</span>
+            {r.snippet !== r.title ? (
+              <span className="truncate text-[11px] opacity-75">
+                {r.snippet}
+              </span>
+            ) : null}
+          </Link>
+        </li>
+      ))}
+    </ul>
   );
 }
 

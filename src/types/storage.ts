@@ -16,6 +16,8 @@ export interface ConversationStore {
   clear(): Promise<void>;
   /** delete conversations not updated since the given ISO cutoff */
   pruneOlderThan(isoCutoff: string): Promise<string[]>;
+  /** every full conversation (bodies included) — used for local content search */
+  getAll(): Promise<Conversation[]>;
 }
 
 export type SyncTier = "local" | "cloud-backup" | "cloud-sync";

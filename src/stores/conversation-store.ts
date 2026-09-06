@@ -33,6 +33,35 @@ interface SendOptions {
   attachments?: Attachment[];
 }
 
+export interface ConversationSearchResult {
+  id: string;
+  title: string;
+  updatedAt: string;
+  /** short excerpt around the match, or the title itself when only the title matched */
+  snippet: string;
+}
+
+function messageText(m: Message): string {
+  return m.parts
+    .map((p) => {
+      if (p.type === "text") return p.text;
+      if (p.type === "code") return p.code;
+      if (p.type === "table") return p.markdown;
+      return "";
+    })
+    .join(" ");
+}
+
+/** first ~80 chars around the match, so results read as a real excerpt */
+function snippetAround(text: string, query: string): string {
+  const lower = text.toLowerCase();
+  const at = lower.indexOf(query.toLowerCase());
+  if (at === -1) return text.slice(0, 80).trim();
+  const start = Math.max(0, at - 30);
+  const end = Math.min(text.length, at + query.length + 50);
+  return `${start > 0 ? "…" : ""}${text.slice(start, end).trim()}${end < text.length ? "…" : ""}`;
+}
+
 interface ConversationState {
   hydrated: boolean;
   summaries: ConversationSummary[];
@@ -43,6 +72,8 @@ interface ConversationState {
 
   hydrate: () => Promise<void>;
   loadConversation: (id: string) => Promise<void>;
+  /** local, client-side search over every stored conversation's title + message text */
+  searchConversations: (query: string) => Promise<ConversationSearchResult[]>;
   createConversation: (seed?: Partial<Conversation>) => string;
   sendMessage: (id: string, text: string, options: SendOptions) => Promise<void>;
   stopStreaming: (id: string) => void;
@@ -55,8 +86,51 @@ interface ConversationState {
   toggleTool: (id: string, tool: ToolId) => void;
 }
 
+/**
+ * `update()` fires on every streamed token, so an unthrottled `persist()`
+ * would hit IndexedDB dozens of times a second while a reply is streaming.
+ * Throttle it per-conversation instead: the first call in a window writes
+ * immediately (so non-streaming edits still save right away), later calls
+ * during that window just update what's pending, and a trailing write
+ * flushes the latest state once the window elapses — so storage is never
+ * more than `PERSIST_THROTTLE_MS` behind what's on screen. `flushPersist`
+ * forces that trailing write immediately, used when a stream ends so
+ * storage is caught up the moment streaming stops rather than up to a
+ * throttle window later.
+ */
+const PERSIST_THROTTLE_MS = 300;
+const persistTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const persistPending = new Map<string, Conversation>();
+
 function persist(conversation: Conversation) {
+  const id = conversation.id;
+  if (persistTimers.has(id)) {
+    persistPending.set(id, conversation);
+    return;
+  }
   void conversationStore.put(conversation);
+  persistTimers.set(
+    id,
+    setTimeout(() => {
+      persistTimers.delete(id);
+      const pending = persistPending.get(id);
+      if (pending) {
+        persistPending.delete(id);
+        void conversationStore.put(pending);
+      }
+    }, PERSIST_THROTTLE_MS),
+  );
+}
+
+function flushPersist(id: string) {
+  const timer = persistTimers.get(id);
+  if (timer) clearTimeout(timer);
+  persistTimers.delete(id);
+  const pending = persistPending.get(id);
+  if (pending) {
+    persistPending.delete(id);
+    void conversationStore.put(pending);
+  }
 }
 
 /**
@@ -251,6 +325,7 @@ export const useConversationStore = create<ConversationState>((set, get) => {
       }));
     } finally {
       streams.delete(id);
+      flushPersist(id);
       set((s) => {
         const next = new Set(s.streamingIds);
         next.delete(id);
@@ -274,6 +349,29 @@ export const useConversationStore = create<ConversationState>((set, get) => {
       await runRetention();
       const summaries = await conversationStore.listSummaries();
       set({ summaries, hydrated: true });
+    },
+
+    async searchConversations(query) {
+      const q = query.trim().toLowerCase();
+      if (!q) return [];
+      const all = await conversationStore.getAll();
+      const results: ConversationSearchResult[] = [];
+      for (const c of all) {
+        const titleHit = c.title.toLowerCase().includes(q);
+        const matchingMessage = c.messages.find((m) =>
+          messageText(m).toLowerCase().includes(q),
+        );
+        if (!titleHit && !matchingMessage) continue;
+        results.push({
+          id: c.id,
+          title: c.title,
+          updatedAt: c.updatedAt,
+          snippet: matchingMessage
+            ? snippetAround(messageText(matchingMessage), q)
+            : c.title,
+        });
+      }
+      return results.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
     },
 
     async loadConversation(id) {

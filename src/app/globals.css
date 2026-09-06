@@ -1111,6 +1111,38 @@
   }
 }
 
+/* wave — a first-time greeting: a friendly side-to-side rock with a little
+   bounce, distinct from the happier upward celebrate beat */
+.sl-slime-wave {
+  animation: sl-slime-wave 1.8s ease-in-out both;
+}
+@keyframes sl-slime-wave {
+  0%,
+  100% {
+    rotate: 0deg;
+    translate: 0 0;
+    scale: 1 1;
+  }
+  15% {
+    scale: 0.94 1.08;
+    translate: 0 -4px;
+  }
+  30% {
+    rotate: -8deg;
+    translate: 0 -2px;
+  }
+  50% {
+    rotate: 8deg;
+  }
+  70% {
+    rotate: -5deg;
+  }
+  85% {
+    rotate: 0deg;
+    scale: 1.02 0.98;
+  }
+}
+
 /* sleeping — a slow, low-amplitude sink/rise, well calmer than idle float */
 .sl-slime-sleeping {
   animation: sl-slime-sleeping 5.5s ease-in-out infinite;
