@@ -2,6 +2,7 @@ import type { HumanizerAnalysis } from "@/types/humanizer";
 import { countChanges, countHighlights, diffWords } from "./diff";
 import { extractKeywords } from "./keywords";
 import { readability } from "./readability";
+import { estimateAiLikelihood } from "./detector";
 
 function wordCount(text: string): number {
   return (text.match(/[A-Za-z0-9]+(?:'[A-Za-z]+)?/g) ?? []).length;
@@ -25,6 +26,9 @@ export function analyzeHumanization(
   const origScore = readability(original);
   const humanScore = readability(humanized);
 
+  const origDetector = estimateAiLikelihood(original);
+  const humanDetector = estimateAiLikelihood(humanized);
+
   return {
     segments,
     changeCount: countChanges(segments),
@@ -34,6 +38,10 @@ export function analyzeHumanization(
     readability:
       origScore && humanScore
         ? { original: origScore, humanized: humanScore }
+        : undefined,
+    detector:
+      origDetector && humanDetector
+        ? { original: origDetector, humanized: humanDetector }
         : undefined,
     stats: {
       originalWords,

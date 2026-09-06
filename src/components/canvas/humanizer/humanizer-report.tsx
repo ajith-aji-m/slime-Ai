@@ -1,8 +1,9 @@
 "use client";
 
 import { Icon } from "@/components/ui";
-import { readingEaseLabel } from "@/lib/humanizer";
-import type { HumanizerAnalysis } from "@/types/humanizer";
+import { readingEaseLabel, detectorVerdictLabel } from "@/lib/humanizer";
+import { cn } from "@/lib/utils/cn";
+import type { HumanizerAnalysis, HumanizerDetectorEstimate } from "@/types/humanizer";
 
 /**
  * Compact, content-writer-focused summary: how much changed, how many spans are
@@ -10,7 +11,7 @@ import type { HumanizerAnalysis } from "@/types/humanizer";
  * the readability shift.
  */
 export function HumanizerReport({ analysis }: { analysis: HumanizerAnalysis }) {
-  const { stats, readability } = analysis;
+  const { stats, readability, detector } = analysis;
   const dropped = analysis.droppedKeywords.length;
 
   const tiles: { label: string; value: string; hint?: string; warn?: boolean }[] = [
@@ -44,6 +45,15 @@ export function HumanizerReport({ analysis }: { analysis: HumanizerAnalysis }) {
     });
   }
 
+  if (detector) {
+    tiles.push({
+      label: "Detector pass",
+      value: `${detector.original.score} → ${detector.humanized.score}`,
+      hint: detectorVerdictLabel(detector.humanized.verdict),
+      warn: detector.humanized.verdict === "likely-ai",
+    });
+  }
+
   return (
     <div className="shrink-0 border-b border-glass-line bg-glass-fill px-3 py-3">
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
@@ -74,6 +84,8 @@ export function HumanizerReport({ analysis }: { analysis: HumanizerAnalysis }) {
         ))}
       </div>
 
+      {detector ? <DetectorDetail estimate={detector.humanized} /> : null}
+
       {dropped > 0 ? (
         <p className="mt-2 flex items-start gap-1.5 rounded-lg border border-error/30 bg-error/5 px-2.5 py-1.5 text-[11px] text-on-surface">
           <Icon name="close" size={13} className="mt-0.5 shrink-0 text-error" />
@@ -86,6 +98,51 @@ export function HumanizerReport({ analysis }: { analysis: HumanizerAnalysis }) {
           </span>
         </p>
       ) : null}
+    </div>
+  );
+}
+
+/**
+ * Explains *why* the detector estimate landed where it did, and is explicit
+ * that this is a local heuristic self-check, not a real AI-detector API —
+ * the same "never fake a capability" rule as image gen/web search.
+ */
+function DetectorDetail({ estimate }: { estimate: HumanizerDetectorEstimate }) {
+  if (estimate.signals.length === 0) {
+    return (
+      <p className="mt-2 flex items-start gap-1.5 rounded-lg border border-glass-line bg-glass-fill px-2.5 py-1.5 text-[11px] text-on-surface-variant">
+        <Icon name="check_circle" size={13} className="mt-0.5 shrink-0 text-primary" />
+        <span>No obvious AI-writing tells detected in the rewrite.</span>
+      </p>
+    );
+  }
+
+  const isAiLike = estimate.verdict === "likely-ai";
+  return (
+    <div
+      className={cn(
+        "mt-2 rounded-lg border px-2.5 py-1.5 text-[11px]",
+        isAiLike
+          ? "border-error/30 bg-error/5 text-on-surface"
+          : "border-glass-line bg-glass-fill text-on-surface-variant",
+      )}
+    >
+      <p className="flex items-center gap-1.5 font-medium">
+        <Icon
+          name={isAiLike ? "close" : "check_circle"}
+          size={13}
+          className={isAiLike ? "text-error" : "text-primary"}
+        />
+        Heuristic self-check, not a real detector call — signals found in the rewrite:
+      </p>
+      <ul className="mt-1 space-y-0.5 pl-[19px]">
+        {estimate.signals.slice(0, 4).map((s) => (
+          <li key={s.label}>
+            {s.weight > 0 ? "+" : ""}
+            {s.weight} {s.label}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
