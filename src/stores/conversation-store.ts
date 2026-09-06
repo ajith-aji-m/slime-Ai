@@ -55,8 +55,51 @@ interface ConversationState {
   toggleTool: (id: string, tool: ToolId) => void;
 }
 
+/**
+ * `update()` fires on every streamed token, so an unthrottled `persist()`
+ * would hit IndexedDB dozens of times a second while a reply is streaming.
+ * Throttle it per-conversation instead: the first call in a window writes
+ * immediately (so non-streaming edits still save right away), later calls
+ * during that window just update what's pending, and a trailing write
+ * flushes the latest state once the window elapses — so storage is never
+ * more than `PERSIST_THROTTLE_MS` behind what's on screen. `flushPersist`
+ * forces that trailing write immediately, used when a stream ends so
+ * storage is caught up the moment streaming stops rather than up to a
+ * throttle window later.
+ */
+const PERSIST_THROTTLE_MS = 300;
+const persistTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const persistPending = new Map<string, Conversation>();
+
 function persist(conversation: Conversation) {
+  const id = conversation.id;
+  if (persistTimers.has(id)) {
+    persistPending.set(id, conversation);
+    return;
+  }
   void conversationStore.put(conversation);
+  persistTimers.set(
+    id,
+    setTimeout(() => {
+      persistTimers.delete(id);
+      const pending = persistPending.get(id);
+      if (pending) {
+        persistPending.delete(id);
+        void conversationStore.put(pending);
+      }
+    }, PERSIST_THROTTLE_MS),
+  );
+}
+
+function flushPersist(id: string) {
+  const timer = persistTimers.get(id);
+  if (timer) clearTimeout(timer);
+  persistTimers.delete(id);
+  const pending = persistPending.get(id);
+  if (pending) {
+    persistPending.delete(id);
+    void conversationStore.put(pending);
+  }
 }
 
 /**
@@ -251,6 +294,7 @@ export const useConversationStore = create<ConversationState>((set, get) => {
       }));
     } finally {
       streams.delete(id);
+      flushPersist(id);
       set((s) => {
         const next = new Set(s.streamingIds);
         next.delete(id);

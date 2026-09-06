@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePathname, useParams } from "next/navigation";
+import { usePathname, useParams, useRouter } from "next/navigation";
 import { Drawer } from "@/components/ui";
+import { ErrorBoundary } from "@/components/error-boundary";
 import { AmbientBackdrop } from "./ambient-backdrop";
 import { SidebarContent } from "./sidebar-content";
 import { TopAppBar } from "./top-app-bar";
@@ -21,6 +22,7 @@ import { useActiveToolMode } from "@/hooks/use-active-tool-mode";
  * separate desktop/mobile shells.
  */
 export function WorkspaceShell({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const pathname = usePathname();
   const params = useParams<{ conversationId?: string }>();
   const onChat = isChatRoute(pathname);
@@ -46,6 +48,26 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
     useCanvasStore.getState().collapseForRoute();
   }, [pathname, closeDrawers]);
 
+  // Cmd/Ctrl+Shift+O — the same shortcut ChatGPT/Claude use for "new chat".
+  // Skipped while focus is in an editable field so it never fights typing.
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      const target = e.target as HTMLElement | null;
+      const editing =
+        target?.tagName === "INPUT" ||
+        target?.tagName === "TEXTAREA" ||
+        target?.isContentEditable;
+      if (editing) return;
+      const modifier = e.metaKey || e.ctrlKey;
+      if (modifier && e.shiftKey && e.key.toLowerCase() === "o") {
+        e.preventDefault();
+        router.push("/chat");
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [router]);
+
   return (
     <div
       className="sl-mode-root flex h-full w-full gap-0 overflow-hidden p-0 md:gap-3.5 md:p-3.5"
@@ -65,7 +87,7 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
       <div className="liquid-glass flex min-w-0 flex-1 flex-col overflow-hidden md:rounded-3xl">
         <TopAppBar />
         <main id="main" className="min-h-0 flex-1">
-          {children}
+          <ErrorBoundary>{children}</ErrorBoundary>
         </main>
       </div>
 
@@ -78,7 +100,11 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
         </aside>
       ) : null}
 
-      {onChat ? <CanvasShell /> : null}
+      {onChat ? (
+        <ErrorBoundary label="Canvas hit a problem">
+          <CanvasShell />
+        </ErrorBoundary>
+      ) : null}
 
       <Drawer
         open={navDrawerOpen}
