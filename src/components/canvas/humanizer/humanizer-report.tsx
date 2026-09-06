@@ -11,7 +11,7 @@ import type { HumanizerAnalysis, HumanizerDetectorEstimate } from "@/types/human
  * the readability shift.
  */
 export function HumanizerReport({ analysis }: { analysis: HumanizerAnalysis }) {
-  const { stats, readability, detector } = analysis;
+  const { stats, readability, detector, voiceCheck } = analysis;
   const dropped = analysis.droppedKeywords.length;
 
   const tiles: { label: string; value: string; hint?: string; warn?: boolean }[] = [
@@ -54,6 +54,16 @@ export function HumanizerReport({ analysis }: { analysis: HumanizerAnalysis }) {
     });
   }
 
+  tiles.push({
+    label: "Voice",
+    value: voiceCheck.count === 0 ? "Clear" : String(voiceCheck.count),
+    hint:
+      voiceCheck.count === 0
+        ? "no we/our/us"
+        : `${voiceCheck.found.join(", ")} found`,
+    warn: voiceCheck.count > 0,
+  });
+
   return (
     <div className="shrink-0 border-b border-glass-line bg-glass-fill px-3 py-3">
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
@@ -95,6 +105,17 @@ export function HumanizerReport({ analysis }: { analysis: HumanizerAnalysis }) {
               {analysis.droppedKeywords.join(", ")}
             </span>
             . Check these before publishing.
+          </span>
+        </p>
+      ) : null}
+
+      {voiceCheck.count > 0 ? (
+        <p className="mt-2 flex items-start gap-1.5 rounded-lg border border-error/30 bg-error/5 px-2.5 py-1.5 text-[11px] text-on-surface">
+          <Icon name="close" size={13} className="mt-0.5 shrink-0 text-error" />
+          <span>
+            Still uses corporate &quot;we&quot; voice —{" "}
+            <span className="font-semibold">{voiceCheck.found.join(", ")}</span>{" "}
+            ({voiceCheck.count}×). Humanizer rewrites should avoid we/our/us.
           </span>
         </p>
       ) : null}

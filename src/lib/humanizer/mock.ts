@@ -6,6 +6,29 @@
  * When a real model is configured, `routeChat` handles the rewrite instead.
  */
 
+// Corporate/AI "we" voice — the Humanizer avoids this everywhere (see
+// HUMANIZER_SYSTEM_PROMPT for the same rule aimed at a real routed model).
+// Kept to the common lead-in constructs, same conservative spirit as
+// PHRASES below — a general pronoun rewriter risks mangling grammar, so
+// mid-sentence "we"/"our"/"us" left over is surfaced by the report's voice
+// check instead of guessed at here.
+const PRONOUN_LEADINS: [RegExp, string][] = [
+  [/\bwe(?:'re| are)\s+excited to\b/gi, "excited to"],
+  [/\bwe(?:'re| are)\s+thrilled to\b/gi, "thrilled to"],
+  [/\bwe(?:'re| are)\s+pleased to\b/gi, "pleased to"],
+  [/\bwe(?:'re| are)\s+committed to\b/gi, "committed to"],
+  [/\bwe believe(?:\s+that)?\s+/gi, ""],
+  [/\bwe think(?:\s+that)?\s+/gi, ""],
+  [/\bwe found that\s+/gi, ""],
+  [/\bin our (?:opinion|experience|view),?\s*/gi, ""],
+  [/\bour\s+team\b/gi, "the team"],
+  [/\bour\s+company\b/gi, "the company"],
+  [/\bour\s+goal\b/gi, "the goal"],
+  [/\bour\s+mission\b/gi, "the mission"],
+  [/\ball of us\b/gi, "everyone"],
+  [/\blet us\b/gi, "let's"],
+];
+
 const PHRASES: [RegExp, string][] = [
   [/\bit is important to note that\s+/gi, ""],
   [/\bit is worth noting that\s+/gi, ""],
@@ -73,7 +96,8 @@ function applyRules(text: string, rules: [RegExp, string][]): string {
 }
 
 function rewriteProse(prose: string): string {
-  let out = applyRules(prose, PHRASES);
+  let out = applyRules(prose, PRONOUN_LEADINS);
+  out = applyRules(out, PHRASES);
   out = applyRules(out, CONTRACTIONS);
   // Tidy up artefacts from removed lead-ins: stray leading spaces, lowercase
   // sentence starts, doubled spaces.

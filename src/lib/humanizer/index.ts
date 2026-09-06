@@ -7,5 +7,6 @@ export {
   detectorVerdictLabel,
   DETECTOR_MIN_WORDS,
 } from "./detector";
+export { checkFirstPersonPlural } from "./voice";
 export { HUMANIZER_SYSTEM_PROMPT, buildHumanizerMessages } from "./prompt";
 export { mockHumanize } from "./mock";

@@ -31,6 +31,19 @@ export interface HumanizerReadability {
   gradeLevel: number;
 }
 
+/**
+ * First-person-plural pronoun usage still present in the humanized text
+ * ("we", "our", "us", …) — the Humanizer's system prompt asks the model to
+ * avoid this corporate/AI "we" voice, so a non-empty result means the
+ * rewrite didn't fully comply and should be checked before publishing.
+ */
+export interface HumanizerVoiceCheck {
+  /** distinct pronoun forms found, lowercased */
+  found: string[];
+  /** total occurrences across the text */
+  count: number;
+}
+
 /** One stylistic tell that pushed the detector estimate up or down. */
 export interface HumanizerDetectorSignal {
   label: string;
@@ -60,6 +73,8 @@ export interface HumanizerAnalysis {
   keywords: HumanizerKeyword[];
   /** keywords from the original that are missing from the humanized text */
   droppedKeywords: string[];
+  /** first-person-plural pronoun usage remaining in the humanized text */
+  voiceCheck: HumanizerVoiceCheck;
   /** only computed when both texts are long enough to score reliably */
   readability?: {
     original: HumanizerReadability;
