@@ -43,11 +43,39 @@ const PHRASES: [RegExp, string][] = [
   [/\ba large number of\b/gi, "many"],
   [/\bthe vast majority of\b/gi, "most"],
   [/\ba number of\b/gi, "several"],
+  // base forms plus common inflections — matching only the bare infinitive
+  // left "utilized"/"leveraging"/etc. as an unfixed AI tell in the output
+  [/\butili[sz]ed\b/gi, "used"],
+  [/\butili[sz]es\b/gi, "uses"],
+  [/\butili[sz]ing\b/gi, "using"],
   [/\butili[sz]e\b/gi, "use"],
+  [/\bleveraged\b/gi, "used"],
+  [/\bleverages\b/gi, "uses"],
+  [/\bleveraging\b/gi, "using"],
   [/\bleverage\b/gi, "use"],
+  [/\bfacilitated\b/gi, "helped"],
+  [/\bfacilitates\b/gi, "helps"],
+  [/\bfacilitating\b/gi, "helping"],
   [/\bfacilitate\b/gi, "help"],
+  [/\bdemonstrated\b/gi, "showed"],
+  [/\bdemonstrates\b/gi, "shows"],
+  [/\bdemonstrating\b/gi, "showing"],
   [/\bdemonstrate\b/gi, "show"],
   [/\bnumerous\b/gi, "many"],
+  [/\bseamlessly\b/gi, "smoothly"],
+  [/\bseamless\b/gi, "smooth"],
+  [/\brobust\b/gi, "solid"],
+  [/\bboasts\b/gi, "offers"],
+  [/\bunlock\b/gi, "open up"],
+  [/\bunleash\b/gi, "release"],
+  [/\belevate\b/gi, "improve"],
+  [/\bdelve into\b/gi, "look at"],
+  [/\bdelve\b/gi, "look into"],
+  [/\btestament to\b/gi, "proof of"],
+  [/\bcannot be overstated\b/gi, "matters a lot"],
+  [/\bin the realm of\b/gi, "in"],
+  [/\bgame-changer\b/gi, "big improvement"],
+  [/\btop-notch\b/gi, "excellent"],
   [/\bmoreover,?\s+/gi, "Also, "],
   [/\bfurthermore,?\s+/gi, "On top of that, "],
   [/\badditionally,?\s+/gi, "Plus, "],
@@ -72,12 +100,21 @@ const CONTRACTIONS: [RegExp, string][] = [
   [/\bwould not\b/gi, "wouldn't"],
   [/\bhas not\b/gi, "hasn't"],
   [/\bhave not\b/gi, "haven't"],
+  [/\bshould not\b/gi, "shouldn't"],
+  [/\bcould not\b/gi, "couldn't"],
+  [/\bmust not\b/gi, "mustn't"],
   [/\bit is\b/gi, "it's"],
   [/\bthat is\b/gi, "that's"],
   [/\bthere is\b/gi, "there's"],
+  [/\bwho is\b/gi, "who's"],
+  [/\bwhat is\b/gi, "what's"],
+  [/\bhere is\b/gi, "here's"],
   [/\bwe are\b/gi, "we're"],
   [/\bthey are\b/gi, "they're"],
   [/\byou are\b/gi, "you're"],
+  [/\bwe have\b/gi, "we've"],
+  [/\bthey have\b/gi, "they've"],
+  [/\byou have\b/gi, "you've"],
 ];
 
 function preserveCase(replacement: string, original: string): string {
@@ -100,10 +137,12 @@ function rewriteProse(prose: string): string {
   out = applyRules(out, PHRASES);
   out = applyRules(out, CONTRACTIONS);
   // Tidy up artefacts from removed lead-ins: stray leading spaces, lowercase
-  // sentence starts, doubled spaces.
+  // sentence starts, doubled spaces. A single `\n` is just a wrapped line
+  // inside the same sentence (common in pasted text) — only a blank line
+  // (a real paragraph break) counts as a boundary here, same as `.`/`!`/`?`.
   out = out
     .replace(/[ \t]{2,}/g, " ")
-    .replace(/(^|[.!?]\s+|\n)([a-z])/g, (_m, lead: string, ch: string) => lead + ch.toUpperCase())
+    .replace(/(^|[.!?]\s+|\n\s*\n)([a-z])/g, (_m, lead: string, ch: string) => lead + ch.toUpperCase())
     .replace(/ +([.,;:!?])/g, "$1");
   return out;
 }

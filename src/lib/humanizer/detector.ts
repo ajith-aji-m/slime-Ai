@@ -108,12 +108,14 @@ export function estimateAiLikelihood(
 
   // 2. Sentence-length burstiness — human writing mixes short and long
   // sentences; a low coefficient of variation (very uniform lengths) reads
-  // as machine-paced.
+  // as machine-paced. Capped low: on its own, moderate uniformity (common
+  // even in edited human prose) shouldn't be enough to call a clean rewrite
+  // "AI-like" — it's corroborating evidence, not a lead signal like phrasing.
   const sentenceLens = sentences(text).map((s) => words(s).length);
   if (sentenceLens.length >= 3) {
     const cv = stdev(sentenceLens) / (mean(sentenceLens) || 1);
     const uniformity = clamp(1 - cv, 0, 1); // 0 = bursty/human, 1 = uniform/AI
-    const weight = Math.round((uniformity - 0.4) * 25); // only counts past a threshold
+    const weight = Math.round(clamp((uniformity - 0.5) * 16, -6, 6));
     if (weight !== 0) {
       score += weight;
       signals.push({
@@ -126,14 +128,16 @@ export function estimateAiLikelihood(
     }
   }
 
-  // 3. Contractions / first person — small human-writing tells; their
-  // absence nudges the score up, their presence nudges it down.
+  // 3. Contractions / first person — small human-writing tells. A rewrite
+  // only needs to use a handful naturally (not one every other sentence) to
+  // read as human, so the "uses them" bar is deliberately low; the "uses
+  // none at all" penalty stays stricter since that's the more reliable tell.
   const contractionCount = (text.match(CONTRACTIONS) ?? []).length;
   const per100 = (contractionCount / ws.length) * 100;
-  if (per100 < 0.3) {
+  if (per100 === 0) {
     score += 8;
     signals.push({ label: "No contractions", weight: 8 });
-  } else if (per100 > 1.5) {
+  } else if (per100 > 0.4) {
     score -= 8;
     signals.push({ label: "Uses contractions naturally", weight: -8 });
   }
