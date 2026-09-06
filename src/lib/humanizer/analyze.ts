@@ -3,6 +3,7 @@ import { countChanges, countHighlights, diffWords } from "./diff";
 import { extractKeywords } from "./keywords";
 import { readability } from "./readability";
 import { estimateAiLikelihood } from "./detector";
+import { checkFirstPersonPlural } from "./voice";
 
 function wordCount(text: string): number {
   return (text.match(/[A-Za-z0-9]+(?:'[A-Za-z]+)?/g) ?? []).length;
@@ -35,6 +36,7 @@ export function analyzeHumanization(
     highlightCount: countHighlights(segments),
     keywords,
     droppedKeywords: keywords.filter((k) => !k.preserved).map((k) => k.text),
+    voiceCheck: checkFirstPersonPlural(humanized),
     readability:
       origScore && humanScore
         ? { original: origScore, humanized: humanScore }
