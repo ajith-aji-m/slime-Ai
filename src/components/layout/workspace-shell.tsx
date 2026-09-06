@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname, useParams, useRouter } from "next/navigation";
-import { Drawer } from "@/components/ui";
+import { Drawer, Icon } from "@/components/ui";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { AmbientBackdrop } from "./ambient-backdrop";
 import { SidebarContent } from "./sidebar-content";
@@ -14,6 +14,8 @@ import { useUiStore } from "@/stores/ui-store";
 import { useConversationStore } from "@/stores/conversation-store";
 import { useAiStatusStore } from "@/stores/ai-status-store";
 import { useCanvasStore } from "@/stores/canvas-store";
+import { useNetworkStore } from "@/stores/network-store";
+import { useMascotStore } from "@/stores/mascot-store";
 import { useActiveToolMode } from "@/hooks/use-active-tool-mode";
 
 /**
@@ -33,6 +35,7 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
   const closeDrawers = useUiStore((s) => s.closeDrawers);
   const canvasOpen = useCanvasStore((s) => s.open);
   const activeMode = useActiveToolMode();
+  const online = useNetworkStore((s) => s.online);
 
   // Canvas takes the right side of the workspace; the Intelligence panel yields
   // to it while it's open.
@@ -41,7 +44,22 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     void useConversationStore.getState().hydrate();
     void useAiStatusStore.getState().refresh();
+    useNetworkStore.getState().init();
   }, []);
+
+  // Reflect real connectivity changes on the mascot too — losing the
+  // network mid-session is the same "something's wrong" beat as a stream
+  // error; regaining it is worth an explicit signal since a request may
+  // have silently failed while offline.
+  const wasOnline = useRef(online);
+  useEffect(() => {
+    if (wasOnline.current && !online) {
+      useMascotStore.getState().notifyError();
+    } else if (!wasOnline.current && online) {
+      useMascotStore.getState().notifyReceived();
+    }
+    wasOnline.current = online;
+  }, [online]);
 
   useEffect(() => {
     closeDrawers();
@@ -86,6 +104,15 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
 
       <div className="liquid-glass flex min-w-0 flex-1 flex-col overflow-hidden md:rounded-3xl">
         <TopAppBar />
+        {!online ? (
+          <div
+            role="status"
+            className="flex shrink-0 items-center justify-center gap-1.5 bg-error/15 px-4 py-1.5 text-[12px] font-medium text-error"
+          >
+            <Icon name="cloud" size={14} />
+            You&apos;re offline — messages won&apos;t send until you&apos;re back online.
+          </div>
+        ) : null}
         <main id="main" className="min-h-0 flex-1">
           <ErrorBoundary>{children}</ErrorBoundary>
         </main>

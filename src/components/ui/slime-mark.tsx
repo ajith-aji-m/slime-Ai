@@ -16,7 +16,14 @@ export interface SlimeMarkProps {
    * a happy bounce, "error" droops, "sleeping" closes its eyes. All crossfade
    * from "idle".
    */
-  mood?: "idle" | "typing" | "sent" | "celebrate" | "error" | "sleeping";
+  mood?:
+    | "idle"
+    | "typing"
+    | "sent"
+    | "celebrate"
+    | "error"
+    | "sleeping"
+    | "wave";
 }
 
 /**
@@ -102,7 +109,9 @@ export function SlimeMark({
                   ? "sl-slime-error"
                   : mood === "sleeping"
                     ? "sl-slime-sleeping"
-                    : walking
+                    : mood === "wave"
+                      ? "sl-slime-wave"
+                      : walking
                       ? "sl-slime-walk"
                       : ripple && "sl-slime-float",
         )}
@@ -280,6 +289,23 @@ export function SlimeMark({
                 d="M91 132 Q100 125 109 132"
                 stroke="#082f49"
                 strokeWidth="3.2"
+                strokeLinecap="round"
+                fill="none"
+              />
+            </g>
+            {/* wave — a first-time greeting: wide friendly eyes, big open smile */}
+            <g
+              className="sl-slime-face"
+              style={{ opacity: mood === "wave" ? 1 : 0 }}
+            >
+              <ellipse cx="78" cy="114" rx="6.5" ry="9" fill="#082f49" />
+              <circle cx="76" cy="110.5" r="3" fill="#ffffff" />
+              <ellipse cx="122" cy="114" rx="6.5" ry="9" fill="#082f49" />
+              <circle cx="120" cy="110.5" r="3" fill="#ffffff" />
+              <path
+                d="M86 124 Q100 138 114 124"
+                stroke="#082f49"
+                strokeWidth="3.4"
                 strokeLinecap="round"
                 fill="none"
               />

@@ -16,7 +16,8 @@ export type SlimeAction =
   | "sent"
   | "celebrate"
   | "error"
-  | "sleeping";
+  | "sleeping"
+  | "wave";
 
 interface MascotState {
   action: SlimeAction;
@@ -27,6 +28,8 @@ interface MascotState {
   notifyReceived: () => void;
   /** a stream/provider failure — a brief sad/droop reaction */
   notifyError: () => void;
+  /** a first-time visitor lands on an empty workspace — a friendly greeting */
+  notifyWave: () => void;
 }
 
 /** doze off after this long with nothing happening */
@@ -34,6 +37,7 @@ const IDLE_TIMEOUT_MS = 60_000;
 const SENT_DURATION_MS = 900;
 const CELEBRATE_DURATION_MS = 1600;
 const ERROR_DURATION_MS = 2000;
+const WAVE_DURATION_MS = 1800;
 
 // Kept outside React state, same pattern as `conversation-store`'s abort
 // controllers — timers aren't state themselves, just plumbing for it.
@@ -86,6 +90,9 @@ export const useMascotStore = create<MascotState>((set, get) => {
     },
     notifyError() {
       playTransient("error", ERROR_DURATION_MS);
+    },
+    notifyWave() {
+      playTransient("wave", WAVE_DURATION_MS);
     },
   };
 });

@@ -15,6 +15,7 @@ import { useConversationStore } from "@/stores/conversation-store";
 import { useComposerStore } from "@/stores/composer-store";
 import { useAiStatusStore } from "@/stores/ai-status-store";
 import { useMascotStore } from "@/stores/mascot-store";
+import { useNetworkStore } from "@/stores/network-store";
 
 export interface ComposerProps {
   conversationId?: string;
@@ -111,9 +112,11 @@ export function Composer({
     setAttachments((prev) => prev.filter((a) => a.id !== id));
   }
 
+  const online = useNetworkStore((s) => s.online);
+
   async function submit() {
     const text = value.trim();
-    if ((!text && attachments.length === 0) || streaming) return;
+    if ((!text && attachments.length === 0) || streaming || !online) return;
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     setTyping(false);
     notifySent();
@@ -231,7 +234,7 @@ export function Composer({
           ) : (
             <button
               type="submit"
-              disabled={!value.trim() && attachments.length === 0}
+              disabled={(!value.trim() && attachments.length === 0) || !online}
               aria-label="Send message"
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-[color-mix(in_srgb,var(--sl-primary)_45%,transparent)] bg-[color-mix(in_srgb,var(--sl-primary)_22%,transparent)] text-primary transition-[background-color,border-color,color,filter] duration-[480ms] ease-[var(--ease-emphasized)] hover:brightness-110 active:scale-90 active:transition-transform active:duration-100 disabled:border-glass-line disabled:bg-glass-fill disabled:text-on-surface-variant/50"
             >
