@@ -351,18 +351,18 @@
   --sl-mode-ring: rgba(79, 70, 229, 0.5);
 }
 
-/* Prompt Generator — a violet accent, distinct from Humanizer's indigo. */
+/* Prompt Generator — a red accent, distinct from every other mode. */
 [data-mode="prompt_generator"] {
-  --sl-primary: #7c3aed;
-  --sl-primary-container: #ddd6fe;
-  --sl-on-primary-container: #3b1670;
-  --sl-inverse-primary: #c4b5fd;
-  --sl-slime-1: #e0d4ff;
-  --sl-slime-mid: #a78bfa;
-  --sl-slime-2: #6d28d9;
-  --sl-mode-glow: rgba(167, 139, 250, 0.28);
-  --sl-mode-glow-2: rgba(139, 92, 246, 0.18);
-  --sl-mode-ring: rgba(124, 58, 237, 0.5);
+  --sl-primary: #dc2626;
+  --sl-primary-container: #fecaca;
+  --sl-on-primary-container: #7f1d1d;
+  --sl-inverse-primary: #fca5a5;
+  --sl-slime-1: #ffcfcf;
+  --sl-slime-mid: #f87171;
+  --sl-slime-2: #b91c1c;
+  --sl-mode-glow: rgba(248, 113, 113, 0.28);
+  --sl-mode-glow-2: rgba(239, 68, 68, 0.18);
+  --sl-mode-ring: rgba(220, 38, 38, 0.5);
 }
 
 /* =============================================================================

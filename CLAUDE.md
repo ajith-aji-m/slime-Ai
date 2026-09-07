@@ -24,7 +24,7 @@ light — keep the glass *structure*, not the dark values). Ambient life is
 `--sl-tint-line` / `--sl-tint-hover` / `--sl-tint-fill` tokens (Tailwind
 `*-glass-line` / `*-glass-hover` / `*-glass-fill`), never raw `white/N`. Per-mode
 accent shifts (Search sky · Code teal · Research amber · Image Gen magenta ·
-Humanizer indigo · Prompt Gen violet) are `[data-mode]` blocks that move only the accent family, the
+Humanizer indigo · Prompt Gen red) are `[data-mode]` blocks that move only the accent family, the
 `--sl-slime-*` mascot gradient and the ambient glow, and interpolate via
 `@property`. Font is Inter. Preserve this visual language.
 
