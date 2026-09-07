@@ -1,5 +1,6 @@
 import type { MessagePart, ToolId } from "@/types/chat";
 import { mockHumanize } from "@/lib/humanizer";
+import { mockGeneratePrompt } from "@/lib/prompt-generator";
 import { site } from "@/config/site";
 
 /**
@@ -131,6 +132,14 @@ export function buildMockResponse(prompt: string, tools: ToolId[]): MessagePart[
   // the (original, rewrite) pair in Canvas.
   if (tools.includes("humanizer")) {
     return [{ type: "text", text: mockHumanize(prompt) || prompt }];
+  }
+
+  // Prompt Generator mode: the offline provider turns the rough idea into a
+  // templated, structured prompt heuristically — no diff/canvas plumbing
+  // needed, it's just new text the thread renders normally (or as a Report
+  // artifact via the generic length/heading-based Canvas detection).
+  if (tools.includes("prompt_generator")) {
+    return [{ type: "text", text: mockGeneratePrompt(prompt) || prompt }];
   }
 
   if (FOUNDER_QUESTION.test(prompt)) {

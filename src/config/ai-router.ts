@@ -58,6 +58,11 @@ export const TOOL_MODE_CATEGORY: Partial<Record<ToolId, TaskCategory>> = {
   // with the same fallback chain. The Humanizer instruction rides as a system
   // message (see `buildHumanizerMessages`), not a new provider.
   humanizer: "general",
+  // Turning a rough idea into a well-structured prompt is a templated,
+  // formatting-heavy task — same "structured" category as other
+  // fixed-shape-output work. Instruction rides as a system message (see
+  // `buildPromptGeneratorMessages`), not a new provider.
+  prompt_generator: "structured",
 };
 
 /**
