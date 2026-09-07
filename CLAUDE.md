@@ -24,7 +24,7 @@ light — keep the glass *structure*, not the dark values). Ambient life is
 `--sl-tint-line` / `--sl-tint-hover` / `--sl-tint-fill` tokens (Tailwind
 `*-glass-line` / `*-glass-hover` / `*-glass-fill`), never raw `white/N`. Per-mode
 accent shifts (Search sky · Code teal · Research amber · Image Gen magenta ·
-Humanizer indigo) are `[data-mode]` blocks that move only the accent family, the
+Humanizer indigo · Prompt Gen violet) are `[data-mode]` blocks that move only the accent family, the
 `--sl-slime-*` mascot gradient and the ambient glow, and interpolate via
 `@property`. Font is Inter. Preserve this visual language.
 
@@ -119,6 +119,19 @@ offline `mockHumanize` heuristic). On completion the answer becomes one
 (`diffWords` — LCS over "word + trailing space" tokens, so every highlight is a
 real edit), preserved-keyword check, and Flesch readability. The stored user
 message keeps the raw paste — that's the diff baseline.
+
+### Prompt Generator mode
+
+`prompt_generator` is a mutually-exclusive composer mode (like Search / Code).
+When active, `conversation-store` prepends `PROMPT_GENERATOR_SYSTEM_PROMPT` as
+a non-persisted system message (`buildPromptGeneratorMessages`) and the
+request rides the normal provider + router path (category `structured`; mock
+provider uses the offline `mockGeneratePrompt` heuristic in
+`src/lib/prompt-generator/`). It turns a rough idea, typed in the user's own
+words, into a single ready-to-use AI prompt (Role / Context / Task /
+Constraints / Output format in Markdown) — no new Canvas artifact type, the
+answer is just new text and goes through the generic Report detection in
+`src/lib/canvas/detect.ts` like any other structured answer.
 
 ### Local dev tools
 

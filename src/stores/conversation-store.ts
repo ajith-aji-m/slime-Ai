@@ -16,6 +16,7 @@ import { createId, nowIso } from "@/lib/utils/id";
 import { toggleToolInList } from "@/lib/tool-mode";
 import { activeModeTool } from "@/config/tools";
 import { buildHumanizerMessages } from "@/lib/humanizer";
+import { buildPromptGeneratorMessages } from "@/lib/prompt-generator";
 import { withIdentitySystemMessage } from "@/lib/ai/identity";
 import { useMascotStore } from "@/stores/mascot-store";
 import {
@@ -209,17 +210,19 @@ export const useConversationStore = create<ConversationState>((set, get) => {
       conversation.messages.findIndex((m) => m.id === sinceMessageId) + 1,
     );
 
-    // Humanizer mode: prepend the rewrite instruction as a (non-persisted)
-    // system message. Everything else — provider choice, internal routing,
-    // fallback, error handling — is unchanged. The identity system message
-    // (assistant name, founder answer) rides every request underneath that.
-    const outgoing = stripAttachmentData(
-      withIdentitySystemMessage(
-        activeModeTool(conversation.tools) === "humanizer"
-          ? buildHumanizerMessages(upToUser)
-          : upToUser,
-      ),
-    );
+    // Humanizer / Prompt Generator modes: prepend the mode's instruction as a
+    // (non-persisted) system message. Everything else — provider choice,
+    // internal routing, fallback, error handling — is unchanged. The identity
+    // system message (assistant name, founder answer) rides every request
+    // underneath that.
+    const activeMode = activeModeTool(conversation.tools);
+    const modeMessages =
+      activeMode === "humanizer"
+        ? buildHumanizerMessages(upToUser)
+        : activeMode === "prompt_generator"
+          ? buildPromptGeneratorMessages(upToUser)
+          : upToUser;
+    const outgoing = stripAttachmentData(withIdentitySystemMessage(modeMessages));
 
     const assistantId = createId("msg");
     update(id, (c) => ({

@@ -24,7 +24,7 @@ export interface ToolConfig {
 }
 
 /**
- * Composer tool strip: Search · Code · Research · Humanizer.
+ * Composer tool strip: Search · Code · Research · Humanizer · Prompt Gen.
  *
  * `image_gen` is intentionally omitted for now — no NVIDIA image model is wired
  * up, so it's hidden from every UI surface. The routing/detection code still
@@ -77,6 +77,16 @@ export const tools: ToolConfig[] = [
     inComposer: true,
     mode: true,
     placeholder: "Paste the content you want to humanize…",
+  },
+  {
+    id: "prompt_generator",
+    label: "Prompt Gen",
+    icon: "psychology",
+    description:
+      "Turn a rough idea into a clear, ready-to-use AI prompt — role, context, task and output format.",
+    inComposer: true,
+    mode: true,
+    placeholder: "Describe what you want an AI to do…",
   },
   {
     id: "file_analysis",
