@@ -16,7 +16,8 @@ export type TaskCategory =
   | "long_context"
   | "reasoning"
   | "research"
-  | "structured";
+  | "structured"
+  | "humanize";
 
 export const TASK_CATEGORIES: TaskCategory[] = [
   "general",
@@ -26,6 +27,7 @@ export const TASK_CATEGORIES: TaskCategory[] = [
   "reasoning",
   "research",
   "structured",
+  "humanize",
 ];
 
 /**
@@ -42,6 +44,10 @@ export const CATEGORY_ROUTING: Record<TaskCategory, string[]> = {
   reasoning: ["slime-reasoning", "slime-versatile", "slime-general"],
   research: ["slime-reasoning", "slime-versatile", "slime-general"],
   structured: ["slime-general", "slime-versatile", "slime-fast"],
+  // Dedicated to the Humanizer rewrite — `slime-humanizer` (see models.ts)
+  // is picked for its naturally fluent, less stiffly-formal writing style;
+  // falls back to the everyday generalists if it's ever unavailable.
+  humanize: ["slime-humanizer", "slime-general", "slime-versatile"],
 };
 
 /**
@@ -54,10 +60,11 @@ export const TOOL_MODE_CATEGORY: Partial<Record<ToolId, TaskCategory>> = {
   web_search: "search",
   code: "coding",
   research: "research",
-  // Rewriting AI text is a general language task — routed like everyday chat,
-  // with the same fallback chain. The Humanizer instruction rides as a system
-  // message (see `buildHumanizerMessages`), not a new provider.
-  humanizer: "general",
+  // Rewriting AI text gets its own category so it's routed to
+  // `slime-humanizer` specifically (see models.ts) instead of whichever
+  // generalist everyday chat lands on. The Humanizer instruction still rides
+  // as a system message (see `buildHumanizerMessages`), not a new provider.
+  humanizer: "humanize",
   // Turning a rough idea into a well-structured prompt is a templated,
   // formatting-heavy task — same "structured" category as other
   // fixed-shape-output work. Instruction rides as a system message (see

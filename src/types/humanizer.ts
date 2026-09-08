@@ -44,25 +44,6 @@ export interface HumanizerVoiceCheck {
   count: number;
 }
 
-/** One stylistic tell that pushed the detector estimate up or down. */
-export interface HumanizerDetectorSignal {
-  label: string;
-  /** positive = pushes toward "reads as AI", negative = pushes toward "reads as human" */
-  weight: number;
-}
-
-/**
- * A **local heuristic** estimate of whether text would pass an AI-content
- * detector — not a call to any real detector service. See
- * `src/lib/humanizer/detector.ts` for the method and its limits.
- */
-export interface HumanizerDetectorEstimate {
-  /** 0 (reads human) – 100 (reads AI-generated) */
-  score: number;
-  verdict: "likely-human" | "mixed" | "likely-ai";
-  signals: HumanizerDetectorSignal[];
-}
-
 export interface HumanizerAnalysis {
   /** full word-level diff, in reading order */
   segments: HumanizerDiffSegment[];
@@ -79,11 +60,6 @@ export interface HumanizerAnalysis {
   readability?: {
     original: HumanizerReadability;
     humanized: HumanizerReadability;
-  };
-  /** heuristic AI-detector pass estimate, before/after — see `HumanizerDetectorEstimate` */
-  detector?: {
-    original: HumanizerDetectorEstimate;
-    humanized: HumanizerDetectorEstimate;
   };
   stats: {
     originalWords: number;

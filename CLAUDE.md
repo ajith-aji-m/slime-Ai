@@ -113,12 +113,16 @@ of being dumped into the thread.
 `humanizer` is a mutually-exclusive composer mode (like Search / Code). When
 active, `conversation-store` prepends `HUMANIZER_SYSTEM_PROMPT` as a
 non-persisted system message (`buildHumanizerMessages`) and the request rides the
-normal provider + router path (category `general`; mock provider uses the
-offline `mockHumanize` heuristic). On completion the answer becomes one
-`humanizer` Canvas artifact: `src/lib/humanizer/` computes the word-level diff
-(`diffWords` — LCS over "word + trailing space" tokens, so every highlight is a
-real edit), preserved-keyword check, and Flesch readability. The stored user
-message keeps the raw paste — that's the diff baseline.
+normal provider + router path (category `humanize`, routed to the dedicated
+`slime-humanizer` role — `mistralai/mistral-nemotron`, chosen for its more
+natural, less stiffly-formal writing style — falling back to the everyday
+generalists; mock provider uses the offline `mockHumanize` heuristic). On
+completion the answer becomes one `humanizer` Canvas artifact:
+`src/lib/humanizer/` computes the word-level diff (`diffWords` — LCS over
+"word + trailing space" tokens, so every highlight is a real edit),
+preserved-keyword check, first-person-plural ("we"/"our"/"us") voice check,
+and Flesch readability. The stored user message keeps the raw paste — that's
+the diff baseline.
 
 ### Prompt Generator mode
 
