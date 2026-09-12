@@ -3,6 +3,7 @@ import type { ChatRequest, StreamChunk } from "@/types/provider";
 import type { RegistryModel } from "@/config/models";
 import {
   CATEGORY_ROUTING,
+  CATEGORY_SAMPLING,
   CHARS_PER_TOKEN,
   maxAttempts,
   type TaskCategory,
@@ -344,6 +345,7 @@ export async function* routeChat(
 
   const inputChars = estimateInputChars(groundedMessages);
   const plan = planModels(category, inputChars);
+  const sampling = CATEGORY_SAMPLING[category] ?? {};
 
   if (plan.length === 0) {
     yield {
@@ -395,6 +397,9 @@ export async function* routeChat(
         upstreamId: model.upstreamId,
         messages: groundedMessages,
         signal: request.signal,
+        temperature: sampling.temperature,
+        frequencyPenalty: sampling.frequencyPenalty,
+        presencePenalty: sampling.presencePenalty,
       })) {
         if (chunk.type === "text-delta") {
           if (!textOpen) {

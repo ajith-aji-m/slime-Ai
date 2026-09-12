@@ -78,6 +78,10 @@ export async function* streamNvidiaModel(params: {
   upstreamId: string;
   messages: Message[];
   signal?: AbortSignal;
+  /** Sampling overrides — see `sampling.ts`. Omit for the provider default. */
+  temperature?: number;
+  frequencyPenalty?: number;
+  presencePenalty?: number;
 }): AsyncGenerator<StreamChunk> {
   const env = readNvidiaEnv();
   if (!env) {
@@ -95,6 +99,9 @@ export async function* streamNvidiaModel(params: {
     model: params.upstreamId,
     messages: toOpenAIMessages(params.messages, SYSTEM_PROMPT),
     signal: params.signal,
+    temperature: params.temperature,
+    frequencyPenalty: params.frequencyPenalty,
+    presencePenalty: params.presencePenalty,
   });
 }
 

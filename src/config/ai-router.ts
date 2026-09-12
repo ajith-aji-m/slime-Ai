@@ -90,3 +90,32 @@ export const CHARS_PER_TOKEN = 3.6;
 
 /** Inputs longer than this (chars) are treated as long-context tasks. */
 export const LONG_CONTEXT_CHARS = 24_000;
+
+export interface SamplingParams {
+  /** OpenAI-compatible sampling temperature. Provider default is 0.7. */
+  temperature?: number;
+  /** Penalizes tokens already used verbatim (0–2). Provider default: none. */
+  frequencyPenalty?: number;
+  /** Penalizes tokens already used at all (0–2). Provider default: none. */
+  presencePenalty?: number;
+}
+
+/**
+ * Per-category sampling overrides layered on top of the provider default
+ * (temperature 0.7, no penalties). Everything except `humanize` is left
+ * alone here deliberately — this is a purely additive, opt-in override, not
+ * a change to how everyday chat/coding/search sound.
+ *
+ * `humanize` is the one category where the default is wrong: a low,
+ * conservative temperature with no repetition penalty produces exactly the
+ * low-perplexity, low-burstiness token pattern AI-content detectors key on —
+ * the same small set of "safe" connectors and vocabulary, chosen the same
+ * way every time. Raising temperature and adding a frequency penalty pushes
+ * the rewrite toward more varied, less predictable word choices (breaking up
+ * repeated connectors and AI-favorite vocabulary at the token level, not
+ * just via the system prompt's wording) without the model losing coherence
+ * at this range.
+ */
+export const CATEGORY_SAMPLING: Partial<Record<TaskCategory, SamplingParams>> = {
+  humanize: { temperature: 0.95, frequencyPenalty: 0.4, presencePenalty: 0.2 },
+};

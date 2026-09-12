@@ -12,6 +12,12 @@ export interface OpenAICompatibleConfig {
   signal?: AbortSignal;
   temperature?: number;
   maxTokens?: number;
+  /** Penalizes tokens already used verbatim — pushes the model away from
+   * reusing the same connector/word repeatedly (OpenAI-compatible, 0–2). */
+  frequencyPenalty?: number;
+  /** Penalizes tokens already used at all, encouraging new phrasing rather
+   * than sticking to a narrow, "safe" vocabulary (OpenAI-compatible, 0–2). */
+  presencePenalty?: number;
 }
 
 interface OpenAIStreamDelta {
@@ -56,6 +62,12 @@ export async function* streamOpenAICompatible(
         stream_options: { include_usage: true },
         temperature: config.temperature ?? 0.7,
         ...(config.maxTokens ? { max_tokens: config.maxTokens } : {}),
+        ...(config.frequencyPenalty !== undefined
+          ? { frequency_penalty: config.frequencyPenalty }
+          : {}),
+        ...(config.presencePenalty !== undefined
+          ? { presence_penalty: config.presencePenalty }
+          : {}),
       }),
       signal,
     });

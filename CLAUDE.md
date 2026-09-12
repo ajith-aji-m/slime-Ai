@@ -116,8 +116,14 @@ non-persisted system message (`buildHumanizerMessages`) and the request rides th
 normal provider + router path (category `humanize`, routed to the dedicated
 `slime-humanizer` role — `mistralai/mistral-nemotron`, chosen for its more
 natural, less stiffly-formal writing style — falling back to the everyday
-generalists; mock provider uses the offline `mockHumanize` heuristic). On
-completion the answer becomes one `humanizer` Canvas artifact:
+generalists; mock provider uses the offline `mockHumanize` heuristic). The
+`humanize` category also gets a sampling override (`CATEGORY_SAMPLING` in
+`src/config/ai-router.ts`: higher temperature + a frequency/presence
+penalty) — a low-temperature, no-penalty default produces exactly the
+low-perplexity, repetitive token pattern that reads (to a human or an
+AI-content detector) as machine-written, so this is the one category where
+the provider default is wrong. Every other category keeps the plain
+default. On completion the answer becomes one `humanizer` Canvas artifact:
 `src/lib/humanizer/` computes the word-level diff (`diffWords` — LCS over
 "word + trailing space" tokens, so every highlight is a real edit),
 preserved-keyword check, first-person-plural ("we"/"our"/"us") voice check,
