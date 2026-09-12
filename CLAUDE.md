@@ -113,11 +113,14 @@ of being dumped into the thread.
 `humanizer` is a mutually-exclusive composer mode (like Search / Code). When
 active, `conversation-store` prepends `HUMANIZER_SYSTEM_PROMPT` as a
 non-persisted system message (`buildHumanizerMessages`) and the request rides the
-normal provider + router path (category `humanize`, routed to the dedicated
-`slime-humanizer` role — `mistralai/mistral-nemotron`, chosen for its more
-natural, less stiffly-formal writing style — falling back to the everyday
-generalists; mock provider uses the offline `mockHumanize` heuristic). The
-`humanize` category also gets a sampling override (`CATEGORY_SAMPLING` in
+normal provider + router path (category `humanize`, routed to `slime-general`
+(the flagship generalist) first — satisfying the Humanizer's structural rules
+is an instruction-following problem more than a style-match one, and
+`slime-humanizer` (`mistralai/mistral-nemotron`, originally tried first for
+its more natural, less stiffly-formal style) did not reliably apply them in
+practice, so it is now the second-choice fallback rather than the primary;
+mock provider uses the offline `mockHumanize` heuristic). The `humanize`
+category also gets a sampling override (`CATEGORY_SAMPLING` in
 `src/config/ai-router.ts`: higher temperature + a frequency/presence
 penalty) — a low-temperature, no-penalty default produces exactly the
 low-perplexity, repetitive token pattern that reads (to a human or an

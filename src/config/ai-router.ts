@@ -44,10 +44,18 @@ export const CATEGORY_ROUTING: Record<TaskCategory, string[]> = {
   reasoning: ["slime-reasoning", "slime-versatile", "slime-general"],
   research: ["slime-reasoning", "slime-versatile", "slime-general"],
   structured: ["slime-general", "slime-versatile", "slime-fast"],
-  // Dedicated to the Humanizer rewrite — `slime-humanizer` (see models.ts)
-  // is picked for its naturally fluent, less stiffly-formal writing style;
-  // falls back to the everyday generalists if it's ever unavailable.
-  humanize: ["slime-humanizer", "slime-general", "slime-versatile"],
+  // The Humanizer rewrite needs a model that reliably follows a long list of
+  // precise structural constraints (sentence-length variance, no repeated
+  // connectors, no parallel triads) — that is fundamentally an
+  // instruction-following task, not just a "sounds natural" style match, so
+  // the flagship generalist goes first. `slime-humanizer` (see models.ts,
+  // `mistralai/mistral-nemotron`) was originally tried as the primary pick
+  // for its naturally fluent, less stiffly-formal style, but real-world
+  // testing found it did not reliably apply the structural rules (still
+  // produced uniform sentence lengths and reused "Furthermore,"); it stays
+  // second as a fallback rather than being removed, since its prose style is
+  // still a reasonable fit if the flagship is ever unavailable.
+  humanize: ["slime-general", "slime-humanizer", "slime-versatile"],
 };
 
 /**

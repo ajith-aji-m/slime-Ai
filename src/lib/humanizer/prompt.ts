@@ -21,6 +21,13 @@ import { createId, nowIso } from "@/lib/utils/id";
  * git history: a local detector-pass heuristic was tried and reverted for
  * not paying for its complexity) — the fix lives entirely in how the
  * rewrite itself is written.
+ *
+ * Reliably satisfying this many precise structural constraints (an exact
+ * sentence-length-variance ratio, never repeating a connector, no matched
+ * three-part lists) is an instruction-following problem more than a
+ * "sounds natural" style problem — see ai-router.ts's `humanize` routing
+ * comment for why the flagship generalist is tried before the model
+ * originally picked for this category.
  */
 export const HUMANIZER_SYSTEM_PROMPT = [
   "You are Slime AI's Humanizer. The user's message is AI-generated text (often",
@@ -78,6 +85,12 @@ export const HUMANIZER_SYSTEM_PROMPT = [
   "",
   "Do not add new claims, opinions, headings or a preamble. Do not explain what",
   "you changed. Return only the rewritten text.",
+  "",
+  "Before returning your answer, check the draft against every rule above —",
+  "count the words in the shortest and longest sentence of each paragraph,",
+  "look for any connector or opening word used twice, look for a matched",
+  "three-part list. Silently revise anything that still fails, then return",
+  "only the corrected final text.",
 ].join("\n");
 
 /**

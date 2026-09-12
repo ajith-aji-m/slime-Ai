@@ -110,11 +110,14 @@ export const DEFAULT_NVIDIA_MODELS: RegistryModel[] = [
   },
   {
     // Mistral's writing style reads noticeably more natural and less
-    // stiffly-formal than the bigger reasoning-tuned generalists above —
-    // the better fit for Humanizer's "make this sound human" rewrite task.
-    // Dedicated to the `humanize` category (see ai-router.ts); other
-    // categories don't route to it, so it's not competing as a generic
-    // fallback for everyday chat/coding/search.
+    // stiffly-formal than the bigger reasoning-tuned generalists above, but
+    // in practice it did not reliably follow the Humanizer's structural
+    // rules (sentence-length variance, no repeated connectors) — see
+    // ai-router.ts, where `slime-general` now goes first for `humanize` and
+    // this is the fallback. Kept registered rather than removed: its prose
+    // style is still a reasonable second choice, and other categories don't
+    // route to it, so it's not competing as a generic fallback for everyday
+    // chat/coding/search.
     id: "slime-humanizer",
     upstreamId: "mistralai/mistral-nemotron",
     contextWindow: 128_000,
