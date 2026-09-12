@@ -117,5 +117,5 @@ export interface SamplingParams {
  * at this range.
  */
 export const CATEGORY_SAMPLING: Partial<Record<TaskCategory, SamplingParams>> = {
-  humanize: { temperature: 0.95, frequencyPenalty: 0.4, presencePenalty: 0.2 },
+  humanize: { temperature: 0.95, frequencyPenalty: 0.6, presencePenalty: 0.3 },
 };
