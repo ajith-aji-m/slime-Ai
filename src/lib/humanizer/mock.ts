@@ -6,9 +6,17 @@
  * without a network call. Target tone is academic/formal (an essay, research
  * paper or report), never casual — so, unlike a "make it sound chatty"
  * rewrite, this never introduces contractions or downgrades formal wording to
- * casual synonyms; it expands any contractions already present instead. When
- * a real model is configured, `routeChat` handles the rewrite instead, guided
- * by the same academic-tone instruction (see `HUMANIZER_SYSTEM_PROMPT`).
+ * casual synonyms; it expands any contractions already present instead.
+ *
+ * Formality alone does not make text read as human-written — a uniformly
+ * formal rewrite is itself a common AI tell. Repeated stock connectors
+ * ("Moreover," "Furthermore," "In conclusion," …) are rotated through a small
+ * set of equally formal alternatives (see ROTATING_TRANSITIONS) rather than
+ * left as a verbatim copy of the input's own cliché, or downgraded to a
+ * casual synonym. This regex-based rewrite can't restructure sentence length
+ * or paragraph shape the way the real routed model's prompt asks for (see
+ * `HUMANIZER_SYSTEM_PROMPT`) — that part only applies when a real model is
+ * configured; `routeChat` handles the rewrite instead of this file then.
  */
 
 // Corporate/AI "we" voice — the Humanizer avoids this everywhere (see
@@ -35,11 +43,21 @@ const PRONOUN_LEADINS: [RegExp, string][] = [
   [/\blet us\b/gi, "consider the following"],
 ];
 
+// Stock AI connectors — legitimate in formal writing individually, but a dead
+// giveaway when the same one is reused verbatim every time it appears (the
+// classic AI paragraph-scaffolding pattern). Rotated through equally formal
+// alternatives per occurrence instead of left untouched or downgraded to a
+// casual synonym like "Also," / "So,".
+const ROTATING_TRANSITIONS: [RegExp, string[]][] = [
+  [/\bmoreover,?\s+/gi, ["Moreover, ", "In addition, ", "Beyond that, "]],
+  [/\bfurthermore,?\s+/gi, ["Furthermore, ", "In addition, ", "What is more, "]],
+  [/\badditionally,?\s+/gi, ["Additionally, ", "In addition, ", "Also of note, "]],
+  [/\bin conclusion,?\s+/gi, ["In conclusion, ", "In summary, ", "Taken together, "]],
+  [/\boverall,?\s+/gi, ["Overall, ", "On the whole, ", "Taken as a whole, "]],
+];
+
 // AI-cliché phrasing and filler, rewritten toward concise, precise academic
-// wording rather than casual synonyms. Legitimate academic transitions
-// ("moreover", "furthermore", "additionally", "in conclusion") are left
-// alone here — they are standard in formal writing, not an AI tell; only
-// the padding and marketing-speak entries are simplified.
+// wording rather than casual synonyms.
 const PHRASES: [RegExp, string][] = [
   [/\bit is important to note that\s+/gi, ""],
   [/\bit is worth noting that\s+/gi, ""],
@@ -148,8 +166,25 @@ function applyRules(text: string, rules: [RegExp, string][]): string {
   return out;
 }
 
+/** Like `applyRules`, but cycles through `alternatives` on repeat matches
+ * instead of always substituting the same replacement — so three uses of
+ * "moreover" in one piece don't all become the identical word. */
+function applyRotatingRules(text: string, rules: [RegExp, string[]][]): string {
+  let out = text;
+  for (const [re, alternatives] of rules) {
+    let i = 0;
+    out = out.replace(re, (match) => {
+      const choice = alternatives[i % alternatives.length];
+      i += 1;
+      return preserveCase(choice, match);
+    });
+  }
+  return out;
+}
+
 function rewriteProse(prose: string): string {
   let out = applyRules(prose, PRONOUN_LEADINS);
+  out = applyRotatingRules(out, ROTATING_TRANSITIONS);
   out = applyRules(out, PHRASES);
   out = applyRules(out, EXPAND_CONTRACTIONS);
   // Tidy up artefacts from removed lead-ins: stray leading spaces, lowercase
