@@ -48,7 +48,7 @@ export function AssistantMessage({
         {(hasContent || streaming) && !(errored && !hasContent) ? (
           <div className="liquid-inner rounded-2xl rounded-tl-sm px-5 py-4">
             {!hasContent && streaming ? (
-              <SlimeThinking label={statusLabel ?? "Thinking…"} />
+              <SlimeThinking label={statusLabel} />
             ) : (
               <MessageParts parts={displayParts} />
             )}

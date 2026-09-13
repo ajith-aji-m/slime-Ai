@@ -1,14 +1,60 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils/cn";
 import { SlimeMark } from "@/components/ui";
+import { THINKING_PHRASES } from "@/config/thinking-phrases";
 
 export interface SlimeThinkingProps {
-  /** shown next to the mascot — defaults to "Thinking…" */
+  /**
+   * A real backend status (e.g. "Searching the web…", "Optimizing
+   * response…" — see `router.ts`'s `{ type: "status" }` chunks). Shown
+   * verbatim and never overridden. Omit while nothing real has arrived yet —
+   * `SlimeThinking` then rotates through `THINKING_PHRASES` on its own so
+   * the plain wait doesn't sit on a single static word the whole time.
+   */
   label?: string;
   /** mascot size in px */
   size?: number;
   className?: string;
+}
+
+const ROTATE_MS = 1800;
+
+/** Picks a random index into a `length`-item list that is never `current` —
+ * so the rotation always visibly changes instead of occasionally reselecting
+ * the same phrase. Pure/exported so this pick logic is unit-testable without
+ * a component-rendering harness (this repo doesn't otherwise have one). A
+ * list of 0 or 1 items has nothing to change to, so it just echoes back. */
+export function nextPhraseIndex(current: number, length: number): number {
+  if (length <= 1) return 0;
+  const next = Math.floor(Math.random() * length);
+  return next === current ? (next + 1) % length : next;
+}
+
+/** Cycles through `THINKING_PHRASES` every `ROTATE_MS` while `active`. Frozen
+ * on the first phrase for `prefers-reduced-motion` users — cycling text is a
+ * distraction the same global rule that stops the mascot's CSS animations is
+ * meant to avoid, but a JS `setInterval` isn't covered by that CSS-only rule,
+ * so it's checked here explicitly. */
+function useRotatingPhrase(active: boolean): string {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (!active || THINKING_PHRASES.length <= 1) return;
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return;
+    }
+    const id = setInterval(() => {
+      setIndex((current) => nextPhraseIndex(current, THINKING_PHRASES.length));
+    }, ROTATE_MS);
+    return () => clearInterval(id);
+  }, [active]);
+
+  return THINKING_PHRASES[index] ?? "Thinking…";
 }
 
 /**
@@ -24,10 +70,12 @@ export interface SlimeThinkingProps {
  * streaming with no content yet; disappears as soon as content/parts arrive.
  */
 export function SlimeThinking({
-  label = "Thinking…",
+  label,
   size = 24,
   className,
 }: SlimeThinkingProps) {
+  const rotating = useRotatingPhrase(label === undefined);
+  const text = label ?? rotating;
   const haloSize = size + 18;
   return (
     <span
@@ -46,7 +94,7 @@ export function SlimeThinking({
         <span className="sl-thinking-particle sl-thinking-particle--3" />
         <SlimeMark size={size} className="sl-thinking-float relative" />
       </span>
-      <span className="text-sm text-on-surface-variant">{label}</span>
+      <span className="text-sm text-on-surface-variant">{text}</span>
     </span>
   );
 }
