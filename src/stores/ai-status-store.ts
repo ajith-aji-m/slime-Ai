@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 
-export type AiMode = "mock" | "nvidia";
+export type AiMode = "mock" | "nvidia" | "groq";
 
 interface AiStatusState {
   /** "mock" until proven otherwise — safe offline default */
@@ -35,7 +35,8 @@ export const useAiStatusStore = create<AiStatusState>((set) => ({
         webSearch?: boolean;
       };
       set({
-        mode: data.mode === "nvidia" ? "nvidia" : "mock",
+        mode:
+          data.mode === "nvidia" || data.mode === "groq" ? data.mode : "mock",
         imageGeneration: data.imageGeneration === true,
         webSearch: data.webSearch === true,
         ready: true,

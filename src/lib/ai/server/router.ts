@@ -17,12 +17,18 @@ import {
 } from "./errors";
 import { streamNvidiaImage } from "./image";
 import { routerLog } from "./logger";
+// Image Generation stays NVIDIA-specific regardless of which provider is
+// active for chat (see `routeImageGeneration` below) — it needs NVIDIA's own
+// `nvidiaRegistry`/`streamNvidiaImage` directly, not the active-provider
+// abstraction every other path below goes through.
+import { nvidiaRegistry } from "./nvidia";
 import {
-  isNvidiaConfigured,
-  nvidiaRegistry,
-  streamNvidiaModel,
-  streamNvidiaVision,
-} from "./nvidia";
+  activeProvider,
+  activeRegistry,
+  isAiConfigured,
+  streamActiveModel,
+  streamActiveVision,
+} from "./provider";
 import { isSearchConfigured, searchWeb, type SearchResult } from "./search";
 import type { Citation, Message } from "@/types/chat";
 
@@ -37,7 +43,7 @@ function planModels(
   // Vision/image-generation models are special-purpose forks (see
   // routeVision/routeImageGeneration below) — never eligible as a generic
   // text-category fallback.
-  const registry = nvidiaRegistry().filter((m) => !m.vision && !m.image);
+  const registry = activeRegistry().filter((m) => !m.vision && !m.image);
   const byId = new Map(registry.map((m) => [m.id, m]));
 
   const preferredIds = CATEGORY_ROUTING[category] ?? [];
@@ -130,7 +136,7 @@ async function buildSearchGrounding(
  * text model (which would just hallucinate about a photo it can't see).
  */
 async function* routeVision(request: ChatRequest): AsyncGenerator<StreamChunk> {
-  const visionModels = nvidiaRegistry()
+  const visionModels = activeRegistry()
     .filter((m) => m.vision === true)
     .sort((a, b) => a.order - b.order);
 
@@ -163,7 +169,7 @@ async function* routeVision(request: ChatRequest): AsyncGenerator<StreamChunk> {
     let textOpen = false;
 
     try {
-      for await (const chunk of streamNvidiaVision({
+      for await (const chunk of streamActiveVision({
         upstreamId: model.upstreamId,
         messages: request.messages,
         signal: request.signal,
@@ -308,7 +314,7 @@ async function* routeImageGeneration(
 export async function* routeChat(
   request: ChatRequest,
 ): AsyncGenerator<StreamChunk> {
-  if (!isNvidiaConfigured()) {
+  if (!isAiConfigured()) {
     yield {
       type: "error",
       message: permanentUserMessage("not_configured"),
@@ -359,6 +365,7 @@ export async function* routeChat(
   routerLog({
     event: "request",
     category,
+    provider: activeProvider() ?? undefined,
     attempts: plan.length,
   });
 
@@ -393,7 +400,7 @@ export async function* routeChat(
     pendingUsage = undefined;
 
     try {
-      for await (const chunk of streamNvidiaModel({
+      for await (const chunk of streamActiveModel({
         upstreamId: model.upstreamId,
         messages: groundedMessages,
         signal: request.signal,

@@ -12,6 +12,8 @@ type RouterEvent =
 interface RouterLogFields {
   event: RouterEvent;
   category?: string;
+  /** "nvidia" | "groq" — which upstream provider is active, never a model id */
+  provider?: string;
   /** internal role id — never an upstream model id */
   role?: string;
   fromRole?: string;

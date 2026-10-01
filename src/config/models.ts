@@ -139,3 +139,83 @@ export const DEFAULT_NVIDIA_MODELS: RegistryModel[] = [
     vision: true,
   },
 ];
+
+/**
+ * Default Groq model set (base_url https://api.groq.com/openai/v1) — the
+ * alternative upstream `AI_PROVIDER=groq` switches to (see
+ * `src/lib/ai/server/provider.ts`). Uses the SAME internal role ids as
+ * `DEFAULT_NVIDIA_MODELS` on purpose: `CATEGORY_ROUTING`/`CATEGORY_SAMPLING`
+ * in `ai-router.ts` are role-id based, not provider-based, so the identical
+ * routing policy works unchanged against whichever registry is active.
+ *
+ * Unlike the NVIDIA list above, these ids are NOT verified against a live
+ * `GET /v1/models` call — this sandbox has no network access to Groq's API
+ * to check. They're a best-effort default built from long-standing,
+ * well-known Groq-hosted model families; Groq's lineup (especially
+ * "preview" models) does change. Verify against your own key's
+ * `GET {baseUrl}/models` before relying on this in production, and override
+ * with `GROQ_MODELS` (same JSON-array shape as `NVIDIA_MODELS`) for
+ * anything stale or renamed — a wrong id fails loudly (the provider's own
+ * "model not recognized" error) and the router falls back to the next
+ * entry, it doesn't fail silently.
+ *
+ * No `slime-vision` entry: Groq has hosted vision-capable models before,
+ * but which one (if any) is current wasn't something to guess confidently
+ * here. Image attachments fail with a clear "no vision model configured"
+ * message until one is added via `GROQ_MODELS` — the same honest-gap
+ * behavior Image Gen already has for NVIDIA. No image-generation entry
+ * either: Groq doesn't offer one, and Image Gen stays NVIDIA-specific
+ * regardless of which provider is active for chat — see routeChat's image
+ * branch in router.ts.
+ */
+export const DEFAULT_GROQ_MODELS: RegistryModel[] = [
+  {
+    // Groq's flagship general-purpose model — strong, fast, the obvious
+    // default for everyday work.
+    id: "slime-general",
+    upstreamId: "llama-3.3-70b-versatile",
+    contextWindow: 128_000,
+    streaming: true,
+    strengths: ["general", "search", "coding", "structured", "long_context"],
+    order: 1,
+  },
+  {
+    // A second, differently-trained generalist as the first fallback.
+    id: "slime-versatile",
+    upstreamId: "openai/gpt-oss-120b",
+    contextWindow: 128_000,
+    streaming: true,
+    strengths: ["general", "search", "coding", "structured", "research"],
+    order: 2,
+  },
+  {
+    // Reasoning-distilled model for analysis/research/long-context tasks.
+    id: "slime-reasoning",
+    upstreamId: "deepseek-r1-distill-llama-70b",
+    contextWindow: 128_000,
+    streaming: true,
+    strengths: ["reasoning", "research", "long_context"],
+    order: 3,
+  },
+  {
+    // Small/fast model for quick turnaround on short tasks.
+    id: "slime-fast",
+    upstreamId: "llama-3.1-8b-instant",
+    contextWindow: 128_000,
+    streaming: true,
+    strengths: ["general", "search", "coding"],
+    order: 2,
+  },
+  {
+    // A smaller, differently-styled model as the Humanizer's fallback (see
+    // ai-router.ts — slime-general is the primary pick there too, same
+    // reasoning as the NVIDIA registry: the structural rules are an
+    // instruction-following problem more than a style-match one).
+    id: "slime-humanizer",
+    upstreamId: "gemma2-9b-it",
+    contextWindow: 8_192,
+    streaming: true,
+    strengths: ["humanize"],
+    order: 5,
+  },
+];

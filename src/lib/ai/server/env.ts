@@ -25,6 +25,40 @@ export function readNvidiaEnv(): NvidiaEnv | null {
   };
 }
 
+export interface GroqEnv {
+  apiKey: string;
+  baseUrl: string;
+  /** optional JSON override of the Groq model list */
+  modelsJson?: string;
+}
+
+/** Same shape as `readNvidiaEnv` — Groq's API is OpenAI-compatible too, so
+ * `streamOpenAICompatible` backs both. See `./groq.ts`. */
+export function readGroqEnv(): GroqEnv | null {
+  const apiKey = process.env.GROQ_API_KEY?.trim();
+  if (!apiKey) return null;
+  return {
+    apiKey,
+    baseUrl: (
+      process.env.GROQ_BASE_URL?.trim() || "https://api.groq.com/openai/v1"
+    ).replace(/\/$/, ""),
+    modelsJson: process.env.GROQ_MODELS?.trim() || undefined,
+  };
+}
+
+export type UpstreamProviderId = "nvidia" | "groq";
+
+/**
+ * Explicit `AI_PROVIDER` choice, when set — the "switch" the two upstream
+ * providers share. Unset (the common case: only one key configured) means
+ * "use whichever is configured"; see `activeProvider()` in `./provider.ts`
+ * for how this combines with which API key(s) are actually present.
+ */
+export function readRequestedProvider(): UpstreamProviderId | null {
+  const raw = process.env.AI_PROVIDER?.trim().toLowerCase();
+  return raw === "nvidia" || raw === "groq" ? raw : null;
+}
+
 export const REQUEST_TIMEOUT_MS = Number(
   process.env.AI_REQUEST_TIMEOUT_MS ?? 60_000,
 );

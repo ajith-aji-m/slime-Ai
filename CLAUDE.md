@@ -56,31 +56,77 @@ Users never see or pick a model. The composer only ever says "Slime AI".
 
 ```
 Chat UI → conversation-store → getChatProvider()        (no model id)
-  ├─ mode "mock"   → mockChatProvider   (browser, offline)
-  └─ mode "nvidia" → httpChatProvider   (browser) → POST /api/chat (server)
-                       → src/lib/ai/server/router.ts  (Internal AI Router)
-                          classify task → pick NVIDIA model → stream
-                          → recoverable failure? fall back to next model (cap 3)
-                          → NDJSON StreamChunk
+  ├─ mode "mock"          → mockChatProvider  (browser, offline)
+  └─ mode "nvidia"/"groq" → httpChatProvider  (browser) → POST /api/chat (server)
+                              → src/lib/ai/server/router.ts  (Internal AI Router)
+                                 → src/lib/ai/server/provider.ts resolves the
+                                   ACTIVE upstream (AI_PROVIDER + which
+                                   key(s) are set — see below)
+                                 classify task → pick a model from that
+                                 provider's registry → stream
+                                 → recoverable failure? fall back to next
+                                   model, same provider (cap 3)
+                                 → NDJSON StreamChunk
 ```
 
-- Client never imports a provider SDK, an API key, or a model name.
-- `GET /api/ai/status` → `{ mode, imageGeneration }` (non-secret capability flags
-  only — never model or provider names). `ai-status-store` consumes it.
-- Model ids live ONLY in `src/config/models.ts` + the `NVIDIA_MODELS` env var.
+- Client never imports a provider SDK, an API key, or a model name — it does
+  learn WHICH provider is active (`mode: "nvidia" | "groq" | "mock"` from
+  `/api/ai/status`), but only because `getChatProvider` already had to react
+  to that distinction to route to the real backend at all vs. the mock; no
+  model name ever crosses. **If a third provider is ever added**, go on
+  naming it explicitly in `mode` too, for the same reason — but
+  `getChatProvider` itself must keep checking `!== "mock"`, never one
+  specific provider name, or a correctly-configured-but-unlisted provider
+  silently falls back to the offline mock (this exact bug existed before the
+  Groq switch — `getChatProvider` checked `=== "nvidia"` specifically,
+  which would have quietly broken the moment any other provider existed).
+- Two interchangeable upstreams today, both OpenAI-compatible and both
+  routed through the identical role-id-based `CATEGORY_ROUTING`/
+  `CATEGORY_SAMPLING` policy (`src/config/ai-router.ts`) — switching
+  provider never means switching routing logic:
+  - **NVIDIA** (`src/lib/ai/server/nvidia.ts`) — the original/default
+    integration, `src/config/models.ts`'s `DEFAULT_NVIDIA_MODELS` +
+    `NVIDIA_MODELS` env override. Also the only provider Image Generation
+    ever uses (NVIDIA's per-model image invoke-URL dialect — see
+    `routeImageGeneration` in `router.ts`), regardless of which provider is
+    active for ordinary chat.
+  - **Groq** (`src/lib/ai/server/groq.ts`) — `DEFAULT_GROQ_MODELS` +
+    `GROQ_MODELS` env override, same role-id namespace as NVIDIA's registry
+    on purpose (`slime-general`, `slime-fast`, …) so the identical routing
+    policy applies unchanged.
+  - `src/lib/ai/server/provider.ts`'s `activeProvider()` resolves which one
+    from `AI_PROVIDER` ("the switch") + which API key(s) are actually set
+    (an explicit choice wins if that key is configured; otherwise falls
+    back to whichever IS configured rather than the mock). Every
+    provider-agnostic path in `router.ts` (`planModels`, `routeVision`,
+    the main `routeChat` loop) goes through `activeRegistry()` /
+    `streamActiveModel()` / `streamActiveVision()` from this file instead of
+    importing a specific provider directly.
+- `GET /api/ai/status` → `{ mode, imageGeneration, webSearch }` (capability
+  flags; `mode` names the active upstream as above). `ai-status-store`
+  consumes it.
+- Model ids live ONLY in `src/config/models.ts` + the `NVIDIA_MODELS` /
+  `GROQ_MODELS` env vars.
 - Routing policy (category → ordered roles, attempt cap) is `src/config/ai-router.ts`.
 - Server code in `src/lib/ai/server/*` is `import "server-only"`.
-- Dev-only routing logs: `[ai-router] …` (role ids, categories, reasons, timings — never secrets). Silent in production.
+- Dev-only routing logs: `[ai-router] …` (role ids, categories, provider, reasons, timings — never secrets). Silent in production.
 
 ### Add the next provider
 
 1. `src/lib/ai/server/<name>.ts` — `stream<Name>Model({ upstreamId, messages, signal })`
-   (reuse `streamOpenAICompatible` if OpenAI-shaped).
-2. Wire it into `src/lib/ai/server/router.ts` (or add a provider dimension there).
-3. Add its models to `src/config/models.ts`.
+   (reuse `streamOpenAICompatible` if OpenAI-shaped) + an `is<Name>Configured()`/
+   `<name>Registry()` pair, mirroring `groq.ts`.
+2. Add a `DEFAULT_<NAME>_MODELS` registry to `src/config/models.ts`, same
+   role-id namespace as the existing ones.
+3. Wire it into `activeProvider()`/`activeRegistry()`/`streamActiveModel()` in
+   `src/lib/ai/server/provider.ts` — `router.ts` itself shouldn't need to
+   change.
 4. Document env vars in `.env.example` + `src/lib/ai/server/env.ts`.
+5. Widen `AiMode` (`ai-status-store.ts` + `registry.ts`) to include it, and
+   confirm `getChatProvider` (`src/lib/ai/index.ts`) still checks
+   `!== "mock"` rather than naming a provider — see the warning above.
 
-Nothing in the UI changes.
+Nothing else in the UI changes.
 
 ## Canvas
 
