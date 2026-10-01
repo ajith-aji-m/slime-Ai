@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
 import { Icon, SlimeMark } from "@/components/ui";
 import { messageToPlainText } from "@/lib/utils/message-text";
+import { toSpeechText } from "@/lib/speech/to-speech-text";
 import { THINKING_PHRASES } from "@/config/thinking-phrases";
 import { nextPhraseIndex } from "./slime-thinking";
 import { useVoiceCallStore } from "@/stores/voice-call-store";
@@ -201,7 +202,7 @@ export function VoiceCallOverlay() {
         last?.role === "assistant"
           ? last.status === "error"
             ? last.error ?? "Something went wrong."
-            : messageToPlainText(last)
+            : toSpeechText(last)
           : "";
       if (text && speechSupported && last) {
         enterSpeaking(last.id, text);

@@ -4,6 +4,7 @@ import { SlimeMark } from "@/components/ui";
 import { site } from "@/config/site";
 import { formatClockTime } from "@/lib/utils/format";
 import { messageToPlainText } from "@/lib/utils/message-text";
+import { toSpeechText } from "@/lib/speech/to-speech-text";
 import type { Message } from "@/types/chat";
 import { MessageParts } from "./message-parts";
 import { MessageActions } from "./message-actions";
@@ -70,7 +71,7 @@ export function AssistantMessage({
         {!streaming && !errored ? (
           <MessageActions
             messageId={message.id}
-            speechText={hasContent ? messageToPlainText(message) : undefined}
+            speechText={hasContent ? toSpeechText(message) : undefined}
             onCopy={() =>
               navigator.clipboard?.writeText(messageToPlainText(message))
             }

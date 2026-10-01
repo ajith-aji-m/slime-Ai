@@ -225,7 +225,16 @@ rather than showing it disabled:
   installed) — surfaced as `speechStore.error`, not silently swallowed; the
   Web Speech API has no emotional-expression control at all regardless of
   voice choice, so that honest limit is stated in the Settings copy rather
-  than oversold.
+  than oversold. What *is* in `speak()`'s own control: never read raw
+  Markdown syntax aloud ("asterisk asterisk bold asterisk asterisk", "pound
+  pound heading", a literal pipe-delimited table row). `src/lib/speech/
+  to-speech-text.ts`'s `toSpeechText(message)` — used for this and for the
+  voice-call overlay's spoken reply, NOT for copy-to-clipboard
+  (`messageToPlainText`, which correctly keeps raw Markdown) — strips
+  emphasis/heading/list/blockquote/hr markers, reads link text instead of
+  the URL, reads a Markdown table's cells comma-separated instead of its
+  pipe syntax, and announces fenced/structured code ("Code block.") instead
+  of reading source character-by-character.
 - **Speech-to-text** (`src/stores/dictation-store.ts`, `useDictationStore`) —
   the mic button in the composer, via `window.SpeechRecognition` /
   `webkitSpeechRecognition` (ambient types in
