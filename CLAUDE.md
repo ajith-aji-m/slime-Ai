@@ -235,6 +235,40 @@ rather than showing it disabled:
   the URL, reads a Markdown table's cells comma-separated instead of its
   pipe syntax, and announces fenced/structured code ("Code block.") instead
   of reading source character-by-character.
+
+  `useSpeechStore`'s `engine` picks which of two *playback* engines actually
+  speaks — both still browser-only, no server round-trip either way:
+  - `"browser"` (default) — the flow described above.
+  - `"piper"` (opt-in, Settings → Voice) — a real open-source neural TTS
+    engine (`@mintplex-labs/piper-tts-web`, MIT; Rhasspy's Piper voice
+    models, also MIT) running in-browser via WebAssembly/ONNX Runtime
+    (`src/lib/speech/piper.ts`). Genuinely smoother than most OS default
+    voices, still free, but the published voice set has **no Tamil, Hindi,
+    or most other Indic languages** — `PIPER_LANGUAGE_CODES` documents
+    exactly which languages it covers. `speak()` only actually routes to
+    Piper when the configured `piperVoiceId`'s own language matches the
+    text's detected language (`piperVoiceLang(...) === detected primary
+    subtag`); anything else transparently falls back to the `"browser"`
+    engine, same as if Piper were off — so this is additive, never a
+    regression for a language Piper doesn't cover. First use of a given
+    voice downloads its model (tens of MB) from Hugging Face and caches it
+    in the Origin Private File System; `piperDownloadProgress` tracks that
+    for the UI. Always `await import("@mintplex-labs/piper-tts-web")`
+    (lazy, inside `loadPiper()`), never a static top-level import — its own
+    README says plainly it "will not work with NodeJS", and the package
+    (plus its `onnxruntime-web` peer dependency) is a meaningfully sized
+    chunk that users who stick with the free default engine should never
+    have to download.
+  - **Turbopack build note**: `@mintplex-labs/piper-tts-web` bundles an
+    Emscripten runtime whose Node-target branch does
+    `require("fs")`/`require("path")` inside a `typeof process === "object"`
+    runtime guard that's false in the browser — but Turbopack still
+    resolves those `require()` calls textually at build time regardless of
+    the guard around them. `next.config.ts`'s `turbopack.resolveAlias`
+    points both at `src/lib/shims/empty-node-module.ts` (an empty stub) so
+    the build resolves; neither is ever actually called at runtime. Without
+    this, `next build` fails outright the moment anything imports
+    `piper.ts`, even via a dynamic `import()`.
 - **Speech-to-text** (`src/stores/dictation-store.ts`, `useDictationStore`) —
   the mic button in the composer, via `window.SpeechRecognition` /
   `webkitSpeechRecognition` (ambient types in
