@@ -16,6 +16,7 @@ import { useComposerStore } from "@/stores/composer-store";
 import { useAiStatusStore } from "@/stores/ai-status-store";
 import { useMascotStore } from "@/stores/mascot-store";
 import { useNetworkStore } from "@/stores/network-store";
+import { useDictationStore } from "@/stores/dictation-store";
 
 export interface ComposerProps {
   conversationId?: string;
@@ -114,7 +115,58 @@ export function Composer({
 
   const online = useNetworkStore((s) => s.online);
 
+  // Voice-to-text input (SpeechRecognition — Chromium/Safari only, see
+  // dictation-store.ts). `dictationBaseRef`/`dictationFinalRef` track the
+  // composer text at the moment listening started and the final chunks heard
+  // so far this session, so every result — interim or final — rebuilds the
+  // field from "what was already there" + "what's been heard", rather than
+  // naively appending (which would duplicate interim text as it firms up).
+  const dictationSupported = useDictationStore((s) => s.supported);
+  const dictationDetectSupport = useDictationStore((s) => s.detectSupport);
+  const dictationListening = useDictationStore((s) => s.listening);
+  const dictationError = useDictationStore((s) => s.error);
+  const dictationStart = useDictationStore((s) => s.start);
+  const dictationStop = useDictationStore((s) => s.stop);
+  const dictationBaseRef = useRef("");
+  const dictationFinalRef = useRef("");
+
+  useEffect(() => {
+    dictationDetectSupport();
+  }, [dictationDetectSupport]);
+
+  useEffect(() => {
+    // Stop an in-progress dictation if this composer unmounts (e.g. the user
+    // navigates away mid-sentence) rather than leaving the mic listening.
+    return () => dictationStop();
+  }, [dictationStop]);
+
+  function toggleDictation() {
+    if (dictationListening) {
+      dictationStop();
+      return;
+    }
+    dictationBaseRef.current = value;
+    dictationFinalRef.current = "";
+    dictationStart((text, final) => {
+      if (final) {
+        dictationFinalRef.current = dictationFinalRef.current
+          ? `${dictationFinalRef.current} ${text}`.trim()
+          : text.trim();
+      }
+      const heard = final
+        ? dictationFinalRef.current
+        : dictationFinalRef.current
+          ? `${dictationFinalRef.current} ${text}`
+          : text;
+      const base = dictationBaseRef.current.trimEnd();
+      const next = base && heard ? `${base} ${heard}` : base || heard;
+      setValue(next);
+      noteTyping(next);
+    });
+  }
+
   async function submit() {
+    if (dictationListening) dictationStop();
     const text = value.trim();
     if ((!text && attachments.length === 0) || streaming || !online) return;
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
@@ -222,6 +274,18 @@ export function Composer({
             placeholder={placeholder}
             className="max-h-52 min-h-[40px] flex-1 resize-none bg-transparent px-2 py-2 text-[15px] text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none"
           />
+          {dictationSupported ? (
+            <IconButton
+              icon={dictationListening ? "graphic_eq" : "mic"}
+              label={dictationListening ? "Stop voice input" : "Voice input"}
+              active={dictationListening}
+              className={cn(
+                "shrink-0",
+                dictationListening && "animate-pulse",
+              )}
+              onClick={toggleDictation}
+            />
+          ) : null}
           {streaming ? (
             <button
               type="button"
@@ -264,6 +328,14 @@ export function Composer({
         >
           <Icon name="close" size={13} />
           {attachmentError}
+        </p>
+      ) : dictationError ? (
+        <p
+          className="mt-2 flex items-center justify-center gap-1.5 text-[11px] font-medium text-error"
+          aria-live="polite"
+        >
+          <Icon name="mic" size={13} />
+          {dictationError}
         </p>
       ) : statusLabel ? (
         <p

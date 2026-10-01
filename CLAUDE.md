@@ -153,6 +153,36 @@ answer is just new text and goes through the generic Report detection in
 - `node scripts/test-router.mjs` — drives the router through all scenarios
   (needs `next build` + the fake endpoint running).
 
+## Voice (speech-to-text / text-to-speech)
+
+Both ride the browser's built-in Web Speech API — no server round-trip, no
+model call, works offline like the rest of local-first Slime AI. Each is its
+own Zustand store that detects support at runtime (`detectSupport()`, called
+once on mount) and every caller hides its button entirely when unsupported
+rather than showing it disabled:
+
+- **Text-to-speech** (`src/stores/speech-store.ts`, `useSpeechStore`) — the
+  "read aloud" button on assistant messages (`MessageActions`), via
+  `window.speechSynthesis`. Broadly supported across modern browsers.
+- **Speech-to-text** (`src/stores/dictation-store.ts`, `useDictationStore`) —
+  the mic button in the composer, via `window.SpeechRecognition` /
+  `webkitSpeechRecognition` (ambient types in
+  `src/types/speech-recognition.d.ts` — not part of TypeScript's bundled DOM
+  lib, no W3C standard yet either). Narrower support than synthesis: Chromium
+  and Safari only, not Firefox; needs a secure context and a microphone
+  permission grant; Chrome's implementation calls out to a Google speech
+  service, so it also needs real network access to actually transcribe, not
+  just mic access. `Composer` reconstructs the field from "text already
+  there" + "final chunks heard so far" on every result (interim included),
+  rather than appending, so an interim result firming up doesn't duplicate.
+
+Neither is a routed-model capability — no `TaskCategory`, no entry in
+`models.ts`, nothing in `/api/ai/status`. If a real NVIDIA
+speech-to-text/text-to-speech NIM is ever wired in, `speak`/`stop` and
+`start`/`stop` are exactly the surface a server-streamed-audio
+implementation would slot behind; the message/composer UI wouldn't need to
+change.
+
 ## Environment
 
 Copy `.env.example` → `.env.local`. `NVIDIA_API_KEY` enables the NVIDIA models;
