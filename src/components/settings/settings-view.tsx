@@ -7,8 +7,9 @@ import { conversationStore } from "@/lib/storage";
 import { useConversationStore } from "@/stores/conversation-store";
 import { useSettingsStore } from "@/stores/settings-store";
 import { cn } from "@/lib/utils/cn";
+import { VoiceSection } from "./voice-section";
 
-function Section({
+export function Section({
   title,
   description,
   children,
@@ -90,6 +91,8 @@ export function SettingsView() {
           <Chip className="ml-auto">Active</Chip>
         </Card>
       </Section>
+
+      <VoiceSection />
 
       <Section
         title="Storage &amp; sync"

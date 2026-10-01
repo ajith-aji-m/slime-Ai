@@ -209,7 +209,23 @@ rather than showing it disabled:
 
 - **Text-to-speech** (`src/stores/speech-store.ts`, `useSpeechStore`) — the
   "read aloud" button on assistant messages (`MessageActions`), via
-  `window.speechSynthesis`. Broadly supported across modern browsers.
+  `window.speechSynthesis`. Broadly supported across modern browsers. An
+  utterance with no `lang`/`voice` set falls back to the browser's default
+  (usually English) regardless of the text's actual script, which for
+  non-Latin text either mispronounces badly or produces no audio at all —
+  `speak()` detects the dominant script (`src/lib/speech/detect-lang.ts`,
+  `detectSpeechLang` — Unicode script ranges, e.g. Tamil, Devanagari, Han,
+  not statistical language ID) and picks a matching installed voice
+  (`src/lib/speech/select-voice.ts`, `pickVoice` — ranks by a
+  "Natural"/"Enhanced"/"Online" name hint and non-local-service as quality
+  signals). Voice/rate/pitch are user-configurable in Settings
+  (`src/components/settings/voice-section.tsx`), persisted
+  (`localStorage["slime-speech"]`). No installed voice for the detected
+  language is a real, honest device/OS gap (no Tamil, etc. voice data
+  installed) — surfaced as `speechStore.error`, not silently swallowed; the
+  Web Speech API has no emotional-expression control at all regardless of
+  voice choice, so that honest limit is stated in the Settings copy rather
+  than oversold.
 - **Speech-to-text** (`src/stores/dictation-store.ts`, `useDictationStore`) —
   the mic button in the composer, via `window.SpeechRecognition` /
   `webkitSpeechRecognition` (ambient types in
