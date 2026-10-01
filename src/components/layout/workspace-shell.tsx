@@ -9,6 +9,7 @@ import { SidebarContent } from "./sidebar-content";
 import { TopAppBar } from "./top-app-bar";
 import { ContextPanel } from "@/components/context-panel/context-panel";
 import { CanvasShell } from "@/components/canvas/canvas-shell";
+import { VoiceCallOverlay } from "@/components/chat/voice-call-overlay";
 import { isChatRoute } from "@/lib/page-meta";
 import { useUiStore } from "@/stores/ui-store";
 import { useConversationStore } from "@/stores/conversation-store";
@@ -130,6 +131,12 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
       {onChat ? (
         <ErrorBoundary label="Canvas hit a problem">
           <CanvasShell />
+        </ErrorBoundary>
+      ) : null}
+
+      {onChat ? (
+        <ErrorBoundary label="Voice conversation hit a problem">
+          <VoiceCallOverlay />
         </ErrorBoundary>
       ) : null}
 

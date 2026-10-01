@@ -183,6 +183,38 @@ speech-to-text/text-to-speech NIM is ever wired in, `speak`/`stop` and
 implementation would slot behind; the message/composer UI wouldn't need to
 change.
 
+### Voice conversation mode (hands-free)
+
+The composer's second voice button ("Start voice conversation", distinct
+from the plain dictate-into-the-box mic — both use the same underlying
+`dictation-store` session, so starting one aborts the other) opens
+`VoiceCallOverlay` (`src/components/chat/voice-call-overlay.tsx`): a
+full-screen loop of listen → auto-send on a ~1.3s pause (no typing, no Send
+tap) → speak the reply aloud → listen again, built entirely on the
+speech-to-text/text-to-speech stores above plus the normal `sendMessage`
+path — still no new provider, no server change.
+
+- `src/stores/voice-call-store.ts` holds only `open`/`conversationId`,
+  global rather than page-local, so a call started from the welcome screen
+  (no conversation yet) survives the client-side navigation to
+  `/chat/[id]` that creating the first conversation triggers.
+  `VoiceCallOverlay` is mounted once in `workspace-shell.tsx`, gated on
+  `open`, and owns the rest of the state machine (phase, live transcript
+  preview, error/retry) itself.
+- Every `setState` call in the overlay lives inside a plain, separately-
+  defined function (`beginListening`, `commitTurn`, `enterError`,
+  `enterSpeaking`), never written inline in a `useEffect` body — React
+  Compiler's lint rules flag a bare `setX(...)` statement directly inside an
+  effect as a cascading-render risk. `handlersRef` (refreshed in a no-deps
+  effect, never written during render) hands async callbacks — a
+  `setTimeout`, a dictation chunk, another effect — a way to call the
+  *latest* version without listing these every-render-new functions in a
+  dependency array, which would make an effect depending on them fire on
+  every unrelated render.
+- Tapping the mascot while it's speaking interrupts playback (`speechStop`)
+  and resumes listening immediately — the same transition the normal
+  "speech ended naturally" path uses, not special-cased.
+
 ## Environment
 
 Copy `.env.example` → `.env.local`. `NVIDIA_API_KEY` enables the NVIDIA models;

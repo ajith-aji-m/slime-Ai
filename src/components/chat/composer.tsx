@@ -17,6 +17,7 @@ import { useAiStatusStore } from "@/stores/ai-status-store";
 import { useMascotStore } from "@/stores/mascot-store";
 import { useNetworkStore } from "@/stores/network-store";
 import { useDictationStore } from "@/stores/dictation-store";
+import { useVoiceCallStore } from "@/stores/voice-call-store";
 
 export interface ComposerProps {
   conversationId?: string;
@@ -129,6 +130,12 @@ export function Composer({
   const dictationStop = useDictationStore((s) => s.stop);
   const dictationBaseRef = useRef("");
   const dictationFinalRef = useRef("");
+
+  // Hands-free voice conversation (listen → auto-send → speak the reply →
+  // listen again — see voice-call-overlay.tsx). Distinct from the mic
+  // button above: that one dictates into this text field for a normal
+  // typed-and-reviewed send; this one skips typing and Send entirely.
+  const voiceCallStart = useVoiceCallStore((s) => s.start);
 
   useEffect(() => {
     dictationDetectSupport();
@@ -276,7 +283,7 @@ export function Composer({
           />
           {dictationSupported ? (
             <IconButton
-              icon={dictationListening ? "graphic_eq" : "mic"}
+              icon="mic"
               label={dictationListening ? "Stop voice input" : "Voice input"}
               active={dictationListening}
               className={cn(
@@ -284,6 +291,14 @@ export function Composer({
                 dictationListening && "animate-pulse",
               )}
               onClick={toggleDictation}
+            />
+          ) : null}
+          {dictationSupported ? (
+            <IconButton
+              icon="graphic_eq"
+              label="Start voice conversation"
+              className="shrink-0"
+              onClick={() => voiceCallStart(conversationId ?? null)}
             />
           ) : null}
           {streaming ? (
