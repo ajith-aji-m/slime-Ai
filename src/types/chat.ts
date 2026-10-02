@@ -85,6 +85,12 @@ export interface Conversation {
   pinned?: boolean;
   /** legacy field from the pre-router era; ignored */
   modelId?: string;
+  /**
+   * Set once the user renames the conversation themselves (see
+   * `renameConversation`) — tells auto-titling in `conversation-store` to
+   * stop correcting the title, a deliberate choice always wins over a guess.
+   */
+  titleManuallySet?: boolean;
 }
 
 /** Lightweight list projection — avoids loading every message for the sidebar. */

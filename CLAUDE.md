@@ -128,6 +128,46 @@ Chat UI → conversation-store → getChatProvider()        (no model id)
 
 Nothing else in the UI changes.
 
+### Auto-titling
+
+A new conversation's title starts as a naive instant guess — `mockTitleFromPrompt`
+truncates the first user message to ~40 chars, set synchronously in
+`sendMessage` so the sidebar has *something* before the first reply even
+starts streaming. That guess is often bad ("can you help me with…" says
+nothing), so `conversation-store`'s `runStream` corrects it once real
+context exists: after an assistant turn completes (never on an aborted/error
+turn), `shouldAutoTitle(messageCount)` fires at message count 2, 4, 6, 8, 10
+(first exchange, then a few more early checkpoints in case the topic only
+becomes clear a couple of turns in — never beyond 10, the topic has settled
+by then) and `autoTitleConversation` calls `generateConversationTitle`
+(`src/lib/ai/title.ts`) with the conversation's real messages, fire-and-forget.
+
+- Routed providers: a dedicated category, `title` (`src/config/ai-router.ts`
+  — routed to `slime-fast` first, since this is a cheap background task
+  never shown mid-stream, plus a lowered sampling temperature since a title
+  has one reasonable literal answer, not room for a creative riff), via a
+  one-shot **non-streaming** `POST /api/title` → `routeTitle()` in
+  `router.ts`. Unlike `routeChat`, nothing here ever reaches the UI
+  word-by-word, so it isn't worth streaming — `routeTitle` just consumes the
+  category's normal model-fallback stream server-side and returns one
+  cleaned string (or `null` on total failure, never throwing). The request
+  sent is a synthetic one-shot transcript (`buildTitleRequestMessages` in
+  `src/lib/title/prompt.ts`) — a system instruction + a compact, capped
+  transcript of the real conversation — never the real conversation's
+  messages verbatim, and nothing from it is persisted.
+- Mock provider: `mockGenerateTitle` (`src/lib/title/mock.ts`) picks the
+  leading content words out of the user's own messages — same "real offline
+  result, no network call" spirit as `mockHumanize`/`mockGeneratePrompt`.
+- Either path's raw result goes through `cleanGeneratedTitle`
+  (`src/lib/title/clean.ts`) before use — strips wrapping quotes, a "Title:"
+  echo, Markdown emphasis, trailing punctuation, and caps length — models
+  reliably drift from "reply with the title only" in practice.
+- `renameConversation` sets `Conversation.titleManuallySet`, which
+  auto-titling checks (both before *and* after its async call resolves, to
+  catch a rename that happened while it was in flight) and never overwrites
+  — a deliberate rename always wins over a guess. `clearMessages` resets the
+  flag along with the title, since clearing starts a fresh topic.
+
 ## Canvas
 
 Substantial structured output opens in the **Canvas** workspace (right side on

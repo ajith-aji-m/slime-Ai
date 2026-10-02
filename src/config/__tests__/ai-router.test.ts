@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { CATEGORY_ROUTING, TASK_CATEGORIES, TOOL_MODE_CATEGORY } from "@/config/ai-router";
+import {
+  CATEGORY_ROUTING,
+  CATEGORY_SAMPLING,
+  TASK_CATEGORIES,
+  TOOL_MODE_CATEGORY,
+} from "@/config/ai-router";
 import { DEFAULT_GROQ_MODELS, DEFAULT_NVIDIA_MODELS } from "@/config/models";
 
 describe("humanizer routing", () => {
@@ -18,6 +23,21 @@ describe("humanizer routing", () => {
     const model = DEFAULT_NVIDIA_MODELS.find((m) => m.id === "slime-humanizer");
     expect(model).toBeDefined();
     expect(model?.upstreamId).toBe("mistralai/mistral-nemotron");
+  });
+});
+
+describe("auto-title routing", () => {
+  it("routes the title category to the fast role first", () => {
+    // Titling is a cheap background task (a few words, nothing streamed to
+    // the user mid-flight) — it shouldn't cost a flagship-model call.
+    expect(TASK_CATEGORIES).toContain("title");
+    expect(CATEGORY_ROUTING.title[0]).toBe("slime-fast");
+  });
+
+  it("lowers sampling temperature for titles", () => {
+    // A title has one reasonable answer per conversation — low temperature
+    // keeps it literal instead of a creative riff on the topic.
+    expect(CATEGORY_SAMPLING.title?.temperature).toBeLessThan(0.7);
   });
 });
 

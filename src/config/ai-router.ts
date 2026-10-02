@@ -17,7 +17,8 @@ export type TaskCategory =
   | "reasoning"
   | "research"
   | "structured"
-  | "humanize";
+  | "humanize"
+  | "title";
 
 export const TASK_CATEGORIES: TaskCategory[] = [
   "general",
@@ -28,6 +29,7 @@ export const TASK_CATEGORIES: TaskCategory[] = [
   "research",
   "structured",
   "humanize",
+  "title",
 ];
 
 /**
@@ -56,6 +58,10 @@ export const CATEGORY_ROUTING: Record<TaskCategory, string[]> = {
   // second as a fallback rather than being removed, since its prose style is
   // still a reasonable fit if the flagship is ever unavailable.
   humanize: ["slime-general", "slime-humanizer", "slime-versatile"],
+  // Auto-titling a conversation is a cheap, low-stakes background task (a
+  // handful of words, never shown mid-stream) — the fast role goes first
+  // rather than the flagship generalist every other category defaults to.
+  title: ["slime-fast", "slime-general", "slime-versatile"],
 };
 
 /**
@@ -126,4 +132,8 @@ export interface SamplingParams {
  */
 export const CATEGORY_SAMPLING: Partial<Record<TaskCategory, SamplingParams>> = {
   humanize: { temperature: 0.95, frequencyPenalty: 0.6, presencePenalty: 0.3 },
+  // A title has exactly one reasonable answer per conversation — low
+  // temperature keeps it a consistent, literal description instead of a
+  // creative riff on the topic.
+  title: { temperature: 0.3 },
 };

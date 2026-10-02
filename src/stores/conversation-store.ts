@@ -11,6 +11,7 @@ import type {
 } from "@/types/chat";
 import { conversationStore, runRetention } from "@/lib/storage";
 import { getChatProvider } from "@/lib/ai";
+import { generateConversationTitle } from "@/lib/ai/title";
 import { mockTitleFromPrompt } from "@/lib/ai/mock-content";
 import { createId, nowIso } from "@/lib/utils/id";
 import { toggleToolInList } from "@/lib/tool-mode";
@@ -51,6 +52,18 @@ function messageText(m: Message): string {
       return "";
     })
     .join(" ");
+}
+
+/**
+ * Auto-titling checkpoints: re-generate right after the first exchange (the
+ * naive first-message truncation is often a bad title — "can you help me
+ * with" tells you nothing) and again a few times early on in case the topic
+ * only becomes clear a couple of turns in. Stops after that — by message 10
+ * the topic has settled, and a conversation this long isn't worth another
+ * model call just to maybe tweak its title.
+ */
+function shouldAutoTitle(messageCount: number): boolean {
+  return messageCount <= 10 && messageCount % 2 === 0;
 }
 
 /** first ~80 chars around the match, so results read as a real excerpt */
@@ -193,6 +206,23 @@ export const useConversationStore = create<ConversationState>((set, get) => {
     });
   }
 
+  /**
+   * Background, fire-and-forget: regenerates a conversation's title from its
+   * actual messages so far and applies it if the conversation is still
+   * around and the user hasn't renamed it meanwhile (checked again after the
+   * request resolves — both race with the user's own actions, not just with
+   * each other). Never touches anything else `update()` wouldn't already.
+   */
+  async function autoTitleConversation(id: string) {
+    const conversation = get().conversations[id];
+    if (!conversation) return;
+    const title = await generateConversationTitle(conversation.messages);
+    if (!title) return;
+    const latest = get().conversations[id];
+    if (!latest || latest.titleManuallySet) return;
+    update(id, (c) => ({ ...c, title }));
+  }
+
   async function runStream(id: string, sinceMessageId: string) {
     const conversation = get().conversations[id];
     if (!conversation) return;
@@ -326,6 +356,17 @@ export const useConversationStore = create<ConversationState>((set, get) => {
             : m,
         ),
       }));
+
+      if (!controller.signal.aborted) {
+        const current = get().conversations[id];
+        if (
+          current &&
+          !current.titleManuallySet &&
+          shouldAutoTitle(current.messages.length)
+        ) {
+          void autoTitleConversation(id);
+        }
+      }
     } finally {
       streams.delete(id);
       flushPersist(id);
@@ -494,12 +535,21 @@ export const useConversationStore = create<ConversationState>((set, get) => {
     },
 
     renameConversation(id, title) {
-      update(id, (c) => ({ ...c, title: title.trim() || c.title }));
+      update(id, (c) => ({
+        ...c,
+        title: title.trim() || c.title,
+        titleManuallySet: true,
+      }));
     },
 
     clearMessages(id) {
       get().stopStreaming(id);
-      update(id, (c) => ({ ...c, messages: [], title: "New conversation" }));
+      update(id, (c) => ({
+        ...c,
+        messages: [],
+        title: "New conversation",
+        titleManuallySet: false,
+      }));
     },
 
     async deleteConversation(id) {

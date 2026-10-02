@@ -30,6 +30,7 @@ import {
   streamActiveVision,
 } from "./provider";
 import { isSearchConfigured, searchWeb, type SearchResult } from "./search";
+import { cleanGeneratedTitle } from "@/lib/title/clean";
 import type { Citation, Message } from "@/types/chat";
 
 /**
@@ -300,6 +301,68 @@ async function* routeImageGeneration(
 
   routerLog({ event: "exhausted", category: "image", attempts: attempt, durationMs: Date.now() - startedAt });
   yield { type: "error", message: exhaustedUserMessage(), code: "exhausted", recoverable: true };
+}
+
+/**
+ * Auto-title generation — a one-shot, non-streaming request (unlike every
+ * other category here, nothing from this is ever shown mid-flight, so there's
+ * no reason to stream word-by-word). `messages` is the synthetic
+ * system+transcript request built by `buildTitleRequestMessages`, not the
+ * real conversation's own messages. Falls back across the `title` category's
+ * models the same way `routeChat` does for recoverable failures; returns
+ * `null` (never throws) when every attempt fails or nothing came back, so the
+ * caller can just keep whatever title it already had.
+ */
+export async function routeTitle(params: {
+  messages: Message[];
+  signal?: AbortSignal;
+}): Promise<string | null> {
+  if (!isAiConfigured()) return null;
+
+  const inputChars = estimateInputChars(params.messages);
+  const plan = planModels("title", inputChars);
+  const sampling = CATEGORY_SAMPLING.title ?? {};
+  if (plan.length === 0) return null;
+
+  const startedAt = Date.now();
+  let attempt = 0;
+
+  for (const model of plan) {
+    attempt += 1;
+    routerLog({ event: attempt > 1 ? "fallback" : "attempt", category: "title", toRole: model.id, role: model.id, attempt });
+
+    let text = "";
+    let errored = false;
+    try {
+      for await (const chunk of streamActiveModel({
+        upstreamId: model.upstreamId,
+        messages: params.messages,
+        signal: params.signal,
+        temperature: sampling.temperature,
+        frequencyPenalty: sampling.frequencyPenalty,
+        presencePenalty: sampling.presencePenalty,
+      })) {
+        if (chunk.type === "text-delta") text += chunk.text;
+        else if (chunk.type === "error") {
+          errored = true;
+          break;
+        }
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return null;
+      errored = true;
+    }
+
+    const title = errored ? "" : cleanGeneratedTitle(text);
+    if (title) {
+      routerLog({ event: "success", category: "title", role: model.id, attempt, attempts: attempt, durationMs: Date.now() - startedAt });
+      return title;
+    }
+    // recoverable (or an empty reply) — try the next model, if any
+  }
+
+  routerLog({ event: "exhausted", category: "title", attempts: attempt, durationMs: Date.now() - startedAt });
+  return null;
 }
 
 /**
